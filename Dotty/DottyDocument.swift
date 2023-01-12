@@ -84,11 +84,15 @@ struct DottyDocument: FileDocument {
         )!
         ctx.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
         ctx.setFillColor(color.cgColor!)
-        let rect = CGRect(x: x, y: y, width: 1, height: 1)
+        let rect = CGRect(x: x, y: image.height - y - 1, width: 1, height: 1)
         ctx.addRect(rect)
         ctx.drawPath(using: .fill)
 
         image = ctx.makeImage()!
+    }
+    
+    mutating func floodFill(x: Int, y: Int, color: Color) {
+        // TODO: implement flood fill
     }
 
     init(image: CGImage = DEFAULT, title: String? = nil) {
