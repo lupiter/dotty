@@ -11,7 +11,10 @@ import SwiftUI
 struct DottyApp: App {
     var body: some Scene {
         DocumentGroup(newDocument: DottyDocument()) { file in
-            ContentView(document: file.$document)
+            ContentView(document: file.$document, scale: 1.0)
         }
+        #if os(macOS)
+        .windowToolbarStyle(.expanded)
+        #endif
     }
 }
