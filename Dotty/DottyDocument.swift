@@ -7,6 +7,7 @@
 
 import SwiftUI
 import UniformTypeIdentifiers
+import os
 
 extension CGImage {
     func pngData() -> Data? {
@@ -66,67 +67,33 @@ extension Array {
 }
 
 struct DottyDocument: FileDocument {
-    var dots: [[CGColor]]
-    var height: Int
-    var width: Int
+    var image: CGImage
     var title: String
     static var readableContentTypes: [UTType] { [.png] }
     
-    var uiDots: [[Color]] {
-        get {
-            return dots.map() { $0.map() { Color($0) } }
-        }
-    }
-    
     mutating func updateColor(x: Int, y: Int, color: Color) {
-        dots[y][x] = color.cgColor!
+        os_log("%d %d in %d %d", x, y, image.width, image.height)
+        let ctx = CGContext(
+            data: nil,
+            width: image.width,
+            height: image.height,
+            bitsPerComponent: image.bitsPerComponent,
+            bytesPerRow: image.bytesPerRow,
+            space: image.colorSpace!,
+            bitmapInfo: CGBitmapInfo.byteOrderDefault.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue
+        )!
+        ctx.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
+        ctx.setFillColor(color.cgColor!)
+        let rect = CGRect(x: x, y: y, width: 1, height: 1)
+        ctx.addRect(rect)
+        ctx.drawPath(using: .fill)
+
+        image = ctx.makeImage()!
     }
 
     init(image: CGImage = DEFAULT, title: String? = nil) {
         self.title = title ?? "Untitled.png"
-        self.height = image.height
-        self.width = image.width
-        self.dots = DottyDocument.decode(image: image, width: width)
-    }
-    
-    static func decode(image: CGImage, width: Int) -> [[CGColor]] {
-        if (image.colorSpace?.name != CGColorSpace.sRGB && image.colorSpace?.name != CGColorSpaceCreateDeviceRGB().name) {
-            print(image.colorSpace?.name ?? "Color Space? IDK")
-            return []
-        }
-        
-        let bytesPerComponent = image.bitsPerComponent / 8
-        let bytesPerPixel = image.bitsPerPixel / 8
-        let imageData = image.dataProvider?.data
-        var pixelBuf = [UInt8](repeating:0, count: image.bitsPerPixel / 8)
-        
-        let alphaModeFirst = image.alphaInfo == CGImageAlphaInfo.first
-        let alphaModeLast = image.alphaInfo == CGImageAlphaInfo.last
-        let alphaModeSkipFirst = image.alphaInfo == CGImageAlphaInfo.noneSkipFirst
-        let alphaModePreFirst = image.alphaInfo == CGImageAlphaInfo.premultipliedFirst
-        let alphaModePreLast = image.alphaInfo == CGImageAlphaInfo.premultipliedLast
-        let alphaFirst = alphaModeFirst || alphaModeSkipFirst || alphaModePreFirst
-        var dots: [CGColor] = []
-        print(alphaModeLast, alphaModeFirst, alphaModeSkipFirst, alphaFirst)
-        
-        for row in 0..<image.height {
-            for pixel in 0..<image.width {
-                let pixelPoint = row * image.bytesPerRow + (pixel * bytesPerPixel)
-                CFDataGetBytes(imageData, CFRangeMake(pixelPoint, bytesPerPixel), &pixelBuf)
-                let red = sliceForComponent(pixelBuf, start: alphaFirst ? 1 : 0, length: bytesPerComponent)
-                let green = sliceForComponent(pixelBuf, start: alphaFirst ? 2 : 1, length: bytesPerComponent)
-                let blue = sliceForComponent(pixelBuf, start: alphaFirst ? 3 : 2, length: bytesPerComponent)
-                var alpha: [UInt8] = []
-                if alphaModeFirst || alphaModePreFirst {
-                    alpha = sliceForComponent(pixelBuf, start: 0, length: bytesPerComponent)
-                } else if alphaModeLast || alphaModePreLast {
-                    alpha = sliceForComponent(pixelBuf, start: 3, length: bytesPerComponent)
-                }
-                let newColor = CGColor(red: dataToComponent(red, mode: image.bitmapInfo), green: dataToComponent(green, mode: image.bitmapInfo), blue: dataToComponent(blue, mode: image.bitmapInfo), alpha: alpha.count > 0 ? dataToComponent(alpha, mode: image.bitmapInfo) : 1.0)
-                dots.append(newColor)
-            }
-        }
-        return dots.chunked(into: width)
+        self.image = image
     }
 
     init(configuration: ReadConfiguration) throws {
@@ -138,36 +105,7 @@ struct DottyDocument: FileDocument {
         self.init(image: fileImage, title: configuration.file.filename!)
     }
     
-    static func encode(dots: [CGColor], width: Int, height: Int) -> CGImage? {
-        var data: [UInt8] = []
-        for color in dots {
-            let components: [UInt8] = color.components!.map() { component in floatColorToInt(component)}
-            data.append(contentsOf: components)
-        }
-        let bitsPerComponent = 8
-        let bitsPerPixel = bitsPerComponent * 4
-        let bytesPerPixel = bitsPerPixel / bitsPerComponent
-        
-        let dataProvider = CGDataProvider.init(data: Data(data) as CFData)!
-        return CGImage(
-            width: width,
-            height: height,
-            bitsPerComponent: bitsPerComponent,
-            bitsPerPixel: bitsPerPixel,
-            bytesPerRow: bytesPerPixel * width,
-            space: CGColorSpaceCreateDeviceRGB(),
-            bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.last.rawValue | CGBitmapInfo.byteOrder32Little.rawValue),
-            provider: dataProvider,
-            decode: nil,
-            shouldInterpolate: false,
-            intent: .defaultIntent
-        )
-    }
-    
     func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
-        var tempDots: [CGColor] = dots.flatMap { $0 }
-        let image = DottyDocument.encode(dots: tempDots, width: width, height: height)!
-        
         guard let mutableData = CFDataCreateMutable(nil, 0),
               let destination = CGImageDestinationCreateWithData(mutableData, UTType.png.identifier as CFString, 1, nil) else {
             throw FileError.fileError("can't make data")

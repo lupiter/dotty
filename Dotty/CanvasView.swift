@@ -24,18 +24,14 @@ struct CanvasView: View {
                 Spacer()
                 VStack {
                     Spacer()
-                    
-                    GridLayout(horizontalSpacing: 0, verticalSpacing: 0) {
-                        ForEach(Array(document.uiDots.enumerated()), id: \.offset) { rowIndex, row in
-                            GridRow {
-                                ForEach(Array(row.enumerated()), id: \.offset) { columnIndex, color in
-                                    Rectangle().fill(color).frame(width: 1 * scale, height: 1 * scale).onTapGesture {
-                                        updatePixel(x: columnIndex, y: rowIndex)
-                                    }
-                                }
-                            }
+                    Image(document.image, scale: 1, label: Text(document.title))
+                        .resizable(resizingMode: .stretch)
+                        .interpolation(.none)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: activeScale * CGFloat(document.image.width), height: activeScale * CGFloat(document.image.height))
+                        .onTapGesture(coordinateSpace: .local) { location in
+                            updatePixel(x: Int(location.x / activeScale), y: Int(location.y / activeScale))
                         }
-                    }.scaleEffect(activeScale)
 //                    .background() {
 //                        Image("grid")
 //                            .resizable(capInsets: EdgeInsets(), resizingMode: .tile)
