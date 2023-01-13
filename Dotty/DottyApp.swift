@@ -12,9 +12,12 @@ struct DottyApp: App {
     var body: some Scene {
         DocumentGroup(newDocument: DottyDocument()) { file in
             ContentView(document: file.$document, scale: 1.0)
+                .toolbar(.hidden)
         }
         #if os(macOS)
         .windowToolbarStyle(.expanded)
+//        #if os(iOS)
+
         #endif
     }
 }
