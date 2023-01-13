@@ -6,6 +6,7 @@
 //
 
 import SwiftUI
+import os
 
 enum Tool {
     case Pen
@@ -24,6 +25,8 @@ struct ContentView: View {
     @State var activeTool: Tool = Tool.Pen
     @State var lastScale: CGFloat = 1.0
     @Environment(\.undoManager) var undoManager
+    @Environment(\.dismiss) var dismiss
+    var superDismiss: DismissAction?
     
     
     @ViewBuilder
@@ -33,12 +36,14 @@ struct ContentView: View {
     
     @ViewBuilder
     var toolset: some View {
-        VintagePicker(selection: $activeTool, options: [
-            PickerOption(value: Tool.Pen, label: Image(systemName: "paintbrush.pointed.fill").accessibilityLabel("Paint")),
-            PickerOption(value: Tool.Eraser, label: Image(systemName: "eraser").accessibilityLabel("Erase")),
-            PickerOption(value: Tool.Fill, label: Image(systemName: "drop.fill").accessibilityLabel("Flood Fill")),
-            PickerOption(value: Tool.Move, label: Image(systemName: "arrow.up.and.down.and.arrow.left.and.right").accessibilityLabel("Move"))
-        ])
+        Picker(selection: $activeTool, content: {
+            Image(systemName: "paintbrush.pointed.fill").accessibilityLabel("Paint").tag(Tool.Pen)
+            Image(systemName: "eraser").accessibilityLabel("Erase").tag(Tool.Eraser)
+            Image(systemName: "drop.fill").accessibilityLabel("Flood Fill").tag(Tool.Fill)
+            Image(systemName: "arrow.up.and.down.and.arrow.left.and.right").accessibilityLabel("Move").tag(Tool.Move)
+        }, label: {
+            Text("Tool")
+        }).pickerStyle(.segmented)
     }
     
     @ViewBuilder
@@ -47,14 +52,14 @@ struct ContentView: View {
             undoManager?.undo()
         } label: {
             Image(systemName: "arrow.uturn.backward")
-        }.buttonStyle(VintageButtonStyle())
+        }
             .disabled(!(undoManager?.canUndo ?? false))
         
         Button() {
             undoManager?.redo()
         } label: {
             Image(systemName: "arrow.uturn.forward")
-        }.buttonStyle(VintageButtonStyle())
+        }
             .disabled(!(undoManager?.canRedo ?? false))
         
         if (proxy.size.width > 400) {
@@ -64,14 +69,12 @@ struct ContentView: View {
             } label: {
                 Image(systemName: "minus.magnifyingglass")
             }.keyboardShortcut("-", modifiers: .command)
-                .buttonStyle(VintageButtonStyle())
             
             Button() {
                 scale = scale + 1
             } label: {
                 Image(systemName: "plus.magnifyingglass")
             }.keyboardShortcut("+", modifiers: .command)
-                .buttonStyle(VintageButtonStyle())
             
             if (proxy.size.width > 500) {
                 Button() {
@@ -79,7 +82,6 @@ struct ContentView: View {
                 } label: {
                     Image(systemName: "1.magnifyingglass")
                 }.keyboardShortcut("0", modifiers: .command)
-                    .buttonStyle(VintageButtonStyle())
             }
         }
     }
@@ -91,6 +93,7 @@ struct ContentView: View {
                 Text("Paint Color")
             }
             .labelsHidden()
+            .padding(.all, 5)
             .onChange(of: currentColor) { newValue in
                 for color in recentColors {
                     if color == newValue {
@@ -119,8 +122,8 @@ struct ContentView: View {
     
     @ViewBuilder
     var titlebar: some View {
-        HStack {
-            ZStack {
+        HStack (spacing: 0) {
+//            ZStack {
                 VStack (spacing: 2.8) {
                     Rectangle().frame(height: 1)
                     Rectangle().frame(height: 1)
@@ -129,23 +132,7 @@ struct ContentView: View {
                     Rectangle().frame(height: 1)
                     Rectangle().frame(height: 1)
                 }.padding(.all, 4)
-                HStack {
-                    Button(action: {
-                        
-                    }, label: {
-                        
-                    })
-                    .frame(width: 20, height: 20)
-                    .accessibilityLabel("Back")
-                    .border(.foreground, width: 1)
-                    .padding(.all, 2)
-                    .background(.background)
-                    .padding(.leading, 10)
-                    .buttonStyle(.plain)
-                    Spacer()
-                }
-            }
-            Text(document.title)
+            Text(document.title).font(.system(size: 14, weight: .regular, design: .monospaced)).padding(.all).fixedSize()
             VStack (spacing: 2.8) {
                 Rectangle().frame(height: 1)
                 Rectangle().frame(height: 1)
@@ -160,27 +147,12 @@ struct ContentView: View {
         .overlay(Rectangle().frame(width: nil, height: 1, alignment: .top).foregroundColor(Color.black), alignment: .top)
         .overlay(Rectangle().frame(width: 1, height: nil, alignment: .leading).foregroundColor(Color.black), alignment: .leading)
         .overlay(Rectangle().frame(width: 1, height: nil, alignment: .trailing).foregroundColor(Color.black), alignment: .trailing)
-        .padding(.horizontal)
+        .padding([.horizontal, .top], 5)
     }
 
     var body: some View {
         GeometryReader { geom in
             VStack (alignment: .center, spacing: 0) {
-#if os(iOS)
-                HStack {
-                    toolset
-                        .background(Color.white)
-                        .border(Color.black, width: 1)
-                        .padding(.all)
-                    Spacer()
-                    HStack(spacing: 0) {
-                        viewtools(proxy: geom)
-                    }
-                    .background(Color.white)
-                    .border(Color.black, width: 1)
-                    .padding(.all)
-                }
-#endif
                 titlebar
                 GeometryReader { innerGeom in
                     ScrollView {
@@ -189,7 +161,7 @@ struct ContentView: View {
                     }
                     .background(Color.white)
                     .border(Color.black, width: 1)
-                    .padding([.leading, .trailing])
+                    .padding([.leading, .trailing, .bottom], 5)
                     .gesture(MagnificationGesture()
                         .onChanged() { value in
                             let delta = value.magnitude / lastScale
@@ -203,17 +175,14 @@ struct ContentView: View {
                 }
 #if os(iOS)
                 colors
+                    .padding(.all, 5)
                     .background(Color.white)
-                    .border(Color.black, width: 1)
-                    .padding(.all)
+                    .overlay(Rectangle().frame(width: nil, height: 1, alignment: .top).foregroundColor(Color.black), alignment: .top)
 #endif
             }
-            .background(
-                Color.gray
-            )
+            
 #if os(macOS)
             .toolbar {
-                //            GeometryReader { toolbarProxy in
                 ToolbarItem {
                     toolset
                 }
@@ -230,8 +199,24 @@ struct ContentView: View {
                     viewtools(proxy: geom)
                 }
             }
+            #else
+            .toolbar  {
+                ToolbarItem {
+                    toolset
+                }
+                ToolbarItemGroup {
+                    viewtools(proxy: geom)
+                }
+            }
+            .navigationTitle("")
 #endif
-        }.navigationBarTitleDisplayMode(.inline)
+        }
+        .navigationBarTitleDisplayMode(.inline)
+        .background(Color.gray)
+        .toolbarBackground(Color.white)
+            .toolbarBackground(.visible, for: .navigationBar)
+            .overlay(Rectangle().frame(width: nil, height: 1, alignment: .top).foregroundColor(Color.black), alignment: .top)
+        
     }
     
 }
@@ -239,12 +224,20 @@ struct ContentView: View {
 
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
-        ContentView(document: .constant(DottyDocument()), scale: 1.0, recentColors: [Color.red, Color.yellow, Color.green, Color.blue, Color.purple, Color.gray, Color.black, Color.white]).previewDisplayName("Many colors")
+        NavigationStack() {
+            ContentView(document: .constant(DottyDocument()), scale: 1.0, recentColors: [Color.red, Color.yellow, Color.green, Color.blue, Color.purple, Color.gray, Color.black, Color.white])}.previewDisplayName("Many colors")
+            
+            
+        NavigationStack() {
+            ContentView(document: .constant(DottyDocument()), scale: 1.0, recentColors: [Color.pink])
+            
+        }.previewDisplayName("One color")
+            
+            
+        NavigationStack() {
+            ContentView(document: .constant(DottyDocument()), scale: 1.0, recentColors: [])
+            
+        }.previewDisplayName("No color")
         
-        
-            ContentView(document: .constant(DottyDocument()), scale: 1.0, recentColors: [Color.pink]).previewDisplayName("One color")
-        
-        
-            ContentView(document: .constant(DottyDocument()), scale: 1.0, recentColors: []).previewDisplayName("No color")
     }
 }

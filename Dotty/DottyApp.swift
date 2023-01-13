@@ -9,10 +9,12 @@ import SwiftUI
 
 @main
 struct DottyApp: App {
+    @Environment(\.dismiss) var dismiss
+    
     var body: some Scene {
         DocumentGroup(newDocument: DottyDocument()) { file in
-            ContentView(document: file.$document, scale: 1.0)
-                .toolbar(.hidden)
+            ContentView(document: file.$document, scale: 1.0, superDismiss: dismiss)
+//                .toolbar(.hidden, for: .navigationBar)
         }
         #if os(macOS)
         .windowToolbarStyle(.expanded)

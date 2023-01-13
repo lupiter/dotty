@@ -16,8 +16,6 @@
 		4C6352842897D724006CA928 /* DottyUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6352832897D724006CA928 /* DottyUITests.swift */; };
 		4C6352862897D724006CA928 /* DottyUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6352852897D724006CA928 /* DottyUITestsLaunchTests.swift */; };
 		4C635295289A5E88006CA928 /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C635294289A5E88006CA928 /* CanvasView.swift */; };
-		4C6E7FFB29713A9C00EB14C3 /* VintageButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6E7FFA29713A9C00EB14C3 /* VintageButtonStyle.swift */; };
-		4C6E7FFD29713C3400EB14C3 /* VintagePicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6E7FFC29713C3400EB14C3 /* VintagePicker.swift */; };
 		4C6E7FFF29714CC900EB14C3 /* View+If.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6E7FFE29714CC900EB14C3 /* View+If.swift */; };
 		4CD2223428A76F7B00A9178A /* DottyDocumentTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD2223328A76F7B00A9178A /* DottyDocumentTest.swift */; };
 		4CD2223628A7A96500A9178A /* TestImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CD2223528A7A96500A9178A /* TestImages.xcassets */; };
@@ -55,8 +53,6 @@
 		4C6352832897D724006CA928 /* DottyUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DottyUITests.swift; sourceTree = "<group>"; };
 		4C6352852897D724006CA928 /* DottyUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DottyUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		4C635294289A5E88006CA928 /* CanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasView.swift; sourceTree = "<group>"; };
-		4C6E7FFA29713A9C00EB14C3 /* VintageButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VintageButtonStyle.swift; sourceTree = "<group>"; };
-		4C6E7FFC29713C3400EB14C3 /* VintagePicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VintagePicker.swift; sourceTree = "<group>"; };
 		4C6E7FFE29714CC900EB14C3 /* View+If.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+If.swift"; sourceTree = "<group>"; };
 		4CD2223328A76F7B00A9178A /* DottyDocumentTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DottyDocumentTest.swift; sourceTree = "<group>"; };
 		4CD2223528A7A96500A9178A /* TestImages.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = TestImages.xcassets; sourceTree = "<group>"; };
@@ -113,8 +109,6 @@
 				4C6352642897D722006CA928 /* DottyApp.swift */,
 				4C6352662897D722006CA928 /* DottyDocument.swift */,
 				4C6352682897D722006CA928 /* ContentView.swift */,
-				4C6E7FFA29713A9C00EB14C3 /* VintageButtonStyle.swift */,
-				4C6E7FFC29713C3400EB14C3 /* VintagePicker.swift */,
 				4C6E7FFE29714CC900EB14C3 /* View+If.swift */,
 				4C635294289A5E88006CA928 /* CanvasView.swift */,
 				4C63526A2897D724006CA928 /* Assets.xcassets */,
@@ -286,9 +280,7 @@
 				4C6352652897D722006CA928 /* DottyApp.swift in Sources */,
 				4C6352672897D722006CA928 /* DottyDocument.swift in Sources */,
 				4C6E7FFF29714CC900EB14C3 /* View+If.swift in Sources */,
-				4C6E7FFB29713A9C00EB14C3 /* VintageButtonStyle.swift in Sources */,
 				4C635295289A5E88006CA928 /* CanvasView.swift in Sources */,
-				4C6E7FFD29713C3400EB14C3 /* VintagePicker.swift in Sources */,
 				4C6352692897D722006CA928 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
