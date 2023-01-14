@@ -7,6 +7,7 @@
 
 import SwiftUI
 import os
+import Introspect
 
 enum Tool {
     case Pen
@@ -19,11 +20,12 @@ let MAX_RECENT = 20
 
 struct ContentView: View {
     @Binding var document: DottyDocument
-    @State var scale: CGFloat = 10
+    @State var scale: CGFloat = 1.0
     @State var currentColor: Color = Color(red: 0.5, green: 0.0, blue: 0.5)
     @State var recentColors: [Color] = []
     @State var activeTool: Tool = Tool.Pen
     @State var lastScale: CGFloat = 1.0
+    @State var pan: CGPoint = CGPoint(x: 0, y: 0)
     @Environment(\.undoManager) var undoManager
     var superDismiss: DismissAction?
     
@@ -167,10 +169,14 @@ struct ContentView: View {
                     )
 #if os(iOS)
                     .scrollDisabled(true)
+                    .introspectScrollView(customize: { view in
+                        view.contentOffset = CGPoint(x: 0 - pan.x, y: 0 - pan.y)
+                    })
 #endif
                     .gesture(RotationGesture().onChanged({ angle in
                         os_log("Rotation %d", angle.degrees)
                     }))
+                    #if os(macOS)
                     .gesture(MagnificationGesture()
                         .onChanged() { value in
                             os_log("Magnification %d", value)
@@ -182,6 +188,7 @@ struct ContentView: View {
                             lastScale = 1.0
                         }
                     )
+                    #endif
 #if os(iOS)
                     TapView { touch in
                         os_log("Touch! %d", touch.touches)
@@ -192,8 +199,12 @@ struct ContentView: View {
                             case .Start:
                                 break
                             case .Move:
-                                scale = min(scale * touch.fromLast.spread, 15)
+                                let spread = touch.fromLast.spread
+                                let newScale = CGFloat(document.image.width) * scale / spread
                                 
+                                os_log("gogo %f %f %f", touch.fromLast.spread, scale, scale + touch.fromLast.spread)
+                                scale = min(max(scale + (touch.fromLast.spread / 2), 1), 15)
+                                pan = CGPoint(x: pan.x + touch.fromLast.move.x, y: pan.y + touch.fromLast.move.y)
                             case .End:
                                 break
                             }

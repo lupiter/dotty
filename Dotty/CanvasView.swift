@@ -24,7 +24,7 @@ struct CanvasView: View {
                     .resizable(resizingMode: .stretch)
                     .interpolation(.none)
                     .aspectRatio(contentMode: .fit)
-                    .frame(width: scale * CGFloat(document.image.width), height: scale * CGFloat(document.image.height))
+                    .frame(width: max(1.0, scale) * CGFloat(document.image.width), height: max(1.0, scale) * CGFloat(document.image.height))
                     .onTapGesture(coordinateSpace: .local) { location in
                         document.paint(location: location, scale: scale, tool: currentTool, color: currentColor)
                     }
