@@ -14,12 +14,9 @@ struct DottyApp: App {
     var body: some Scene {
         DocumentGroup(newDocument: DottyDocument()) { file in
             ContentView(document: file.$document, scale: 1.0, superDismiss: dismiss)
-//                .toolbar(.hidden, for: .navigationBar)
         }
-        #if os(macOS)
+#if os(macOS)
         .windowToolbarStyle(.expanded)
-//        #if os(iOS)
-
-        #endif
+#endif
     }
 }

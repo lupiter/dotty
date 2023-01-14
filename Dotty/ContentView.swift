@@ -19,13 +19,12 @@ let MAX_RECENT = 20
 
 struct ContentView: View {
     @Binding var document: DottyDocument
-    @State var scale: CGFloat = 1
+    @State var scale: CGFloat = 10
     @State var currentColor: Color = Color(red: 0.5, green: 0.0, blue: 0.5)
     @State var recentColors: [Color] = []
     @State var activeTool: Tool = Tool.Pen
     @State var lastScale: CGFloat = 1.0
     @Environment(\.undoManager) var undoManager
-    @Environment(\.dismiss) var dismiss
     var superDismiss: DismissAction?
     
     
@@ -53,14 +52,14 @@ struct ContentView: View {
         } label: {
             Image(systemName: "arrow.uturn.backward")
         }
-            .disabled(!(undoManager?.canUndo ?? false))
+        .disabled(!(undoManager?.canUndo ?? false))
         
         Button() {
             undoManager?.redo()
         } label: {
             Image(systemName: "arrow.uturn.forward")
         }
-            .disabled(!(undoManager?.canRedo ?? false))
+        .disabled(!(undoManager?.canRedo ?? false))
         
         if (proxy.size.width > 400) {
             Spacer()
@@ -123,16 +122,15 @@ struct ContentView: View {
     @ViewBuilder
     var titlebar: some View {
         HStack (spacing: 0) {
-//            ZStack {
-                VStack (spacing: 2.8) {
-                    Rectangle().frame(height: 1)
-                    Rectangle().frame(height: 1)
-                    Rectangle().frame(height: 1)
-                    Rectangle().frame(height: 1)
-                    Rectangle().frame(height: 1)
-                    Rectangle().frame(height: 1)
-                }.padding(.all, 4)
-            Text(document.title).font(.system(size: 14, weight: .regular, design: .monospaced)).padding(.all).fixedSize()
+            VStack (spacing: 2.8) {
+                Rectangle().frame(height: 1)
+                Rectangle().frame(height: 1)
+                Rectangle().frame(height: 1)
+                Rectangle().frame(height: 1)
+                Rectangle().frame(height: 1)
+                Rectangle().frame(height: 1)
+            }.padding(.all, 4)
+            Text(document.title).font(.custom("ChiKareGo2", size: 16)).padding(.all).fixedSize()
             VStack (spacing: 2.8) {
                 Rectangle().frame(height: 1)
                 Rectangle().frame(height: 1)
@@ -149,7 +147,7 @@ struct ContentView: View {
         .overlay(Rectangle().frame(width: 1, height: nil, alignment: .trailing).foregroundColor(Color.black), alignment: .trailing)
         .padding([.horizontal, .top], 5)
     }
-
+    
     var body: some View {
         GeometryReader { geom in
             VStack (alignment: .center, spacing: 0) {
@@ -162,22 +160,51 @@ struct ContentView: View {
                     .background(Color.white)
                     .border(Color.black, width: 1)
                     .padding([.leading, .trailing, .bottom], 5)
+                    .highPriorityGesture(
+                        DragGesture().onChanged({ value in
+                            document.paint(location: value.location, scale: scale, tool: activeTool, color: currentColor)
+                        })
+                    )
+#if os(iOS)
+                    .scrollDisabled(true)
+#endif
+                    .gesture(RotationGesture().onChanged({ angle in
+                        os_log("Rotation %d", angle.degrees)
+                    }))
                     .gesture(MagnificationGesture()
                         .onChanged() { value in
-                            let delta = value.magnitude / lastScale
-                            lastScale = value.magnitude
+                            os_log("Magnification %d", value)
+                            let delta = value / lastScale
+                            lastScale = value
                             scale = min(scale * delta, 15)
                         }
                         .onEnded() { value in
                             lastScale = 1.0
                         }
                     )
+#if os(iOS)
+                    TapView { touch in
+                        os_log("Touch! %d", touch.touches)
+                        if touch.touches == 1 {
+                            document.paint(location: touch.center, scale: scale, tool: activeTool, color: currentColor)
+                        } else if touch.touches > 1 {
+                            switch touch.type {
+                            case .Start:
+                                break
+                            case .Move:
+                                scale = min(scale * touch.fromLast.spread, 15)
+                                
+                            case .End:
+                                break
+                            }
+                        }
+                    }
+#endif
                 }
 #if os(iOS)
                 colors
-                    .padding(.all, 5)
+                    .padding(.horizontal, 5)
                     .background(Color.white)
-                    .overlay(Rectangle().frame(width: nil, height: 1, alignment: .top).foregroundColor(Color.black), alignment: .top)
 #endif
             }
             
@@ -199,7 +226,7 @@ struct ContentView: View {
                     viewtools(proxy: geom)
                 }
             }
-            #else
+#else
             .toolbar  {
                 ToolbarItem {
                     toolset
@@ -214,8 +241,7 @@ struct ContentView: View {
         .navigationBarTitleDisplayMode(.inline)
         .background(Color.gray)
         .toolbarBackground(Color.white)
-            .toolbarBackground(.visible, for: .navigationBar)
-            .overlay(Rectangle().frame(width: nil, height: 1, alignment: .top).foregroundColor(Color.black), alignment: .top)
+        .toolbarBackground(.visible, for: .navigationBar)
         
     }
     
@@ -226,14 +252,14 @@ struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack() {
             ContentView(document: .constant(DottyDocument()), scale: 1.0, recentColors: [Color.red, Color.yellow, Color.green, Color.blue, Color.purple, Color.gray, Color.black, Color.white])}.previewDisplayName("Many colors")
-            
-            
+        
+        
         NavigationStack() {
             ContentView(document: .constant(DottyDocument()), scale: 1.0, recentColors: [Color.pink])
             
         }.previewDisplayName("One color")
-            
-            
+        
+        
         NavigationStack() {
             ContentView(document: .constant(DottyDocument()), scale: 1.0, recentColors: [])
             

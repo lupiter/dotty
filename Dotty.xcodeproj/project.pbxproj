@@ -17,6 +17,8 @@
 		4C6352862897D724006CA928 /* DottyUITestsLaunchTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6352852897D724006CA928 /* DottyUITestsLaunchTests.swift */; };
 		4C635295289A5E88006CA928 /* CanvasView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C635294289A5E88006CA928 /* CanvasView.swift */; };
 		4C6E7FFF29714CC900EB14C3 /* View+If.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6E7FFE29714CC900EB14C3 /* View+If.swift */; };
+		4C6E800129721A5600EB14C3 /* ChiKareGo2.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4C6E800029721A5600EB14C3 /* ChiKareGo2.ttf */; };
+		4C6E8003297249EF00EB14C3 /* MultiTouchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6E8002297249EF00EB14C3 /* MultiTouchView.swift */; };
 		4CD2223428A76F7B00A9178A /* DottyDocumentTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD2223328A76F7B00A9178A /* DottyDocumentTest.swift */; };
 		4CD2223628A7A96500A9178A /* TestImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CD2223528A7A96500A9178A /* TestImages.xcassets */; };
 /* End PBXBuildFile section */
@@ -54,6 +56,8 @@
 		4C6352852897D724006CA928 /* DottyUITestsLaunchTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DottyUITestsLaunchTests.swift; sourceTree = "<group>"; };
 		4C635294289A5E88006CA928 /* CanvasView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CanvasView.swift; sourceTree = "<group>"; };
 		4C6E7FFE29714CC900EB14C3 /* View+If.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+If.swift"; sourceTree = "<group>"; };
+		4C6E800029721A5600EB14C3 /* ChiKareGo2.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ChiKareGo2.ttf; sourceTree = "<group>"; };
+		4C6E8002297249EF00EB14C3 /* MultiTouchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiTouchView.swift; sourceTree = "<group>"; };
 		4CD2223328A76F7B00A9178A /* DottyDocumentTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DottyDocumentTest.swift; sourceTree = "<group>"; };
 		4CD2223528A7A96500A9178A /* TestImages.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = TestImages.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -106,9 +110,11 @@
 		4C6352632897D722006CA928 /* Dotty */ = {
 			isa = PBXGroup;
 			children = (
+				4C6E800029721A5600EB14C3 /* ChiKareGo2.ttf */,
 				4C6352642897D722006CA928 /* DottyApp.swift */,
 				4C6352662897D722006CA928 /* DottyDocument.swift */,
 				4C6352682897D722006CA928 /* ContentView.swift */,
+				4C6E8002297249EF00EB14C3 /* MultiTouchView.swift */,
 				4C6E7FFE29714CC900EB14C3 /* View+If.swift */,
 				4C635294289A5E88006CA928 /* CanvasView.swift */,
 				4C63526A2897D724006CA928 /* Assets.xcassets */,
@@ -252,6 +258,7 @@
 			files = (
 				4C6352702897D724006CA928 /* Preview Assets.xcassets in Resources */,
 				4C63526B2897D724006CA928 /* Assets.xcassets in Resources */,
+				4C6E800129721A5600EB14C3 /* ChiKareGo2.ttf in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -281,6 +288,7 @@
 				4C6352672897D722006CA928 /* DottyDocument.swift in Sources */,
 				4C6E7FFF29714CC900EB14C3 /* View+If.swift in Sources */,
 				4C635295289A5E88006CA928 /* CanvasView.swift in Sources */,
+				4C6E8003297249EF00EB14C3 /* MultiTouchView.swift in Sources */,
 				4C6352692897D722006CA928 /* ContentView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -453,6 +461,7 @@
 				INFOPLIST_FILE = Dotty/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Dotty;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.graphics-design";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "ChiKareGo2 Font (C) Giles Booth CC-by-A";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -500,6 +509,7 @@
 				INFOPLIST_FILE = Dotty/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = Dotty;
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.graphics-design";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "ChiKareGo2 Font (C) Giles Booth CC-by-A";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;

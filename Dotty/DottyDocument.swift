@@ -71,6 +71,22 @@ struct DottyDocument: FileDocument {
     var title: String
     static var readableContentTypes: [UTType] { [.png] }
     
+    mutating func paint(location: CGPoint, scale: CGFloat, tool: Tool, color: Color) {
+        let x = Int(location.x / scale)
+        let y = Int(location.y / scale)
+        switch tool {
+        case Tool.Pen:
+            updateColor(x: x, y: y, color: color)
+        case Tool.Fill:
+            floodFill(x: x, y: y, color: color)
+        case Tool.Eraser:
+            updateColor(x: x, y: y, color: Color.black.opacity(0.0))
+        case Tool.Move:
+            // TODO: implement move
+            break
+        }
+    }
+    
     mutating func updateColor(x: Int, y: Int, color: Color) {
         os_log("%d %d in %d %d", x, y, image.width, image.height)
         let ctx = CGContext(
@@ -87,19 +103,19 @@ struct DottyDocument: FileDocument {
         let rect = CGRect(x: x, y: image.height - y - 1, width: 1, height: 1)
         ctx.addRect(rect)
         ctx.drawPath(using: .fill)
-
+        
         image = ctx.makeImage()!
     }
     
     mutating func floodFill(x: Int, y: Int, color: Color) {
         // TODO: implement flood fill
     }
-
+    
     init(image: CGImage = DEFAULT, title: String? = nil) {
         self.title = title ?? "Untitled.png"
         self.image = image
     }
-
+    
     init(configuration: ReadConfiguration) throws {
         guard let data = configuration.file.regularFileContents,
               let fileImage = CGImage(pngDataProviderSource: CGDataProvider.init(data: data as CFData)!, decode: nil, shouldInterpolate: false, intent: CGColorRenderingIntent.absoluteColorimetric)
