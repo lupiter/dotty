@@ -8,6 +8,8 @@
 import Foundation
 import SwiftUI
 
+let MAX_RECENT = 20
+
 struct ColorView: View {
     @Binding var currentColor: Color
     @State var recentColors: [Color] = []
@@ -43,5 +45,14 @@ struct ColorView: View {
             }
             Spacer()
         }
+    }
+}
+
+struct ColorView_Previews: PreviewProvider {
+    static var previews: some View {
+        ColorView(currentColor: .constant(Color.pink), recentColors: [Color.red, Color.orange, Color.yellow, Color.green, Color.blue, Color.purple])
+            .previewDisplayName("Many")
+        ColorView(currentColor: .constant(Color.red))
+            .previewDisplayName("None")
     }
 }
