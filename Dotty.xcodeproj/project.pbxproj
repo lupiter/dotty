@@ -20,6 +20,7 @@
 		4C6E800129721A5600EB14C3 /* ChiKareGo2.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 4C6E800029721A5600EB14C3 /* ChiKareGo2.ttf */; };
 		4C6E8003297249EF00EB14C3 /* MultiTouchView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6E8002297249EF00EB14C3 /* MultiTouchView.swift */; };
 		4C6E80062972694300EB14C3 /* Introspect in Frameworks */ = {isa = PBXBuildFile; productRef = 4C6E80052972694300EB14C3 /* Introspect */; };
+		4C6E80082973733D00EB14C3 /* ColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6E80072973733D00EB14C3 /* ColorView.swift */; };
 		4CD2223428A76F7B00A9178A /* DottyDocumentTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD2223328A76F7B00A9178A /* DottyDocumentTest.swift */; };
 		4CD2223628A7A96500A9178A /* TestImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CD2223528A7A96500A9178A /* TestImages.xcassets */; };
 /* End PBXBuildFile section */
@@ -59,6 +60,7 @@
 		4C6E7FFE29714CC900EB14C3 /* View+If.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+If.swift"; sourceTree = "<group>"; };
 		4C6E800029721A5600EB14C3 /* ChiKareGo2.ttf */ = {isa = PBXFileReference; lastKnownFileType = file; path = ChiKareGo2.ttf; sourceTree = "<group>"; };
 		4C6E8002297249EF00EB14C3 /* MultiTouchView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MultiTouchView.swift; sourceTree = "<group>"; };
+		4C6E80072973733D00EB14C3 /* ColorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorView.swift; sourceTree = "<group>"; };
 		4CD2223328A76F7B00A9178A /* DottyDocumentTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DottyDocumentTest.swift; sourceTree = "<group>"; };
 		4CD2223528A7A96500A9178A /* TestImages.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = TestImages.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -116,6 +118,7 @@
 				4C6352642897D722006CA928 /* DottyApp.swift */,
 				4C6352662897D722006CA928 /* DottyDocument.swift */,
 				4C6352682897D722006CA928 /* ContentView.swift */,
+				4C6E80072973733D00EB14C3 /* ColorView.swift */,
 				4C6E8002297249EF00EB14C3 /* MultiTouchView.swift */,
 				4C6E7FFE29714CC900EB14C3 /* View+If.swift */,
 				4C635294289A5E88006CA928 /* CanvasView.swift */,
@@ -294,6 +297,7 @@
 			files = (
 				4C6352652897D722006CA928 /* DottyApp.swift in Sources */,
 				4C6352672897D722006CA928 /* DottyDocument.swift in Sources */,
+				4C6E80082973733D00EB14C3 /* ColorView.swift in Sources */,
 				4C6E7FFF29714CC900EB14C3 /* View+If.swift in Sources */,
 				4C635295289A5E88006CA928 /* CanvasView.swift in Sources */,
 				4C6E8003297249EF00EB14C3 /* MultiTouchView.swift in Sources */,

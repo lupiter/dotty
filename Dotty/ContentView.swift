@@ -18,16 +18,18 @@ enum Tool {
 
 let MAX_RECENT = 20
 
+func clamp<T>(_ value: T, min minimum: T, max maximum: T) -> T where T : Comparable {
+    return min(max(value, minimum), maximum)
+}
+
 struct ContentView: View {
     @Binding var document: DottyDocument
-    @State var scale: CGFloat = 1.0
+    @State var scale: CGFloat = 44.0
     @State var currentColor: Color = Color(red: 0.5, green: 0.0, blue: 0.5)
-    @State var recentColors: [Color] = []
     @State var activeTool: Tool = Tool.Pen
     @State var lastScale: CGFloat = 1.0
     @State var pan: CGPoint = CGPoint(x: 0, y: 0)
     @Environment(\.undoManager) var undoManager
-    var superDismiss: DismissAction?
     
     
     @ViewBuilder
@@ -66,58 +68,24 @@ struct ContentView: View {
         if (proxy.size.width > 400) {
             Spacer()
             Button() {
-                scale = scale - 1
+                scale = scale - 1.0
             } label: {
                 Image(systemName: "minus.magnifyingglass")
             }.keyboardShortcut("-", modifiers: .command)
             
             Button() {
-                scale = scale + 1
+                scale = scale + 1.0
             } label: {
                 Image(systemName: "plus.magnifyingglass")
             }.keyboardShortcut("+", modifiers: .command)
             
             if (proxy.size.width > 500) {
                 Button() {
-                    scale = 1
+                    scale = 44.0
                 } label: {
                     Image(systemName: "1.magnifyingglass")
                 }.keyboardShortcut("0", modifiers: .command)
             }
-        }
-    }
-    
-    @ViewBuilder
-    var colors: some View {
-        HStack (spacing: 0) {
-            ColorPicker(selection: $currentColor, supportsOpacity: true) {
-                Text("Paint Color")
-            }
-            .labelsHidden()
-            .padding(.all, 5)
-            .onChange(of: currentColor) { newValue in
-                for color in recentColors {
-                    if color == newValue {
-                        return
-                    }
-                }
-                if recentColors.count >= MAX_RECENT {
-                    recentColors.removeFirst()
-                }
-                recentColors.append(currentColor)
-            }
-            ScrollView(.horizontal) {
-                HStack (spacing: 0) {
-                    ForEach(recentColors.indices, id: \.self) { idx in
-                        Button(action: {
-                            currentColor = recentColors[idx]
-                        }, label: {
-                            recentColors[idx]
-                        }).frame(width: 32, height: 32)
-                    }
-                }
-            }
-            Spacer()
         }
     }
     
@@ -145,113 +113,103 @@ struct ContentView: View {
         .frame(height: 32)
         .background(Color.white)
         .overlay(Rectangle().frame(width: nil, height: 1, alignment: .top).foregroundColor(Color.black), alignment: .top)
-        .overlay(Rectangle().frame(width: 1, height: nil, alignment: .leading).foregroundColor(Color.black), alignment: .leading)
-        .overlay(Rectangle().frame(width: 1, height: nil, alignment: .trailing).foregroundColor(Color.black), alignment: .trailing)
-        .padding([.horizontal, .top], 5)
+        .overlay(Rectangle().frame(width: nil, height: 1, alignment: .bottom).foregroundColor(Color.black), alignment: .bottom)
+//        .overlay(Rectangle().frame(width: 1, height: nil, alignment: .leading).foregroundColor(Color.black), alignment: .leading)
+//        .overlay(Rectangle().frame(width: 1, height: nil, alignment: .trailing).foregroundColor(Color.black), alignment: .trailing)
+//        .padding([.horizontal, .top], 5)
+    }
+    
+    @ViewBuilder
+    var canvas: some View {
+        HStack {
+            GeometryReader { innerGeom in
+                ScrollView {
+                    CanvasView(document: $document, scale: $scale, currentColor: $currentColor, currentTool: $activeTool)
+                        .frame(minHeight: innerGeom.size.height)
+                }
+#if os(iOS)
+                .scrollDisabled(true)
+                .introspectScrollView(customize: { view in
+                    view.contentOffset = CGPoint(
+                        x: clamp(0 - pan.x, min: 0 - view.frame.width * 2, max: view.frame.width * 2),
+                        y: clamp(0 - pan.y, min: 0 - view.frame.height * 2, max: view.frame.height * 2)
+                    )
+                })
+#elseif os(macOS)
+                .highPriorityGesture(
+                    DragGesture().onChanged({ value in
+                        document.paint(location: value.location, scale: scale, tool: activeTool, color: currentColor)
+                    })
+                )
+                .gesture(MagnificationGesture()
+                    .onChanged() { value in
+                        let delta = value / lastScale
+                        lastScale = value
+                        scale = min(scale * delta, 15)
+                    }
+                    .onEnded() { value in
+                        lastScale = 1.0
+                    }
+                )
+#endif
+#if os(iOS)
+                
+                TapView { touch in
+                    if touch.touches == 1 {
+                        document.paint(location: touch.center, scale: scale, tool: activeTool, color: currentColor)
+                    } else if touch.touches > 1 {
+                        switch touch.type {
+                        case .Start:
+                            break
+                        case .Move:
+                            scale = clamp(scale + (touch.fromLast.spread / 16), min: CGFloat(1), max: CGFloat(44))
+                            pan = CGPoint(x: pan.x + touch.fromLast.move.x, y: pan.y + touch.fromLast.move.y)
+                        case .End:
+                            break
+                        }
+                    }
+                }
+#endif
+            }
+        }
     }
     
     var body: some View {
         GeometryReader { geom in
-            VStack (alignment: .center, spacing: 0) {
+            VStack (alignment: .leading, spacing: 0) {
                 titlebar
-                GeometryReader { innerGeom in
-                    ScrollView {
-                        CanvasView(document: $document, scale: $scale, currentColor: $currentColor, currentTool: $activeTool)
-                            .frame(minHeight: innerGeom.size.height)
-                    }
+                canvas
                     .background(Color.white)
-                    .border(Color.black, width: 1)
-                    .padding([.leading, .trailing, .bottom], 5)
-                    .highPriorityGesture(
-                        DragGesture().onChanged({ value in
-                            document.paint(location: value.location, scale: scale, tool: activeTool, color: currentColor)
-                        })
-                    )
 #if os(iOS)
-                    .scrollDisabled(true)
-                    .introspectScrollView(customize: { view in
-                        view.contentOffset = CGPoint(x: 0 - pan.x, y: 0 - pan.y)
-                    })
-#endif
-                    .gesture(RotationGesture().onChanged({ angle in
-                        os_log("Rotation %d", angle.degrees)
-                    }))
-                    #if os(macOS)
-                    .gesture(MagnificationGesture()
-                        .onChanged() { value in
-                            os_log("Magnification %d", value)
-                            let delta = value / lastScale
-                            lastScale = value
-                            scale = min(scale * delta, 15)
-                        }
-                        .onEnded() { value in
-                            lastScale = 1.0
-                        }
-                    )
-                    #endif
-#if os(iOS)
-                    TapView { touch in
-                        os_log("Touch! %d", touch.touches)
-                        if touch.touches == 1 {
-                            document.paint(location: touch.center, scale: scale, tool: activeTool, color: currentColor)
-                        } else if touch.touches > 1 {
-                            switch touch.type {
-                            case .Start:
-                                break
-                            case .Move:
-                                let spread = touch.fromLast.spread
-                                let newScale = CGFloat(document.image.width) * scale / spread
-                                
-                                os_log("gogo %f %f %f", touch.fromLast.spread, scale, scale + touch.fromLast.spread)
-                                scale = min(max(scale + (touch.fromLast.spread / 2), 1), 15)
-                                pan = CGPoint(x: pan.x + touch.fromLast.move.x, y: pan.y + touch.fromLast.move.y)
-                            case .End:
-                                break
-                            }
-                        }
-                    }
-#endif
-                }
-#if os(iOS)
-                colors
+                ColorView(currentColor: $currentColor)
                     .padding(.horizontal, 5)
                     .background(Color.white)
+                    .overlay(Rectangle().frame(width: nil, height: 1, alignment: .top).foregroundColor(Color.black), alignment: .top)
 #endif
             }
-            
-#if os(macOS)
             .toolbar {
                 ToolbarItem {
                     toolset
                 }
-                
+#if os(macOS)
                 ToolbarItem {
-                    colors
+                    ColorView(currentColor: $currentColor)
                 }
-                
                 ToolbarItem {
                     Spacer()
                 }
-                
+#endif
                 ToolbarItemGroup {
                     viewtools(proxy: geom)
                 }
             }
-#else
-            .toolbar  {
-                ToolbarItem {
-                    toolset
-                }
-                ToolbarItemGroup {
-                    viewtools(proxy: geom)
-                }
-            }
+#if os(iOS)
             .navigationTitle("")
 #endif
         }
         .navigationBarTitleDisplayMode(.inline)
         .background(Color.gray)
-        .toolbarBackground(Color.white)
+        .toolbarBackground(Color.white, for: .navigationBar)
         .toolbarBackground(.visible, for: .navigationBar)
         
     }
@@ -262,19 +220,7 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack() {
-            ContentView(document: .constant(DottyDocument()), scale: 1.0, recentColors: [Color.red, Color.yellow, Color.green, Color.blue, Color.purple, Color.gray, Color.black, Color.white])}.previewDisplayName("Many colors")
-        
-        
-        NavigationStack() {
-            ContentView(document: .constant(DottyDocument()), scale: 1.0, recentColors: [Color.pink])
-            
-        }.previewDisplayName("One color")
-        
-        
-        NavigationStack() {
-            ContentView(document: .constant(DottyDocument()), scale: 1.0, recentColors: [])
-            
-        }.previewDisplayName("No color")
-        
+            ContentView(document: .constant(DottyDocument()))
+        }
     }
 }

@@ -16,9 +16,9 @@ struct CanvasView: View {
     
     
     var body: some View {
-        HStack {
+        VStack {
             Spacer()
-            VStack {
+            HStack {
                 Spacer()
                 Image(document.image, scale: scale, label: Text(document.title))
                     .resizable(resizingMode: .stretch)
@@ -30,7 +30,7 @@ struct CanvasView: View {
                     }
                     .background() {
                         Image("grid")
-                            .resizable(capInsets: EdgeInsets(), resizingMode: .tile)
+                            .resizable(resizingMode: .tile)
                             .antialiased(false)
                     }
                 

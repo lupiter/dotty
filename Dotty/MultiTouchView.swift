@@ -21,56 +21,41 @@ enum TouchType {
 
 struct MultiTouchDelta {
     let spread: CGFloat
-//    let twist: Angle
     let move: CGPoint
     
     static let zero: MultiTouchDelta =
         MultiTouchDelta(
             spread: 0,
-//            twist: Angle(),
             move: CGPoint(x: 0, y: 0)
         )
     
-    static func diff(start: [UITouch:CGPoint], end: Set<UITouch>) -> MultiTouchDelta {
-        let startCenter = Array(start.values).center()
-        let endCenter = end.center()
-        let move = CGPoint(x: endCenter.x - startCenter.x, y: endCenter.y - startCenter.y)
-        guard start.count > 1 else { // One touch doesn't give us enough data for spread or twist
+    static func calculate(touches: Set<UITouch>) -> MultiTouchDelta {
+        let previous = touches.map() { $0.previousLocation(in: $0.view)}
+        let previousCenter = previous.center()
+        let endCenter = touches.center()
+        let move = CGPoint(x: endCenter.x - previousCenter.x, y: endCenter.y - previousCenter.y)
+        guard touches.count > 1 else { // One touch doesn't give us enough data for spread or twist
             return MultiTouchDelta(
                 spread: 0.0,
-//                twist: Angle(),
                 move: move
             )
         }
-        let spread = end.distance() - Array(start.values).distance()
-        os_log("spread %f , %f ; %f", end.distance(), Array(start.values).distance(), spread)
-        
-//        let angleSum = end.reduce(Angle()) { angle, touch in
-//            let location = touch.location(in: touch.view)
-//            let unmoved = CGPoint(x: location.x - move.x, y: location.y - move.y)
-//            guard let previous = start[touch] else {
-//                return angle
-//            }
-//
-//            let result = atan2(unmoved.y - startCenter.y, unmoved.x - startCenter.x) -
-//                            atan2(previous.y - startCenter.y, previous.x - startCenter.x);
-//            return Angle(radians: result)
-//        }
+        let spread = touches.distance() - previous.distance()
+        os_log("spread %f , %f ; %f \n move %f , %f", touches.distance(), previous.distance(), spread, move.x, move.y)
         
         return MultiTouchDelta(
             spread: spread,
-//            twist: Angle(radians: angleSum.radians / Double(end.count)),
             move: move
         )
     }
+    
+    
 }
 
 struct MultiTouch {
-//    let fromStart: MultiTouchDelta
     let fromLast: MultiTouchDelta
-    let origin: CGPoint
-    let center: CGPoint
     let touches: Int
+    let center: CGPoint
     let type: TouchType
 }
 
@@ -102,12 +87,8 @@ extension [CGPoint] {
         guard self.count > 1 else { // Save some maths again
             return 0
         }
-        let center = center()
-        let diff = self.reduce(0.0) {
-            return $0 + $1.distance(to: center)
-        }
-        os_log("point distance calc %f / %d = %f", diff, self.count, diff / Double(self.count))
-        return diff / Double(self.count)
+        // ignore everything after the first two, sorry
+        return self[0].distance(to: self[1])
     }
 }
 
@@ -116,88 +97,58 @@ extension Set<UITouch> {
         guard self.count > 0 else {
             return CGPoint()
         }
-        guard self.count > 1 else { // Save some maths if there's only one
-            return self.first!.location(in: self.first!.view)
-        }
-        let sum = self.reduce(CGPoint(x: 0, y: 0)) {
-            let loc = $1.location(in: $1.view)
-            return CGPoint(x: $0.x + loc.x, y: $0.y + loc.y)
-        }
-        return CGPoint(x: sum.x / CGFloat(self.count), y: sum.y / CGFloat(self.count))
+        return self.map() { $0.location(in: $0.view) }.center()
     }
     
     func distance() -> CGFloat {
         guard self.count > 1 else { // Save some maths again
             return 0
         }
-        let center = center()
-        let diff = self.reduce(0.0) {
-            let loc = $1.location(in: $1.view)
-            let distance = loc.distance(to: center)
-            return $0 + distance
-        }
-        os_log("touch distance calc %f / %d = %f", diff, self.count, diff / Double(self.count))
-        return diff / Double(self.count)
+        return self.map() { $0.location(in: $0.view) }.distance()
     }
 }
 
 class NFingerGestureRecognizer: UIGestureRecognizer {
 
     var touchCallback: (MultiTouch) -> Void
-    var origin: CGPoint = CGPoint(x: 0, y: 0)
-    var previous: [UITouch:CGPoint]
+    var touchCount: Int? = nil
 
     init(
         target: Any?,
         touchCallback: @escaping (MultiTouch) -> ()
     ) {
         self.touchCallback = touchCallback
-        self.previous = [:]
         super.init(target: target, action: nil)
     }
 
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent) {
-        for touch in touches {
-            let location = touch.location(in: touch.view)
-            previous[touch] = location
-        }
-        origin = touches.center()
+        touchCount = touches.count
         touchCallback(MultiTouch(
             fromLast: MultiTouchDelta.zero,
-            origin: origin,
-            center: origin,
             touches: touches.count,
+            center: touches.center(),
             type: .Start
         ))
     }
 
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent) {
+        touchCount = max(touchCount ?? touches.count, touches.count)
         touchCallback(MultiTouch(
-            fromLast: MultiTouchDelta.diff(start: previous, end: touches),
-            origin: origin,
+            fromLast: MultiTouchDelta.calculate(touches: touches),
+            touches: touchCount ?? touches.count,
             center: touches.center(),
-            touches: previous.count,
             type: .Move
         ))
-        
-        for touch in touches {
-            let newLocation = touch.location(in: touch.view)
-            previous[touch] = newLocation
-        }
     }
 
     override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent) {
+        touchCount = max(touchCount ?? 1, touches.count)
         touchCallback(MultiTouch(
-            fromLast: MultiTouchDelta.diff(start: previous, end: touches),
-            origin: origin,
+            fromLast: MultiTouchDelta.calculate(touches: touches),
+            touches: touchCount ?? touches.count,
             center: touches.center(),
-            touches: previous.count,
             type: .End
         ))
-        
-        for touch in touches {
-            previous.removeValue(forKey: touch)
-        }
     }
 
 }

@@ -88,7 +88,8 @@ struct DottyDocument: FileDocument {
     }
     
     mutating func updateColor(x: Int, y: Int, color: Color) {
-        os_log("%d %d in %d %d", x, y, image.width, image.height)
+//        os_log("%d %d in %d %d", x, y, image.width, image.height)
+        // this is too slow!!
         let ctx = CGContext(
             data: nil,
             width: image.width,
