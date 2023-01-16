@@ -9,7 +9,7 @@ import SwiftUI
 import os
 
 struct CanvasView: View {
-    @Binding var document: DottyDocument
+    @ObservedObject var document: DottyDocument
     @Binding var scale: CGFloat
     @Binding var currentColor: Color
     @Binding var currentTool: Tool
@@ -20,19 +20,21 @@ struct CanvasView: View {
             Spacer()
             HStack {
                 Spacer()
-                Image(document.image, scale: scale, label: Text(document.title))
-                    .resizable(resizingMode: .stretch)
-                    .interpolation(.none)
-                    .aspectRatio(contentMode: .fit)
-                    .frame(width: max(1.0, scale) * CGFloat(document.image.width), height: max(1.0, scale) * CGFloat(document.image.height))
-                    .onTapGesture(coordinateSpace: .local) { location in
-                        document.paint(location: location, scale: scale, tool: currentTool, color: currentColor)
-                    }
-                    .background() {
-                        Image("grid")
-                            .resizable(resizingMode: .tile)
-                            .antialiased(false)
-                    }
+                ZStack {
+                    Image(document.image, scale: scale, label: Text(document.title))
+                        .resizable(resizingMode: .stretch)
+                        .interpolation(.none)
+                        .aspectRatio(contentMode: .fit)
+                        .frame(width: max(1.0, scale) * CGFloat(document.image.width), height: max(1.0, scale) * CGFloat(document.image.height))
+                        .onTapGesture(coordinateSpace: .local) { location in
+                            document.paint(location: location, scale: scale, tool: currentTool, color: currentColor)
+                        }
+                        .background() {
+                            Image("grid")
+                                .resizable(resizingMode: .tile)
+                                .antialiased(false)
+                        }
+                }
                 
                 Spacer()
             }
@@ -44,6 +46,6 @@ struct CanvasView: View {
 
 struct CamvasView_Previews: PreviewProvider {
     static var previews: some View {
-        CanvasView(document: .constant(DottyDocument()), scale: .constant(1.0), currentColor: .constant(Color(red: 0.7, green: 0.0, blue: 0.7)), currentTool: .constant(Tool.Pen))
+        CanvasView(document: DottyDocument(), scale: .constant(1.0), currentColor: .constant(Color(red: 0.7, green: 0.0, blue: 0.7)), currentTool: .constant(Tool.Pen))
     }
 }

@@ -66,12 +66,22 @@ extension Array {
     }
 }
 
-struct DottyDocument: FileDocument {
+struct DottyDocumentSnapshot {
     var image: CGImage
     var title: String
-    static var readableContentTypes: [UTType] { [.png] }
+}
+
+class DottyDocument: ReferenceFileDocument, ObservableObject {
+    typealias Snapshot = DottyDocumentSnapshot
     
-    mutating func paint(location: CGPoint, scale: CGFloat, tool: Tool, color: Color) {
+    @Published var image: CGImage
+    @Published var title: String
+    static var readableContentTypes: [UTType] { [.png] }
+    var ctx: CGContext
+    var history: [CGImage] = []
+    var future: [CGImage] = []
+    
+    func paint(location: CGPoint, scale: CGFloat, tool: Tool, color: Color) {
         let x = Int(location.x / scale)
         let y = Int(location.y / scale)
         switch tool {
@@ -87,10 +97,63 @@ struct DottyDocument: FileDocument {
         }
     }
     
-    mutating func updateColor(x: Int, y: Int, color: Color) {
+    func updateColor(x: Int, y: Int, color: Color) {
 //        os_log("%d %d in %d %d", x, y, image.width, image.height)
-        // this is too slow!!
-        let ctx = CGContext(
+        ctx.setFillColor(color.cgColor!)
+        let rect = CGRect(x: x, y: image.height - y - 1, width: 1, height: 1)
+        ctx.addRect(rect)
+        ctx.drawPath(using: .fill)
+        
+        image = ctx.makeImage()!
+    }
+    
+    func clearColor(x: Int, y: Int) {
+        let rect = CGRect(x: x, y: image.height - y - 1, width: 1, height: 1)
+        ctx.clear(rect)
+        ctx.drawPath(using: .fill)
+        
+        image = ctx.makeImage()!
+    }
+    
+    func floodFill(x: Int, y: Int, color: Color) {
+        // TODO: implement flood fill
+    }
+    
+    func pushHistory() {
+        if let additional = image.copy() {
+            history.append(additional)
+            future = []
+        }
+    }
+    
+    func replace(additional: CGImage) {
+        ctx.setFillColor(Color.black.opacity(0.0).cgColor!)
+        let rect = CGRect(x: 0, y: 0, width: additional.width, height: additional.height)
+        ctx.clear(rect)
+        ctx.draw(additional, in: rect)
+        ctx.drawPath(using: .fill)
+        image = ctx.makeImage()!
+    }
+    
+    func popHistory() {
+        if let additional = history.popLast() {
+            future.append(image.copy()!)
+            replace(additional: additional)
+        }
+    }
+    
+    func popFuture() {
+        os_log("pop future")
+        if let additional = future.popLast() {
+            history.append(image.copy()!)
+            replace(additional: additional)
+        }
+    }
+    
+    init(image: CGImage = DEFAULT, title: String? = nil) {
+        self.title = title ?? "Untitled.png"
+        self.image = image
+        self.ctx = CGContext(
             data: nil,
             width: image.width,
             height: image.height,
@@ -100,24 +163,9 @@ struct DottyDocument: FileDocument {
             bitmapInfo: CGBitmapInfo.byteOrderDefault.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue
         )!
         ctx.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
-        ctx.setFillColor(color.cgColor!)
-        let rect = CGRect(x: x, y: image.height - y - 1, width: 1, height: 1)
-        ctx.addRect(rect)
-        ctx.drawPath(using: .fill)
-        
-        image = ctx.makeImage()!
     }
     
-    mutating func floodFill(x: Int, y: Int, color: Color) {
-        // TODO: implement flood fill
-    }
-    
-    init(image: CGImage = DEFAULT, title: String? = nil) {
-        self.title = title ?? "Untitled.png"
-        self.image = image
-    }
-    
-    init(configuration: ReadConfiguration) throws {
+    required convenience init(configuration: ReadConfiguration) throws {
         guard let data = configuration.file.regularFileContents,
               let fileImage = CGImage(pngDataProviderSource: CGDataProvider.init(data: data as CFData)!, decode: nil, shouldInterpolate: false, intent: CGColorRenderingIntent.absoluteColorimetric)
         else {
@@ -126,18 +174,20 @@ struct DottyDocument: FileDocument {
         self.init(image: fileImage, title: configuration.file.filename!)
     }
     
-    func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+    func snapshot(contentType: UTType) throws -> Snapshot {
+        return DottyDocumentSnapshot(image: image, title: title)
+    }
+    
+    func fileWrapper(snapshot: DottyDocumentSnapshot, configuration: WriteConfiguration) throws -> FileWrapper {
         guard let mutableData = CFDataCreateMutable(nil, 0),
               let destination = CGImageDestinationCreateWithData(mutableData, UTType.png.identifier as CFString, 1, nil) else {
             throw FileError.fileError("can't make data")
         }
-        CGImageDestinationAddImage(destination, image, nil)
+        CGImageDestinationAddImage(destination, snapshot.image, nil)
         guard CGImageDestinationFinalize(destination) else {
             throw FileError.fileError("can't finalize data")
         }
         
         return .init(regularFileWithContents: mutableData as Data)
     }
-    
-    
 }

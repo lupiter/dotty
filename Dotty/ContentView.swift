@@ -21,7 +21,7 @@ func clamp<T>(_ value: T, min minimum: T, max maximum: T) -> T where T : Compara
 }
 
 struct ContentView: View {
-    @Binding var document: DottyDocument
+    @ObservedObject var document: DottyDocument
     @State var scale: CGFloat = 22.0
     @State var currentColor: Color = Color(red: 0.5, green: 0.0, blue: 0.5)
     @State var activeTool: Tool = Tool.Pen
@@ -30,6 +30,7 @@ struct ContentView: View {
     @State var canvasSize: CGSize = CGSize(width: 0, height: 0)
     @State var viewSize: CGSize = CGSize(width: 0, height: 0)
     @Environment(\.undoManager) var undoManager
+    
     
     
     @ViewBuilder
@@ -46,19 +47,27 @@ struct ContentView: View {
             Image(systemName: "arrow.up.and.down.and.arrow.left.and.right").accessibilityLabel("Move").tag(Tool.Move)
         }, label: {
             Text("Tool")
-        }).pickerStyle(.segmented)
+        })
+        .pickerStyle(.segmented)
+        .background() {
+            LinearGradient(
+              gradient: GlossyButtonStyle.glossyWhite,
+              startPoint: .top,
+              endPoint: .bottom)
+        }
     }
     
     @ViewBuilder
     var viewtools: some View {
-        Button() {
+        GlossyButton() {
             undoManager?.undo()
         } label: {
             Image(systemName: "arrow.uturn.backward")
         }
         .disabled(!(undoManager?.canUndo ?? false))
+//        .buttonStyle(GlossyButtonStyle())
         
-        Button() {
+        GlossyButton() {
             undoManager?.redo()
         } label: {
             Image(systemName: "arrow.uturn.forward")
@@ -67,20 +76,22 @@ struct ContentView: View {
         
         if (viewSize.width > 400) {
             Spacer()
-            Button() {
+            GlossyButton() {
                 scale = scale - 1.0
             } label: {
                 Image(systemName: "minus.magnifyingglass")
-            }.keyboardShortcut("-", modifiers: .command)
+            }
+            .keyboardShortcut("-", modifiers: .command)
             
-            Button() {
+            GlossyButton() {
                 scale = scale + 1.0
             } label: {
                 Image(systemName: "plus.magnifyingglass")
-            }.keyboardShortcut("+", modifiers: .command)
+            }
+            .keyboardShortcut("+", modifiers: .command)
             
             if (viewSize.width > 500) {
-                Button() {
+                GlossyButton() {
                     scale = 44.0
                 } label: {
                     Image(systemName: "1.magnifyingglass")
@@ -88,33 +99,6 @@ struct ContentView: View {
             }
         }
     }
-    
-//    @ViewBuilder
-//    var titlebar: some View {
-//        HStack (spacing: 0) {
-//            VStack (spacing: 2.8) {
-//                Rectangle().frame(height: 1)
-//                Rectangle().frame(height: 1)
-//                Rectangle().frame(height: 1)
-//                Rectangle().frame(height: 1)
-//                Rectangle().frame(height: 1)
-//                Rectangle().frame(height: 1)
-//            }.padding(.all, 4)
-//            Text(document.title).font(.custom("ChiKareGo2", size: 16)).padding(.all).fixedSize()
-//            VStack (spacing: 2.8) {
-//                Rectangle().frame(height: 1)
-//                Rectangle().frame(height: 1)
-//                Rectangle().frame(height: 1)
-//                Rectangle().frame(height: 1)
-//                Rectangle().frame(height: 1)
-//                Rectangle().frame(height: 1)
-//            }.padding(.all, 4)
-//        }
-//        .frame(height: 32)
-//        .background(Color.white)
-//        .overlay(Rectangle().frame(width: nil, height: 1, alignment: .top).foregroundColor(Color.black), alignment: .top)
-//        .overlay(Rectangle().frame(width: nil, height: 1, alignment: .bottom).foregroundColor(Color.black), alignment: .bottom)
-//    }
     
     @ViewBuilder
     var stripes: some View {
@@ -174,49 +158,44 @@ struct ContentView: View {
         .background(
             stripes
         )
+        .frame(height: 32)
         .overlay(separator(.bottom), alignment: .bottom)
     }
     
     @ViewBuilder
     var canvas: some View {
-        ZStack {
-            ScrollView {
-                CanvasView(document: $document, scale: $scale, currentColor: $currentColor, currentTool: $activeTool)
-                    .frame(minHeight: canvasSize.height)
-                    .readSize { newSize in
-                        canvasSize = newSize
-                    }
-            }
-            .frame(width: viewSize.width)
-#if os(iOS)
-            .scrollDisabled(true)
-            .introspectScrollView(customize: { view in
-                view.contentOffset = CGPoint(
-                    x: clamp(0 - pan.x, min: 0 - view.frame.width * 2, max: view.frame.width * 2),
-                    y: clamp(0 - pan.y, min: 0 - view.frame.height * 2, max: view.frame.height * 2)
-                )
+        ScrollView {
+            CanvasView(document: document, scale: $scale, currentColor: $currentColor, currentTool: $activeTool)
+                .frame(minHeight: canvasSize.height)
+                .readSize { newSize in
+                    canvasSize = newSize
+                }
+#if os(macOS)
+        .highPriorityGesture(
+            DragGesture().onChanged({ value in
+                document.paint(location: value.location, scale: scale, tool: activeTool, color: currentColor)
             })
-#elseif os(macOS)
-            .highPriorityGesture(
-                DragGesture().onChanged({ value in
-                    document.paint(location: value.location, scale: scale, tool: activeTool, color: currentColor)
-                })
-            )
-            .gesture(MagnificationGesture()
-                .onChanged() { value in
-                    let delta = value / lastScale
-                    lastScale = value
-                    scale = min(scale * delta, 15)
-                }
-                .onEnded() { value in
-                    lastScale = 1.0
-                }
-            )
-#endif
-#if os(iOS)
-            
+        )
+        .gesture(MagnificationGesture()
+            .onChanged() { value in
+                let delta = value / lastScale
+                lastScale = value
+                scale = min(scale * delta, 15)
+            }
+            .onEnded() { value in
+                lastScale = 1.0
+            }
+        )
+#elseif os(iOS)
+        .overlay {
             TapView { touch in
                 if touch.touches == 1 {
+                    if touch.type == .Start {
+                        document.pushHistory()
+                        undoManager?.registerUndo(withTarget: document) { doc in
+                            doc.popHistory()
+                        }
+                    }
                     document.paint(location: touch.center, scale: scale, tool: activeTool, color: currentColor)
                 } else if touch.touches > 1 {
                     switch touch.type {
@@ -230,16 +209,26 @@ struct ContentView: View {
                     }
                 }
             }
+        }
 #endif
             
         }
+        .frame(width: viewSize.width)
+#if os(iOS)
+        .scrollDisabled(true)
+        .introspectScrollView(customize: { view in
+            view.contentOffset = CGPoint(
+                x: clamp(0 - pan.x, min: 0 - view.frame.width * 2, max: view.frame.width * 2),
+                y: clamp(0 - pan.y, min: 0 - view.frame.height * 2, max: view.frame.height * 2)
+            )
+        })
+#endif
     }
     
     var body: some View {
         VStack (alignment: .leading, spacing: 0) {
             titlebar
             canvas
-                .background(Color.white)
 #if os(iOS)
             ColorView(currentColor: $currentColor)
                 .padding(.horizontal, 5)
@@ -280,7 +269,7 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack() {
-            ContentView(document: .constant(DottyDocument()))
+            ContentView(document: DottyDocument())
         }
     }
 }
