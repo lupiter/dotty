@@ -135,18 +135,24 @@ class DottyDocument: ReferenceFileDocument, ObservableObject {
         image = ctx.makeImage()!
     }
     
-    func popHistory() {
+    func popHistory(undoManager: UndoManager) {
         if let additional = history.popLast() {
             future.append(image.copy()!)
             replace(additional: additional)
+            undoManager.registerUndo(withTarget: self) { redo in
+                redo.popFuture(undoManager: undoManager)
+            }
         }
     }
     
-    func popFuture() {
+    func popFuture(undoManager: UndoManager) {
         os_log("pop future")
         if let additional = future.popLast() {
             history.append(image.copy()!)
             replace(additional: additional)
+            undoManager.registerUndo(withTarget: self) { undo in
+                undo.popHistory(undoManager: undoManager)
+            }
         }
     }
     

@@ -192,8 +192,8 @@ struct ContentView: View {
                 if touch.touches == 1 {
                     if touch.type == .Start {
                         document.pushHistory()
-                        undoManager?.registerUndo(withTarget: document) { doc in
-                            doc.popHistory()
+                        undoManager?.registerUndo(withTarget: document) { undo in
+                            undo.popHistory(undoManager: undoManager!)
                         }
                     }
                     document.paint(location: touch.center, scale: scale, tool: activeTool, color: currentColor)
