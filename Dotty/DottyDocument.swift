@@ -119,10 +119,13 @@ class DottyDocument: ReferenceFileDocument, ObservableObject {
         // TODO: implement flood fill
     }
     
-    func pushHistory() {
+    func pushHistory(undoManager: UndoManager) {
         if let additional = image.copy() {
             history.append(additional)
             future = []
+            undoManager.registerUndo(withTarget: self) { undo in
+                undo.popHistory(undoManager: undoManager)
+            }
         }
     }
     
@@ -146,7 +149,6 @@ class DottyDocument: ReferenceFileDocument, ObservableObject {
     }
     
     func popFuture(undoManager: UndoManager) {
-        os_log("pop future")
         if let additional = future.popLast() {
             history.append(image.copy()!)
             replace(additional: additional)
