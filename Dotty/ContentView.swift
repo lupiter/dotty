@@ -49,6 +49,7 @@ struct ContentView: View {
             Text("Tool")
         })
         .pickerStyle(.segmented)
+        .fixedSize()
         .background() {
             LinearGradient(
               gradient: GlossyButtonStyle.glossyWhite,
@@ -59,43 +60,52 @@ struct ContentView: View {
     
     @ViewBuilder
     var viewtools: some View {
-        GlossyButton() {
-            undoManager?.undo()
-        } label: {
-            Image(systemName: "arrow.uturn.backward")
+        HStack (spacing: 0) {
+            Button() {
+                undoManager?.undo()
+            } label: {
+                Image(systemName: "arrow.uturn.backward")
+            }
+            .disabled(!(undoManager?.canUndo ?? false))
+            .buttonStyle(GlossyButtonStyle(order: .Leading))
+            
+            Button() {
+                undoManager?.redo()
+            } label: {
+                Image(systemName: "arrow.uturn.forward")
+            }
+            .disabled(!(undoManager?.canRedo ?? false))
+            .buttonStyle(GlossyButtonStyle(order: .Trailing))
         }
-        .disabled(!(undoManager?.canUndo ?? false))
-//        .buttonStyle(GlossyButtonStyle())
-        
-        GlossyButton() {
-            undoManager?.redo()
-        } label: {
-            Image(systemName: "arrow.uturn.forward")
-        }
-        .disabled(!(undoManager?.canRedo ?? false))
         
         if (viewSize.width > 400) {
             Spacer()
-            GlossyButton() {
-                scale = scale - 1.0
-            } label: {
-                Image(systemName: "minus.magnifyingglass")
-            }
-            .keyboardShortcut("-", modifiers: .command)
-            
-            GlossyButton() {
-                scale = scale + 1.0
-            } label: {
-                Image(systemName: "plus.magnifyingglass")
-            }
-            .keyboardShortcut("+", modifiers: .command)
-            
-            if (viewSize.width > 500) {
-                GlossyButton() {
-                    scale = 44.0
+            HStack (spacing: 0) {
+                Button() {
+                    scale = scale - 1.0
                 } label: {
-                    Image(systemName: "1.magnifyingglass")
-                }.keyboardShortcut("0", modifiers: .command)
+                    Image(systemName: "minus.magnifyingglass")
+                }
+                .keyboardShortcut("-", modifiers: .command)
+                .buttonStyle(GlossyButtonStyle(order: .Leading))
+                
+                Button() {
+                    scale = scale + 1.0
+                } label: {
+                    Image(systemName: "plus.magnifyingglass")
+                }
+                .keyboardShortcut("+", modifiers: .command)
+                .buttonStyle(GlossyButtonStyle(order: .Center))
+                
+                if (viewSize.width > 500) {
+                    Button() {
+                        scale = 44.0
+                    } label: {
+                        Image(systemName: "1.magnifyingglass")
+                    }
+                    .keyboardShortcut("0", modifiers: .command)
+                    .buttonStyle(GlossyButtonStyle(order: .Trailing))
+                }
             }
         }
     }
@@ -152,13 +162,15 @@ struct ContentView: View {
     var titlebar: some View {
         HStack {
             Spacer()
-            Text(document.title).padding(.all).fixedSize()
+            toolset
+            Spacer()
+            viewtools
             Spacer()
         }
         .background(
             stripes
         )
-        .frame(height: 32)
+        .frame(height: 42)
         .overlay(separator(.bottom), alignment: .bottom)
     }
     
@@ -233,28 +245,26 @@ struct ContentView: View {
                 .overlay(separator(.top), alignment: .top)
 #endif
         }
+        #if os(macOS)
         .toolbar {
             ToolbarItem {
                 toolset
             }
-#if os(macOS)
             ToolbarItem {
                 ColorView(currentColor: $currentColor)
             }
             ToolbarItem {
                 Spacer()
             }
-#endif
             ToolbarItemGroup {
                 viewtools
             }
         }
-#if os(iOS)
-        .navigationTitle("")
-#endif
+        #endif
         .readSize { newSize in
             viewSize = newSize
         }
+        .navigationTitle(document.title)
         .navigationBarTitleDisplayMode(.inline)
         .background { Color.white }
         .toolbarBackground(Color.white, for: .navigationBar)
