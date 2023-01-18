@@ -7,8 +7,20 @@
 
 import Foundation
 import SwiftUI
+import os
 
 let MAX_RECENT = 20
+
+extension Color {
+    var intComponents: [Int] {
+        if let components = self.cgColor?.components {
+            return components.map() { comp in
+                lroundf(Float(comp) * 255)
+            }
+        }
+        return []
+    }
+}
 
 struct ColorView: View {
     @Binding var currentColor: Color
@@ -23,7 +35,7 @@ struct ColorView: View {
             .padding(.all, 5)
             .onChange(of: currentColor) { newValue in
                 for color in recentColors {
-                    if color == newValue {
+                    if color.intComponents == newValue.intComponents {
                         return
                     }
                 }
@@ -32,14 +44,22 @@ struct ColorView: View {
                 }
                 recentColors.append(currentColor)
             }
+            .background {
+                LinearGradient(gradient: GlossyButtonStyle.glossyWhite, startPoint: .top, endPoint: .bottom)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 10))
+            .shadow(radius: 2, y: 1)
+//            .border(Color(white: 0.56))
+            .overlay { RoundedRectangle(cornerRadius: 10).stroke(Color(white: 0.56), lineWidth: 0.5) }
+            .padding(.all, 5)
             ScrollView(.horizontal) {
                 HStack (spacing: 0) {
-                    ForEach(recentColors.indices, id: \.self) { idx in
+                    ForEach(recentColors, id:\.self) { color in
                         Button(action: {
-                            currentColor = recentColors[idx]
+                            currentColor = color
                         }, label: {
-                            recentColors[idx]
-                        }).frame(width: 32, height: 32)
+                            color
+                        }).frame(width: 38, height: 38)
                     }
                 }
             }

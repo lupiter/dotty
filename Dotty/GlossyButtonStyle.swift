@@ -158,6 +158,7 @@ struct GlossyButtonStyle: ButtonStyle {
         bottomRight: order == .Alone || order == .Trailing ? 10 : 0,
         bottomLeft: order == .Alone || order == .Leading ? 10 : 0
       )
+      .shadow(radius: 2, y: 1)
     }
 }
 
