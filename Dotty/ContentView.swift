@@ -40,22 +40,13 @@ struct ContentView: View {
     
     @ViewBuilder
     var toolset: some View {
-        Picker(selection: $activeTool, content: {
-            Image(systemName: "paintbrush.pointed.fill").accessibilityLabel("Paint").tag(Tool.Pen)
-            Image(systemName: "eraser").accessibilityLabel("Erase").tag(Tool.Eraser)
-            Image(systemName: "drop.fill").accessibilityLabel("Flood Fill").tag(Tool.Fill)
-            Image(systemName: "arrow.up.and.down.and.arrow.left.and.right").accessibilityLabel("Move").tag(Tool.Move)
-        }, label: {
-            Text("Tool")
-        })
-        .pickerStyle(.segmented)
+        GlossyPicker(selection: $activeTool, options: [
+            GlossyPickerOption(id: Tool.Pen, icon: "paintbrush.pointed.fill", label: "Paint"),
+            GlossyPickerOption(id: Tool.Eraser, icon: "eraser", label: "Erase"),
+            GlossyPickerOption(id: Tool.Fill, icon: "drop.fill", label: "Flood Fill"),
+            GlossyPickerOption(id: Tool.Move, icon: "arrow.up.and.down.and.arrow.left.and.right", label: "Move"),
+        ])
         .fixedSize()
-        .background() {
-            LinearGradient(
-              gradient: GlossyButtonStyle.glossyWhite,
-              startPoint: .top,
-              endPoint: .bottom)
-        }
     }
     
     @ViewBuilder
@@ -95,7 +86,7 @@ struct ContentView: View {
                     Image(systemName: "plus.magnifyingglass")
                 }
                 .keyboardShortcut("+", modifiers: .command)
-                .buttonStyle(GlossyButtonStyle(order: .Center))
+                .buttonStyle(GlossyButtonStyle(order: viewSize.width > 500 ? .Center : .Trailing))
                 
                 if (viewSize.width > 500) {
                     Button() {
@@ -167,10 +158,10 @@ struct ContentView: View {
             viewtools
             Spacer()
         }
-        .background(
-            stripes
-        )
         .frame(height: 42)
+        .background(alignment: .bottom) {
+            stripes
+        }
         .overlay(separator(.bottom), alignment: .bottom)
     }
     
@@ -241,7 +232,9 @@ struct ContentView: View {
 #if os(iOS)
             ColorView(currentColor: $currentColor)
                 .padding(.horizontal, 5)
-                .background { Color.white }
+                .background(alignment:.top) {
+                    stripes
+                }
                 .overlay(separator(.top), alignment: .top)
 #endif
         }

@@ -65,6 +65,7 @@ struct RoundedCorner: Shape {
 struct GlossyButtonStyle: ButtonStyle {
     @Environment(\.isEnabled) private var isEnabled
     var order: ButtonOrder = .Alone
+    var active: Bool
     
     static let glossyWhite = Gradient(colors: [
         Color(white: 0.99),
@@ -86,8 +87,9 @@ struct GlossyButtonStyle: ButtonStyle {
         Color(red: 187/255, green: 255/255, blue: 255/255)
     ])
     
-    init(order: ButtonOrder = .Alone) {
+    init(order: ButtonOrder = .Alone, active: Bool = false) {
         self.order = order
+        self.active = active
     }
     
     @ViewBuilder private func backgroundView(
@@ -95,7 +97,7 @@ struct GlossyButtonStyle: ButtonStyle {
     ) -> some View {
       if !isEnabled {
         disabledBackground
-      } else if configuration.isPressed {
+      } else if configuration.isPressed || active {
         pressedBackground
       } else {
         enabledBackground
@@ -142,7 +144,7 @@ struct GlossyButtonStyle: ButtonStyle {
       }
       .font(.body.bold())
       .foregroundColor(isEnabled ? .black : .gray)
-      .padding()
+      .padding(10)
       .frame(height: 32)
       .background(backgroundView(configuration: configuration))
       .overlay(RoundedCorner(
@@ -185,7 +187,7 @@ struct GlossyButtonStyle_Previews: PreviewProvider {
             Button("Normal", action: {}).buttonStyle(GlossyButtonStyle())
             
             HStack (spacing: 0) {
-                Button("Left", action: {}).buttonStyle(GlossyButtonStyle(order:.Leading))
+                Button("Left", action: {}).buttonStyle(GlossyButtonStyle(order:.Leading, active: true))
                 Button("Disabled", action: {}).buttonStyle(GlossyButtonStyle(order:.Trailing)).disabled(true)
             }
             

@@ -23,6 +23,7 @@
 		4C6E80082973733D00EB14C3 /* ColorView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6E80072973733D00EB14C3 /* ColorView.swift */; };
 		4C6E800A2973844C00EB14C3 /* View+Size.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6E80092973844C00EB14C3 /* View+Size.swift */; };
 		4C6E800C2974115700EB14C3 /* GlossyButtonStyle.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6E800B2974115700EB14C3 /* GlossyButtonStyle.swift */; };
+		4C6E800E2977BF5700EB14C3 /* GlossyPicker.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4C6E800D2977BF5700EB14C3 /* GlossyPicker.swift */; };
 		4CD2223428A76F7B00A9178A /* DottyDocumentTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4CD2223328A76F7B00A9178A /* DottyDocumentTest.swift */; };
 		4CD2223628A7A96500A9178A /* TestImages.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 4CD2223528A7A96500A9178A /* TestImages.xcassets */; };
 /* End PBXBuildFile section */
@@ -65,6 +66,7 @@
 		4C6E80072973733D00EB14C3 /* ColorView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ColorView.swift; sourceTree = "<group>"; };
 		4C6E80092973844C00EB14C3 /* View+Size.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "View+Size.swift"; sourceTree = "<group>"; };
 		4C6E800B2974115700EB14C3 /* GlossyButtonStyle.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlossyButtonStyle.swift; sourceTree = "<group>"; };
+		4C6E800D2977BF5700EB14C3 /* GlossyPicker.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GlossyPicker.swift; sourceTree = "<group>"; };
 		4CD2223328A76F7B00A9178A /* DottyDocumentTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DottyDocumentTest.swift; sourceTree = "<group>"; };
 		4CD2223528A7A96500A9178A /* TestImages.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = TestImages.xcassets; sourceTree = "<group>"; };
 /* End PBXFileReference section */
@@ -132,6 +134,7 @@
 				4C63526C2897D724006CA928 /* Info.plist */,
 				4C63526D2897D724006CA928 /* Dotty.entitlements */,
 				4C63526E2897D724006CA928 /* Preview Content */,
+				4C6E800D2977BF5700EB14C3 /* GlossyPicker.swift */,
 			);
 			path = Dotty;
 			sourceTree = "<group>";
@@ -303,6 +306,7 @@
 			files = (
 				4C6352652897D722006CA928 /* DottyApp.swift in Sources */,
 				4C6352672897D722006CA928 /* DottyDocument.swift in Sources */,
+				4C6E800E2977BF5700EB14C3 /* GlossyPicker.swift in Sources */,
 				4C6E80082973733D00EB14C3 /* ColorView.swift in Sources */,
 				4C6E800A2973844C00EB14C3 /* View+Size.swift in Sources */,
 				4C6E7FFF29714CC900EB14C3 /* View+If.swift in Sources */,
