@@ -16,27 +16,13 @@ enum Tool {
     case Move
 }
 
-func clamp<T>(_ value: T, min minimum: T, max maximum: T) -> T where T : Comparable {
-    return min(max(value, minimum), maximum)
-}
-
 struct ContentView: View {
     @ObservedObject var document: DottyDocument
-    @State var scale: CGFloat = 22.0
     @State var currentColor: Color = Color(red: 0.5, green: 0.0, blue: 0.5)
     @State var activeTool: Tool = Tool.Pen
-    @State var lastScale: CGFloat = 1.0
-    @State var pan: CGPoint = CGPoint(x: 0, y: 0)
-    @State var canvasSize: CGSize = CGSize(width: 0, height: 0)
     @State var viewSize: CGSize = CGSize(width: 0, height: 0)
+    @State var scale: CGFloat = 22.0
     @Environment(\.undoManager) var undoManager
-    
-    
-    
-    @ViewBuilder
-    var menus: some View {
-        Spacer()
-    }
     
     @ViewBuilder
     var toolset: some View {
@@ -165,70 +151,14 @@ struct ContentView: View {
         .overlay(separator(.bottom), alignment: .bottom)
     }
     
-    @ViewBuilder
-    var canvas: some View {
-        ScrollView {
-            CanvasView(document: document, scale: $scale, currentColor: $currentColor, currentTool: $activeTool)
-                .frame(minHeight: canvasSize.height)
-                .readSize { newSize in
-                    canvasSize = newSize
-                }
-#if os(macOS)
-        .highPriorityGesture(
-            DragGesture().onChanged({ value in
-                document.paint(location: value.location, scale: scale, tool: activeTool, color: currentColor)
-            })
-        )
-        .gesture(MagnificationGesture()
-            .onChanged() { value in
-                let delta = value / lastScale
-                lastScale = value
-                scale = min(scale * delta, 15)
-            }
-            .onEnded() { value in
-                lastScale = 1.0
-            }
-        )
-#elseif os(iOS)
-        .overlay {
-            TapView { touch in
-                if touch.touches == 1 {
-                    if touch.type == .Start {
-                        document.pushHistory(undoManager: undoManager!)
-                    }
-                    document.paint(location: touch.center, scale: scale, tool: activeTool, color: currentColor)
-                } else if touch.touches > 1 {
-                    switch touch.type {
-                    case .Start:
-                        break
-                    case .Move:
-                        scale = clamp(scale + (touch.fromLast.spread / 16), min: CGFloat(1), max: CGFloat(44))
-                        pan = CGPoint(x: pan.x + touch.fromLast.move.x, y: pan.y + touch.fromLast.move.y)
-                    case .End:
-                        break
-                    }
-                }
-            }
-        }
-#endif
-            
-        }
-        .frame(width: viewSize.width)
-#if os(iOS)
-        .scrollDisabled(true)
-        .introspectScrollView(customize: { view in
-            view.contentOffset = CGPoint(
-                x: clamp(0 - pan.x, min: 0 - view.frame.width * 2, max: view.frame.width * 2),
-                y: clamp(0 - pan.y, min: 0 - view.frame.height * 2, max: view.frame.height * 2)
-            )
-        })
-#endif
-    }
+    
     
     var body: some View {
         VStack (alignment: .leading, spacing: 0) {
             titlebar
-            canvas
+            GeometryReader { _ in
+                CanvasView(document: document, currentColor: $currentColor, currentTool: $activeTool, scale: $scale)
+            }.zIndex(-1)
 #if os(iOS)
             ColorView(currentColor: $currentColor)
                 .padding(.horizontal, 5)
@@ -269,7 +199,7 @@ struct ContentView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         NavigationStack() {
-            ContentView(document: DottyDocument())
+            ContentView(document: DottyDocument(), scale: 30)
         }
     }
 }

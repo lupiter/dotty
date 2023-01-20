@@ -84,13 +84,14 @@ class DottyDocument: ReferenceFileDocument, ObservableObject {
     func paint(location: CGPoint, scale: CGFloat, tool: Tool, color: Color) {
         let x = Int(location.x / scale)
         let y = Int(location.y / scale)
+        os_log("%d,%d in %d,%d", x, y, image.width, image.height)
         switch tool {
         case Tool.Pen:
             updateColor(x: x, y: y, color: color)
         case Tool.Fill:
             floodFill(x: x, y: y, color: color)
         case Tool.Eraser:
-            updateColor(x: x, y: y, color: Color.black.opacity(0.0))
+            clearColor(x: x, y: y)
         case Tool.Move:
             // TODO: implement move
             break
@@ -98,7 +99,6 @@ class DottyDocument: ReferenceFileDocument, ObservableObject {
     }
     
     func updateColor(x: Int, y: Int, color: Color) {
-//        os_log("%d %d in %d %d", x, y, image.width, image.height)
         ctx.setFillColor(color.cgColor!)
         let rect = CGRect(x: x, y: image.height - y - 1, width: 1, height: 1)
         ctx.addRect(rect)
@@ -130,7 +130,6 @@ class DottyDocument: ReferenceFileDocument, ObservableObject {
     }
     
     func replace(additional: CGImage) {
-        ctx.setFillColor(Color.black.opacity(0.0).cgColor!)
         let rect = CGRect(x: 0, y: 0, width: additional.width, height: additional.height)
         ctx.clear(rect)
         ctx.draw(additional, in: rect)
