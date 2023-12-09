@@ -57,8 +57,8 @@ struct CanvasView: View {
 #if os(iOS)
     @ViewBuilder
     var canvas: some View {
-        VStack {
-            HStack {
+        VStack (alignment: .center) {
+            HStack (alignment: .center) {
                 ZStack {
                     image
                         .offset(canvasOffset)

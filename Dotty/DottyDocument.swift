@@ -29,46 +29,14 @@ let DEFAULT = (NSImage(named: "drums")?.cgImage(forProposedRect: nil, context: n
 let DEFAULT = (UIImage.init(named: "drums")?.cgImage)!
 #endif
 
-func sliceForComponent(_ arr: [UInt8], start: Int, length: Int) -> [UInt8] {
-    let removeEnd = arr.prefix(start + length)
-    return removeEnd.suffix(length)
-}
-
-func dataToComponent(_ arr: [UInt8], mode: CGBitmapInfo, divisor: Double = 1) -> CGFloat {
-    var data = arr
-    if mode.contains(.floatComponents) {
-        // todo: work out how to decode these
-        var comp: UInt = 0
-        for byteIndex in 0..<arr.count {
-            comp = comp + UInt(data[byteIndex]) << byteIndex
-        }
-        return CGFloat(bitPattern: comp)
-    }
-    if mode.contains(.byteOrder16Big) || mode.contains(.byteOrder32Big) {
-        data = arr.reversed()
-    }
-    var comp = 0.0
-    for byteIndex in 0..<data.count {
-        comp = comp + Double(data[byteIndex] << byteIndex)
-    }
-    return comp / 255.0
-}
-
-func floatColorToInt(_ component: CGFloat) -> UInt8 {
-    return UInt8(component * 255)
-}
-
-extension Array {
-    func chunked(into size: Int) -> [[Element]] {
-        return stride(from: 0, to: count, by: size).map {
-            Array(self[$0 ..< Swift.min($0 + size, count)])
-        }
-    }
-}
-
 struct DottyDocumentSnapshot {
     var image: CGImage
     var title: String
+}
+
+struct Point {
+    let x: Int
+    let y: Int
 }
 
 class DottyDocument: ReferenceFileDocument, ObservableObject {
@@ -100,11 +68,15 @@ class DottyDocument: ReferenceFileDocument, ObservableObject {
     
     func updateColor(x: Int, y: Int, color: Color) {
         ctx.setFillColor(color.cgColor!)
-        let rect = CGRect(x: x, y: image.height - y - 1, width: 1, height: 1)
-        ctx.addRect(rect)
+        updatePixel(x: x, y: y)
         ctx.drawPath(using: .fill)
         
         image = ctx.makeImage()!
+    }
+    
+    private func updatePixel(x: Int, y: Int) {
+        let rect = CGRect(x: x, y: image.height - y - 1, width: 1, height: 1)
+        ctx.addRect(rect)
     }
     
     func clearColor(x: Int, y: Int) {
@@ -115,8 +87,68 @@ class DottyDocument: ReferenceFileDocument, ObservableObject {
         image = ctx.makeImage()!
     }
     
-    func floodFill(x: Int, y: Int, color: Color) {
-        // TODO: implement flood fill
+    private func readPixel(x: Int, y: Int) -> CGColor {
+        let dataPtr = ctx.data!
+        let location = (y * ctx.bytesPerRow) + (x * ctx.bitsPerPixel) / 4
+        let pixelPtr = dataPtr.assumingMemoryBound(to: CGFloat.self) + location
+        return CGColor(colorSpace: ctx.colorSpace!, components: pixelPtr)!
+    }
+    
+    func floodFill(x startX: Int, y startY: Int, color: Color) {
+        // Adapted from Tom Cantwell https://cantwell-tom.medium.com/flood-fill-and-line-tool-for-html-canvas-65e08e31aec6
+        ctx.setFillColor(color.cgColor!)
+
+        let pixel = readPixel(x: startX, y: startY)
+        // exit early if colour is unchanged
+        if (color.cgColor == pixel) {
+            return
+        }
+        
+        var pixelStack = [Point(x: startX, y: startY)]
+        fill(stack: &pixelStack, source: pixel)
+    }
+    
+    private func fill(stack: inout [Point], source: CGColor) {
+        let position = stack.popLast()!
+        var y = position.y
+        while y >= 0, readPixel(x: position.x, y: y) == source {
+            y -= 1
+        }
+        // don't overextend
+        y += 1
+        var reachLeft = false
+        var reachRight = false
+        
+        while y < ctx.height && readPixel(x: position.x, y: y) == source {
+            updatePixel(x: position.x, y: y)
+            if position.x > 0 {
+                if readPixel(x: position.x - 1, y: y) == source {
+                    if !reachLeft {
+                        stack.append(Point(x: position.x - 1, y: y))
+                        reachLeft = true
+                    }
+                } else if reachLeft {
+                    reachLeft = false
+                }
+            }
+            if position.x < ctx.width - 1 {
+                if readPixel(x: position.x + 1, y: y) == source {
+                    if !reachRight {
+                        stack.append(Point(x: position.x + 1, y: y))
+                        reachRight = true
+                    }
+                } else if reachRight {
+                    reachRight = false
+                }
+            }
+            y += 1
+        }
+        if stack.count > 0 {
+            fill(stack: &stack, source: source)
+        }
+        
+        ctx.drawPath(using: .fill)
+        image = ctx.makeImage()!
     }
     
     func pushHistory(undoManager: UndoManager) {
@@ -167,7 +199,7 @@ class DottyDocument: ReferenceFileDocument, ObservableObject {
             bitsPerComponent: image.bitsPerComponent,
             bytesPerRow: image.bytesPerRow,
             space: image.colorSpace!,
-            bitmapInfo: CGBitmapInfo.byteOrderDefault.rawValue | CGImageAlphaInfo.premultipliedFirst.rawValue
+            bitmapInfo: CGBitmapInfo.floatComponents.rawValue | CGImageAlphaInfo.last.rawValue
         )!
         ctx.draw(image, in: CGRect(x: 0, y: 0, width: image.width, height: image.height))
     }
