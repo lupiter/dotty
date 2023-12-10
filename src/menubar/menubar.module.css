@@ -1,0 +1,14 @@
+@import "../base.module.css";
+
+.menuBar {
+  grid-column: 1 / 3;
+  margin: 0;
+  padding-left: max(env(safe-area-inset-left, 0.5rem), 0.5rem);
+  border-bottom: 2px solid black;
+  height: var(--touch-target-size);
+  background: white;
+  display: flex;
+  flex-direction: row;
+  user-select: none;
+  gap: -0.5rem;
+}

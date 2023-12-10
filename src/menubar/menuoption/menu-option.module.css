@@ -1,0 +1,56 @@
+@import "../../base.module.css";
+
+.menuItem {
+  display: flex;
+  flex-direction: row;
+}
+
+.menuButton {
+  display: flex;
+  flex-direction: row;
+  flex: 1;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  padding: 0.5rem;
+  border: 0;
+  background: white;
+  padding-left: var(--touch-target-size);
+  min-width: var(--touch-target-size);
+  min-height: var(--touch-target-size);
+  white-space: nowrap;
+  font-size: var(--font-size);
+  font-family: var(--ui-font);
+  color: black;
+}
+
+.menuButton:hover {
+  background: black;
+  color: white;
+}
+
+.menuShortcut {
+  opacity: 0.4;
+  font-size: calc(var(--font-size) * 0.75);
+  margin-left: 0.8rem;
+  white-space: nowrap;
+}
+
+.checkMenu {
+  justify-content: flex-start;
+  padding-left: 0;
+}
+
+.checkbox {
+  min-width: calc(var(--touch-target-size) - 7px);
+  min-height: calc(var(--touch-target-size) - 7px);
+  filter: grayscale(100%) contrast(1000%);
+}
+
+.checkbox:checked {
+  filter: invert(1) grayscale(100%) contrast(600%);
+}
+
+.checkboxLabel {
+  flex: 1;
+}

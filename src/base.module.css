@@ -1,0 +1,16 @@
+@font-face {
+  font-family: 'FindersKeepers';
+  src: url("./assets/FindersKeepers.ttf");
+}
+
+@font-face {
+  font-family: 'ChiKareGo2';
+  src: url("./assets/ChiKareGo2.ttf");
+}
+
+:root {
+  --touch-target-size: 42px;
+  --font-size: 32px;
+  --ui-font: 'ChiKareGo2';
+  --text-font: 'FindersKeepers';
+}
