@@ -1,12 +1,12 @@
 import { ModalContentProps } from "./modal-content";
-import modalContentsStyles from "./modal-contents.module.css"
+import modalContentsStyles from "./modal-contents.module.css";
 import buttonStyle from "../button/button.module.css";
 import { ChangeEvent, useId, useState } from "react";
 
 type OpenState = {
-  image?: string,
-  error?: string,
-}
+  image?: string;
+  error?: string;
+};
 
 export function Open(props: ModalContentProps) {
   const [state, setState] = useState<OpenState>({});
@@ -14,7 +14,7 @@ export function Open(props: ModalContentProps) {
 
   const onFileChanged = (event: ChangeEvent<HTMLInputElement>) => {
     // TODO
-  }
+  };
 
   return (
     <>
@@ -26,6 +26,7 @@ export function Open(props: ModalContentProps) {
         </label>
         <input
           type="file"
+          className={modalContentsStyles.input}
           id={fileId}
           accept=".png, .jpeg, image/png, image/jpeg"
           onChange={onFileChanged}
@@ -37,17 +38,13 @@ export function Open(props: ModalContentProps) {
         <img src={state.image} />
       </div>
 
-      <div className={modalContentsStyles.text}>
-        {state.error}
-      </div> 
+      <div className={modalContentsStyles.text}>{state.error}</div>
 
       <section className={modalContentsStyles.buttons}>
         <button className={buttonStyle.btn} onClick={props.onClose}>
           Cancel
         </button>
-        <button className={buttonStyle.btn}>
-          Open
-        </button>
+        <button className={buttonStyle.btn}>Open</button>
       </section>
     </>
   );

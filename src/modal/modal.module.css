@@ -2,6 +2,8 @@
   position: fixed;
   border: 2px solid black;
   padding: 4px;
+  top: 0;
+  z-index: 99;
 }
 
 .modalInner {

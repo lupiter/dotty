@@ -47,6 +47,7 @@ export function New(props: ModalContentProps) {
         </label>
         <input
           type="text"
+          className={modalContentsStyles.input}
           value={state.name}
           id={nameId}
           onChange={onNameChange}
@@ -54,7 +55,7 @@ export function New(props: ModalContentProps) {
         <label className="modeless-text field-label" htmlFor={presetId}>
           Presets:
         </label>
-        <select id={presetId} onChange={onPresetChange}>
+        <select id={presetId} onChange={onPresetChange} className={modalContentsStyles.select}>
           <option value="16">S - 16x16</option>
           <option value="32">M - 32x32</option>
           <option value="64">L - 64x64</option>
@@ -66,6 +67,7 @@ export function New(props: ModalContentProps) {
         <span className="field-label">
           <input
             id={widthId}
+            className={modalContentsStyles.input}
             type="number"
             value={state.width}
             onChange={onWidthChange}
@@ -79,6 +81,7 @@ export function New(props: ModalContentProps) {
         <span className="field-label">
           <input
             id={heightId}
+            className={modalContentsStyles.input}
             type="number"
             value={state.height}
             onChange={onHeightChange}

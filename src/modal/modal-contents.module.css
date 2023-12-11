@@ -8,6 +8,7 @@
 .header {
   text-align: center;
   margin: 0;
+  font-size: calc(var(--font-size) * 1.5);
 }
 
 h2 {
@@ -29,4 +30,26 @@ h2 {
   grid-template-columns: 1fr;
   grid-column: 1 / 3;
   gap: 0.4rem;
+}
+
+.fieldset {
+  display: grid;
+  grid-template-columns: var(--touch-target-size) 1fr;
+  gap: 0.4rem;
+  grid-column: 1 / 3;
+  border: 2px solid black;
+}
+
+.input {
+  font-family: var(--ui-font);
+  font-size: var(--font-size);
+  border: 2px solid black;
+}
+
+.select {
+  border: 2px solid black;
+  background: white;
+  color: black;
+  font-family: var(--ui-font);
+  font-size: var(--font-size);
 }

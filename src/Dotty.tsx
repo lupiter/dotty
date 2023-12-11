@@ -1,5 +1,7 @@
 import "./Dotty.css";
 import { MenuBar } from "./menubar/menubar";
+import { Document } from "./document/document";
+import { Tools } from "./tools/tools";
 
 function Dotty() {
   const onDownload = () => {};
@@ -30,8 +32,9 @@ function Dotty() {
         zoomOut={zoomOut}
         zoomFit={zoomFit}
       />
-      {/* <Document />
+      <Document active={true} />
       <Tools />
+      {/* 
       <Palette /> */}
     </>
   );

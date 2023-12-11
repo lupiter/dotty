@@ -4,17 +4,17 @@ import buttonStyle from "../button/button.module.css";
 import { ChangeEvent, useId, useState } from "react";
 
 type ImportPaletteState = {
-  error?: string,
-  chips?: JSX.Element,
-}
+  error?: string;
+  chips?: JSX.Element;
+};
 
 export function ImportPalette(props: ModalContentProps) {
-  const [state, setState] = useState<ImportPaletteState>({})
+  const [state, setState] = useState<ImportPaletteState>({});
   const id = useId();
 
   const onChange = (e: ChangeEvent<HTMLInputElement>) => {
     // TODO
-  }
+  };
 
   return (
     <>
@@ -24,12 +24,16 @@ export function ImportPalette(props: ModalContentProps) {
         <label className="modeless-text field-label" htmlFor={id}>
           File:
         </label>
-        <input type="file" id={id} accept=".png, image/png" onChange={onChange} />
+        <input
+          type="file"
+          className={modalContentsStyles.input}
+          id={id}
+          accept=".png, image/png"
+          onChange={onChange}
+        />
       </div>
 
-      <div className={modalContentsStyles.text}>
-        {state.error}
-      </div>
+      <div className={modalContentsStyles.text}>{state.error}</div>
 
       <div className={modalContentsStyles.grid}>{state.chips}</div>
 
@@ -37,9 +41,7 @@ export function ImportPalette(props: ModalContentProps) {
         <button className={buttonStyle.btn} onClick={props.onClose}>
           Cancel
         </button>
-        <button className={buttonStyle.btn}>
-          Open
-        </button>
+        <button className={buttonStyle.btn}>Open</button>
       </section>
     </>
   );

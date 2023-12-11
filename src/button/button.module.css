@@ -1,11 +1,13 @@
+@import '../base.module.css';
 
 .btn {
-  border: 2px solid black;
-  border-radius: 10px;
+  border: 6px solid black;
+  /* border-radius: 10px; */
   font-family: var(--ui-font);
   font-size: var(--font-size);
   background-color: white;
   min-width: calc( var(--touch-target-size) * 4);
   text-align: center;
   min-height: var(--touch-target-size);
+  border-image: svg-load("../assets/border.svg") 3;
 }

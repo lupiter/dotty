@@ -1,20 +1,20 @@
 import { useId, useState } from "react";
-import modalContentsStyles from "./modal-contents.module.css"
+import modalContentsStyles from "./modal-contents.module.css";
 import { ModalContentProps } from "./modal-content";
 import buttonStyle from "../button/button.module.css";
 
 enum ExportSize {
   SMALL,
   MEDIUM,
-  LARGE
+  LARGE,
 }
 
 type ExportState = {
-  size: ExportSize,
-}
+  size: ExportSize;
+};
 
 export function Export(props: { getData(): ImageData } & ModalContentProps) {
-  const [state, setState] = useState<ExportState>({ size: ExportSize.MEDIUM })
+  const [state, setState] = useState<ExportState>({ size: ExportSize.MEDIUM });
   const idSmall = useId();
   const idMedium = useId();
   const idLarge = useId();
@@ -22,28 +22,28 @@ export function Export(props: { getData(): ImageData } & ModalContentProps) {
 
   const exportSizeChanged = (value: ExportSize) => {
     setState({ size: value });
-  }
+  };
 
   return (
     <>
       <h1 className={modalContentsStyles.header}>Export</h1>
 
       <div className={modalContentsStyles.grid}>
-        <fieldset className={modalContentsStyles.exportGrid}>
+        <fieldset className={modalContentsStyles.fieldset}>
           <legend>Size, at least:</legend>
           <input
             id={idSmall}
+            className={modalContentsStyles.input}
             type="radio"
             name={name}
             value={ExportSize.SMALL}
             checked={state.size === ExportSize.SMALL}
             onChange={() => exportSizeChanged(ExportSize.SMALL)}
           />
-          <label htmlFor={idSmall}>
-            256px wide - Small, for forums
-          </label>
+          <label htmlFor={idSmall}>256px wide - Small, for forums</label>
           <input
             id={idMedium}
+            className={modalContentsStyles.input}
             type="radio"
             name={name}
             value={ExportSize.MEDIUM}
@@ -55,15 +55,14 @@ export function Export(props: { getData(): ImageData } & ModalContentProps) {
           </label>
           <input
             id={idLarge}
+            className={modalContentsStyles.input}
             type="radio"
             name={name}
             value={ExportSize.LARGE}
             checked={state.size === ExportSize.LARGE}
             onChange={() => exportSizeChanged(ExportSize.LARGE)}
           />
-          <label htmlFor={idLarge}>
-            2480px wide - Large, for printing
-          </label>
+          <label htmlFor={idLarge}>2480px wide - Large, for printing</label>
         </fieldset>
       </div>
 
@@ -71,9 +70,7 @@ export function Export(props: { getData(): ImageData } & ModalContentProps) {
         <button className={buttonStyle.btn} onClick={props.onClose}>
           Cancel
         </button>
-        <button className={buttonStyle.btn}>
-          Export
-        </button>
+        <button className={buttonStyle.btn}>Export</button>
       </section>
     </>
   );

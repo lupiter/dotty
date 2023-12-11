@@ -1,12 +1,49 @@
 import { ModalContentProps } from "./modal-content";
 import modalContentsStyles from "./modal-contents.module.css";
 import buttonStyle from "../button/button.module.css";
-import { useId } from "react";
+import { ChangeEvent, useId, useState } from "react";
+
+enum RESIZE_FROM {
+  TOP_LEFT,
+  TOP_RIGHT,
+  CENTER,
+  BOTTOM_LEFT,
+  BOTTOM_RIGHT,
+}
+
+type ResizeState = {
+  width: number;
+  height: number;
+  from: RESIZE_FROM;
+};
 
 export function Resize(props: ModalContentProps) {
+  const [state, setState] = useState<ResizeState>({
+    width: 16,
+    height: 16,
+    from: RESIZE_FROM.CENTER,
+  });
   const widthId = useId();
   const heightId = useId();
-  
+  const topLeft = useId();
+  const topRight = useId();
+  const center = useId();
+  const bottomLeft = useId();
+  const bottomRight = useId();
+  const resize = useId();
+
+  const changeWidth = (e: ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, width: parseInt(e.target.value) });
+  };
+
+  const changeHeight = (e: ChangeEvent<HTMLInputElement>) => {
+    setState({ ...state, height: parseInt(e.target.value) });
+  };
+
+  const changeFrom = (value: RESIZE_FROM) => {
+    setState({ ...state, from: value });
+  };
+
   return (
     <>
       <h1 className={modalContentsStyles.header}>Resize</h1>
@@ -15,62 +52,88 @@ export function Resize(props: ModalContentProps) {
         <label htmlFor={widthId} className={modalContentsStyles.text}>
           Width:
         </label>
-        <span className="field-label">
-          <input id={widthId} type="number" value="16" max="256" /> px
+        <span className={modalContentsStyles.fieldLabel}>
+          <input
+            id={widthId}
+            className={modalContentsStyles.input}
+            type="number"
+            value={state.width}
+            max="256"
+            onChange={changeWidth}
+          />{" "}
+          px
         </span>
-        <label htmlFor="resize-height" className="modeless-text field-label">
+        <label htmlFor={heightId} className={modalContentsStyles.fieldLabel}>
           Height:
         </label>
-        <span className="field-label">
-          <input id="resize-height" type="number" value="16" max="256" /> px
+        <span className={modalContentsStyles.fieldLabel}>
+          <input
+            id={heightId}
+            className={modalContentsStyles.input}
+            type="number"
+            value={state.height}
+            max="256"
+            onChange={changeHeight}
+          />{" "}
+          px
         </span>
-        <fieldset className="field-label resize-mode-grid">
+        <fieldset className={modalContentsStyles.fieldset}>
           <legend>From</legend>
           <input
-            id="resize-mode-top-left"
+            id={topLeft}
+            className={modalContentsStyles.input}
             type="radio"
-            name="resize"
-            value="top-left"
+            name={resize}
+            value={RESIZE_FROM.TOP_LEFT}
+            checked={state.from === RESIZE_FROM.TOP_LEFT}
+            onChange={() => changeFrom(RESIZE_FROM.TOP_LEFT)}
           />
-          <label htmlFor="resize-mode-top-left">Top Left</label>
-          <span></span>
+          <label htmlFor={topLeft}>Top Left</label>
           <input
-            id="resize-mode-top-right"
+            id={topRight}
+            className={modalContentsStyles.input}
             type="radio"
-            name="resize"
-            value="top-right"
+            name={resize}
+            value={RESIZE_FROM.TOP_RIGHT}
+            checked={state.from === RESIZE_FROM.TOP_RIGHT}
+            onChange={() => changeFrom(RESIZE_FROM.TOP_RIGHT)}
           />
-          <label htmlFor="resize-mode-top-right">Top Right</label>
-          <span></span>
+          <label htmlFor={topRight}>Top Right</label>
           <input
-            id="resize-mode-center-center"
+            id={center}
+            className={modalContentsStyles.input}
             type="radio"
-            name="resize"
-            value="center-center"
-            checked
+            name={resize}
+            value={RESIZE_FROM.CENTER}
+            checked={state.from === RESIZE_FROM.CENTER}
+            onChange={() => changeFrom(RESIZE_FROM.CENTER)}
           />
-          <label htmlFor="resize-mode-center-center">Center</label>
-          <span></span>
+          <label htmlFor={center}>Center</label>
           <input
-            id="resize-mode-bottom-left"
+            id={bottomLeft}
+            className={modalContentsStyles.input}
             type="radio"
-            name="resize"
-            value="bottom-left"
+            name={resize}
+            value={RESIZE_FROM.BOTTOM_LEFT}
+            checked={state.from === RESIZE_FROM.BOTTOM_LEFT}
+            onChange={() => changeFrom(RESIZE_FROM.BOTTOM_LEFT)}
           />
-          <label htmlFor="resize-mode-bottom-left">Bottom Left</label>
-          <span></span>
+          <label htmlFor={bottomLeft}>Bottom Left</label>
           <input
-            id="resize-mode-bottom-right"
+            id={bottomRight}
+            className={modalContentsStyles.input}
             type="radio"
-            name="resize"
-            value="bottom-right"
+            name={resize}
+            value={RESIZE_FROM.BOTTOM_RIGHT}
+            checked={state.from === RESIZE_FROM.BOTTOM_RIGHT}
+            onChange={() => changeFrom(RESIZE_FROM.BOTTOM_RIGHT)}
           />
-          <label htmlFor="resize-mode-bottom-right">Bottom Right</label>
+          <label htmlFor={bottomRight}>Bottom Right</label>
         </fieldset>
       </div>
 
-      <div className="modal-text">
-        Warning: This action cannot be undone! If your new size is smaller than
+      <div className={modalContentsStyles.text}>
+        Warning: This action cannot be undone. If your new size is smaller than
         your curren size, you might loose data!
       </div>
 
@@ -78,9 +141,7 @@ export function Resize(props: ModalContentProps) {
         <button className={buttonStyle.btn} onClick={props.onClose}>
           Cancel
         </button>
-        <button className={buttonStyle.btn}>
-          Resize
-        </button>
+        <button className={buttonStyle.btn}>Resize</button>
       </section>
     </>
   );

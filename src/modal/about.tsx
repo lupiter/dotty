@@ -32,14 +32,13 @@ export function About(props: ModalContentProps) {
           </p>
         </div>
         <div className={styles.buttons}>
-        <img src={logo} className={styles.img} alt="Dotty" />
+          <img src={logo} className={styles.img} alt="Dotty" />
 
-        <button className={buttonStyle.btn} onClick={props.onClose}>
-          OK
-        </button>
+          <button className={buttonStyle.btn} onClick={props.onClose}>
+            OK
+          </button>
         </div>
-
-      </div> 
+      </div>
     </>
   );
 }
