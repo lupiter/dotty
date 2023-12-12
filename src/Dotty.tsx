@@ -33,7 +33,7 @@ function Dotty() {
         zoomFit={zoomFit}
       />
       <Document active={true} />
-      <Tools />
+      <Tools canUndo={false} canRedo={true} />
       {/* 
       <Palette /> */}
     </>

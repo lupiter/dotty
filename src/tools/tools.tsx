@@ -32,7 +32,12 @@ type ToolState = {
   active: TOOL;
 };
 
-export function Tools() {
+type ToolProps = {
+  canUndo: boolean;
+  canRedo: boolean;
+};
+
+export function Tools(props: ToolProps) {
   const TOOLS: ToolType[] = [
     { label: "Pen, hotkey P", icon: penIcon, value: TOOL.PEN, id: useId() },
     {
@@ -83,7 +88,7 @@ export function Tools() {
               checked={state.active === tool.value}
               onChange={() => changeTool(tool.value)}
             />
-            <label htmlFor={tool.id} className={styles.radioButton}>
+            <label htmlFor={tool.id} className={`${styles.radioButton} ${state.active === tool.value && styles.active}`}>
               <img
                 src={tool.icon}
                 className={styles.pixelIcon}
@@ -94,24 +99,20 @@ export function Tools() {
         ))}
       </fieldset>
 
-      <div className="actions">
-        <button className="btn icon-button" id="undo-btn" disabled>
+      <div className={styles.actions}>
+        <button className={styles.iconButton} disabled={!props.canUndo}>
           <img src={undoIcon} alt="Undo" className={styles.pixelIcon} />
         </button>
-        <button className="btn icon-button" id="redo-btn" disabled>
+        <button className={styles.iconButton} disabled={!props.canRedo}>
           <img src={redoIcon} alt="Redo" className={styles.pixelIcon} />
         </button>
-        <button className="btn icon-button" id="zoom-out" aria-label="zoom out">
+        <button className={styles.iconButton} aria-label="zoom out">
           <img src={zoomOutIcon} alt="-" className={styles.pixelIcon} />
         </button>
-        <button className="btn icon-button" id="zoom-in" aria-label="zoom in">
+        <button className={styles.iconButton} aria-label="zoom in">
           <img src={zoomInIcon} alt="+" className={styles.pixelIcon} />
         </button>
-        <button
-          className="btn icon-button"
-          id="zoom-reset"
-          aria-label="zoom to fit"
-        >
+        <button className={styles.iconButton} aria-label="zoom to fit">
           <img src={zoomFitIcon} alt="=" className={styles.pixelIcon} />
         </button>
       </div>

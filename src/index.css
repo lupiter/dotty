@@ -17,14 +17,15 @@ body {
   font-family: var(--ui-font);
   grid-template-columns:
     calc(
-      calc(var(--touch-target-size) + 4px) + max(env(safe-area-inset-left, 0.5rem), 0.5rem) +
+      var(--touch-target-size) + 4px +
         max(env(safe-area-inset-right, 0.5rem), 0.5rem) * 2
     )
     auto;
   background-color: white;
   background: url("./assets/bg.png");
   grid-template-rows: calc(var(--touch-target-size) + 2px + 0.5rem) 1fr calc(
-      var(--touch-target-size) * 2 + 4px + max(env(safe-area-inset-bottom), 0.5rem)
+      var(--touch-target-size) * 2 + 4px +
+        max(env(safe-area-inset-bottom), 0.5rem)
     );
   /* background-size: 4px 4px; */
   image-rendering: pixelated;
@@ -33,8 +34,10 @@ body {
 @media (max-width: 900px) {
   #root {
     grid-template-columns: 1fr;
-    grid-template-rows: calc(var(--touch-target-size) + 0.5rem) calc(var(--touch-target-size) + 4px + 0.5rem) auto calc(
-      var(--touch-target-size) * 2 + 0.5rem + env(safe-area-inset-bottom)
+    grid-template-rows: calc(var(--touch-target-size) + 0.5rem) calc(
+        var(--touch-target-size) + 4px + 0.5rem
+      ) auto calc(
+        var(--touch-target-size) * 2 + 0.5rem + env(safe-area-inset-bottom)
       );
   }
 }
