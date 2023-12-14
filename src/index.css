@@ -23,7 +23,7 @@ body {
     auto;
   background-color: white;
   background: url("./assets/bg.png");
-  grid-template-rows: calc(var(--touch-target-size) + 2px + 0.5rem) 1fr calc(
+  grid-template-rows: calc(var(--touch-target-size) + 0.5rem) auto calc(
       var(--touch-target-size) * 2 + 4px +
         max(env(safe-area-inset-bottom), 0.5rem)
     );
@@ -37,7 +37,7 @@ body {
     grid-template-rows: calc(var(--touch-target-size) + 0.5rem) calc(
         var(--touch-target-size) + 4px + 0.5rem
       ) auto calc(
-        var(--touch-target-size) * 2 + 0.5rem + env(safe-area-inset-bottom)
+        var(--touch-target-size) * 2 + 4px + 0.5rem + env(safe-area-inset-bottom)
       );
   }
 }

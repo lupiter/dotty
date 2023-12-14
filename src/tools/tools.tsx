@@ -12,7 +12,7 @@ import zoomOutIcon from "../assets/tools/zoom-out.png";
 import styles from "./tools.module.css";
 import { useId, useState } from "react";
 
-enum TOOL {
+export enum TOOL {
   PENCIL,
   PEN,
   BUCKET,
@@ -28,13 +28,16 @@ type ToolType = {
   id: string;
 };
 
-type ToolState = {
-  active: TOOL;
-};
-
 type ToolProps = {
   canUndo: boolean;
   canRedo: boolean;
+  zoomIn: () => void;
+  zoomOut: () => void;
+  zoomFit: () => void;
+  undo: () => void;
+  redo: () => void;
+  tool: TOOL;
+  onToolChange: (tool: TOOL) => void;
 };
 
 export function Tools(props: ToolProps) {
@@ -67,12 +70,7 @@ export function Tools(props: ToolProps) {
     { label: "Move, hotkey M", icon: moveIcon, value: TOOL.MOVE, id: useId() },
   ];
 
-  const [state, setState] = useState<ToolState>({ active: TOOL.PEN });
   const toolName = useId();
-
-  const changeTool = (tool: TOOL) => {
-    setState({ active: tool });
-  };
 
   return (
     <div className={styles.window}>
@@ -85,10 +83,15 @@ export function Tools(props: ToolProps) {
               type="radio"
               name={toolName}
               value={tool.value}
-              checked={state.active === tool.value}
-              onChange={() => changeTool(tool.value)}
+              checked={props.tool === tool.value}
+              onChange={() => props.onToolChange(tool.value)}
             />
-            <label htmlFor={tool.id} className={`${styles.radioButton} ${state.active === tool.value && styles.active}`}>
+            <label
+              htmlFor={tool.id}
+              className={`${styles.radioButton} ${
+                props.tool === tool.value && styles.active
+              }`}
+            >
               <img
                 src={tool.icon}
                 className={styles.pixelIcon}
@@ -100,19 +103,39 @@ export function Tools(props: ToolProps) {
       </fieldset>
 
       <div className={styles.actions}>
-        <button className={styles.iconButton} disabled={!props.canUndo}>
+        <button
+          className={styles.iconButton}
+          disabled={!props.canUndo}
+          onClick={props.undo}
+        >
           <img src={undoIcon} alt="Undo" className={styles.pixelIcon} />
         </button>
-        <button className={styles.iconButton} disabled={!props.canRedo}>
+        <button
+          className={styles.iconButton}
+          disabled={!props.canRedo}
+          onClick={props.redo}
+        >
           <img src={redoIcon} alt="Redo" className={styles.pixelIcon} />
         </button>
-        <button className={styles.iconButton} aria-label="zoom out">
+        <button
+          className={styles.iconButton}
+          aria-label="zoom out"
+          onClick={props.zoomOut}
+        >
           <img src={zoomOutIcon} alt="-" className={styles.pixelIcon} />
         </button>
-        <button className={styles.iconButton} aria-label="zoom in">
+        <button
+          className={styles.iconButton}
+          aria-label="zoom in"
+          onClick={props.zoomIn}
+        >
           <img src={zoomInIcon} alt="+" className={styles.pixelIcon} />
         </button>
-        <button className={styles.iconButton} aria-label="zoom to fit">
+        <button
+          className={styles.iconButton}
+          aria-label="zoom to fit"
+          onClick={props.zoomFit}
+        >
           <img src={zoomFitIcon} alt="=" className={styles.pixelIcon} />
         </button>
       </div>

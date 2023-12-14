@@ -11,7 +11,6 @@ import logo from "../assets/logo.png";
 import { useState } from "react";
 import { ImportPalette } from "../modal/import-palette";
 import { CheckMenuOption } from "./menuoption/check-menu-option";
-import { ModalMenuOption } from "./menuoption/modal-menu-option";
 import { RadioMenuOption } from "./menuoption/radio-menu-option";
 
 enum MENU {
@@ -22,7 +21,7 @@ enum MENU {
   VIEW,
 }
 
-export function MenuBar(props: {
+type MenuBarProps = {
   onDownload: () => void;
   undo: () => void;
   redo: () => void;
@@ -36,14 +35,24 @@ export function MenuBar(props: {
   zoomIn: () => void;
   zoomOut: () => void;
   zoomFit: () => void;
-}) {
-  const [openMenu, setOpenMenu] = useState<MENU | undefined>(undefined);
+  modalOpen: (
+    ModalContent: (props: { onClose: () => void }) => JSX.Element
+  ) => void;
+};
+
+type MenuBarState = {
+  openMenu?: MENU;
+  openModal: boolean;
+};
+
+export function MenuBar(props: MenuBarProps) {
+  const [state, setState] = useState<MenuBarState>({ openModal: false });
 
   const onMenuClick = (menu: MENU) => {
-    if (menu === openMenu) {
-      setOpenMenu(undefined);
+    if (menu === state.openMenu) {
+      setState({ ...state, openMenu: undefined });
     } else {
-      setOpenMenu(menu);
+      setState({ ...state, openMenu: menu });
     }
   };
 
@@ -52,28 +61,44 @@ export function MenuBar(props: {
       <Menu
         label="Dotty"
         icon={logo}
-        open={openMenu === MENU.APP}
+        open={state.openMenu === MENU.APP}
         onClick={() => onMenuClick(MENU.APP)}
       >
-        <ModalMenuOption label="About" shortcut="cmd ?" Content={About} />
+        <MenuOption
+          label="About"
+          shortcut="cmd ?"
+          onClick={() => props.modalOpen(About)}
+        />
       </Menu>
       <Menu
         label="File"
-        open={openMenu === MENU.FILE}
+        open={state.openMenu === MENU.FILE}
         onClick={() => onMenuClick(MENU.FILE)}
       >
-        <ModalMenuOption label="Open" shortcut="cmd o" Content={Open} />
-        <ModalMenuOption label="New" shortcut="cmd n" Content={New} />
+        <MenuOption
+          label="Open"
+          shortcut="cmd o"
+          onClick={() => props.modalOpen(Open)}
+        />
+        <MenuOption
+          label="New"
+          shortcut="cmd n"
+          onClick={() => props.modalOpen(New)}
+        />
         <MenuOption
           label="Download"
           shortcut="cmd-s"
           onClick={props.onDownload}
         />
-        <ModalMenuOption label="Export" shortcut="cmd e" Content={Export} />
+        <MenuOption
+          label="Export"
+          shortcut="cmd e"
+          onClick={() => props.modalOpen(About)}
+        />
       </Menu>
       <Menu
         label="Edit"
-        open={openMenu === MENU.EDIT}
+        open={state.openMenu === MENU.EDIT}
         onClick={() => onMenuClick(MENU.EDIT)}
       >
         <MenuOption
@@ -90,11 +115,11 @@ export function MenuBar(props: {
         />
         <MenuSeparator />
         <MenuOption label="Clear All" onClick={props.onClear} />
-        <ModalMenuOption label="Resize" Content={Resize} />
+        <MenuOption label="Resize" onClick={() => props.modalOpen(Resize)} />
       </Menu>
       <Menu
         label="Palette"
-        open={openMenu === MENU.PALETTE}
+        open={state.openMenu === MENU.PALETTE}
         onClick={() => onMenuClick(MENU.PALETTE)}
       >
         <RadioMenuOption
@@ -114,16 +139,23 @@ export function MenuBar(props: {
           onChange={props.onPaletteLockChange}
         />
         <MenuOption label="Clear" onClick={props.onPaletteClear} />
-        <ModalMenuOption label="Import" Content={ImportPalette} />
+        <MenuOption
+          label="Import"
+          onClick={() => props.modalOpen(ImportPalette)}
+        />
       </Menu>
       <Menu
         label="View"
-        open={openMenu === MENU.VIEW}
+        open={state.openMenu === MENU.VIEW}
         onClick={() => onMenuClick(MENU.VIEW)}
       >
         <MenuOption label="Zoom in" shortcut="cmd =" onClick={props.zoomIn} />
         <MenuOption label="Zoom out" shortcut="cmd -" onClick={props.zoomOut} />
-        <MenuOption label="Zoom to fit" shortcut="shift cmd =" onClick={props.zoomFit} />
+        <MenuOption
+          label="Zoom to fit"
+          shortcut="shift cmd ="
+          onClick={props.zoomFit}
+        />
       </Menu>
     </menu>
   );

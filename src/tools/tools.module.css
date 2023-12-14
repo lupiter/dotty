@@ -44,7 +44,8 @@
   background: black;
 }
 
-.radioButton, .iconButton {
+.radioButton,
+.iconButton {
   width: var(--touch-target-size);
   height: var(--touch-target-size);
   border: 0;
