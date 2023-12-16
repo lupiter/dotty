@@ -42,7 +42,7 @@ export class CanvasController {
       scale: spread,
       initialTouch: initial,
     });
-    props.onPanChange(pan)
+    props.onPanChange(pan);
   }
 
   static stopPanZoom(
@@ -103,9 +103,7 @@ export class CanvasController {
     }
 
     const matchStartColor = (pixelPos: number) => {
-      let col = ArtMaths.pixelToColor(
-        imageData.slice(pixelPos, pixelPos + 16)
-      );
+      let col = ArtMaths.pixelToColor(imageData.slice(pixelPos, pixelPos + 16));
       return col === color;
     };
     const colorPixel = (pixelPos: number) => {
@@ -120,7 +118,10 @@ export class CanvasController {
     let height = props.size.height;
     let reachLeft: boolean;
     let reachRight: boolean;
-    while(pixelStack.length > 0 && pixelStack.length <= (props.size.width * props.size.height)) {
+    while (
+      pixelStack.length > 0 &&
+      pixelStack.length <= props.size.width * props.size.height
+    ) {
       const newPos = pixelStack.pop()!;
       let x = newPos.x;
       let y = newPos.y; // get current pixel position
@@ -143,7 +144,7 @@ export class CanvasController {
           if (matchStartColor(pixelPos - 4)) {
             if (!reachLeft) {
               //Add pixel to stack
-              pixelStack.push({x: x - 1, y});
+              pixelStack.push({ x: x - 1, y });
               reachLeft = true;
             }
           } else if (reachLeft) {
@@ -154,7 +155,7 @@ export class CanvasController {
           if (matchStartColor(pixelPos + 4)) {
             if (!reachRight) {
               // Add pixel to stack
-              pixelStack.push({x: x + 1, y});
+              pixelStack.push({ x: x + 1, y });
               reachRight = true;
             }
           } else if (reachRight) {
@@ -187,31 +188,34 @@ export class CanvasController {
     ctx.closePath();
   }
 
-  static stopMove(
+  static applyMove(
     state: CanvasState,
-    setState: SetCanvasState,
     props: CanvasProps,
-    ctx: CanvasRenderingContext2D,
-    point: Point
+    canvas: HTMLCanvasElement
   ) {
+    console.log("canvas: finish and apply move");
+    const data = canvas.toDataURL();
+    if (state.translate) {
+      this.paintData(props, data, canvas.getContext("2d")!, state.translate);
+    }
+  }
+
+  static stopMove(state: CanvasState, setState: SetCanvasState) {
     console.log("canvas: cancel move");
     setState({ ...state, translate: undefined, moveOrigin: undefined });
-    this.paint(state, setState, props, ctx, point);
   }
 
   static move(
     state: CanvasState,
     setState: SetCanvasState,
-    props: CanvasProps,
     point: Point,
     origin: Point = { x: 0, y: 0 }
   ) {
-    console.log("canvas: move", point.x, point.y);
-    let zoom = props.zoom;
+    console.log("canvas: move", point, origin);
     if (state.translate && (state.translate.x != 0 || state.translate.y != 0)) {
       const expected = {
-        x: Math.floor((point.x - origin.x) * zoom + state.translate.x),
-        y: Math.floor((point.y - origin.y) * zoom + state.translate.y),
+        x: Math.floor(point.x - origin.x + state.translate.x),
+        y: Math.floor(point.y - origin.y + state.translate.y),
       };
       console.log(
         `expected: ${expected.x},${expected.y} current: ${state.translate.x},${
@@ -225,8 +229,8 @@ export class CanvasController {
       setState({
         ...state,
         translate: {
-          x: Math.floor((point.x - origin.x) * zoom),
-          y: Math.floor((point.y - origin.y) * zoom),
+          x: Math.floor(point.x - origin.x),
+          y: Math.floor(point.y - origin.y),
         },
       });
     }
@@ -257,8 +261,6 @@ export class CanvasController {
   }
 
   static paint(
-    state: CanvasState,
-    setState: SetCanvasState,
     props: CanvasProps,
     ctx: CanvasRenderingContext2D,
     offset: Point
@@ -282,8 +284,6 @@ export class CanvasController {
       }
     } else if (props.tool === TOOL.BUCKET) {
       this.floodFill(props, { x, y }, ctx);
-    } else if (props.tool === TOOL.MOVE) {
-      this.move(state, setState, props, { x, y });
     } else {
       // ignore other tools
     }

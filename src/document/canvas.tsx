@@ -1,4 +1,4 @@
-import { createRef, useEffect, useState } from "react";
+import { createRef, useEffect, useRef, useState } from "react";
 import styles from "./document.module.css";
 import { Point } from "./geometry";
 import { CanvasProps, CanvasController, CanvasState } from "./canvas-controler";
@@ -12,6 +12,7 @@ export function Canvas(props: CanvasProps) {
   });
   const canvasRef = createRef<HTMLCanvasElement>();
   const moveCanvasRef = createRef<HTMLCanvasElement>();
+  const lastTool = useRef<TOOL>(props.tool);
 
   useEffect(() => {
     if (props.tool === TOOL.MOVE) {
@@ -21,7 +22,11 @@ export function Canvas(props: CanvasProps) {
         canvasRef.current!,
         moveCanvasRef.current?.getContext("2d")!
       );
+    } else if (lastTool.current === TOOL.MOVE) {
+      CanvasController.applyMove(state, props, canvasRef.current!);
+      CanvasController.stopMove(state, setState);
     }
+    lastTool.current = props.tool;
   }, [props.tool]);
 
   const undoTick = () => {
@@ -31,13 +36,7 @@ export function Canvas(props: CanvasProps) {
   const onStart = (offset: Point) => {
     undoTick();
     setState({ ...state, mousedown: true });
-    CanvasController.paint(
-      state,
-      setState,
-      props,
-      canvasRef.current?.getContext("2d")!,
-      offset
-    );
+    CanvasController.paint(props, canvasRef.current?.getContext("2d")!, offset);
   };
 
   const onMouseStart = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -66,20 +65,20 @@ export function Canvas(props: CanvasProps) {
       return;
     }
     const ctx = canvasRef.current?.getContext("2d");
-    CanvasController.paint(state, setState, props, ctx!, offset);
-  }
+    CanvasController.paint(props, ctx!, offset);
+  };
 
   const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     e.preventDefault();
-    onMove({x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY});
-  }
+    onMove({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
+  };
 
   const onTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     const last = e.touches[e.touches.length - 1];
     const box = canvasRef.current?.getBoundingClientRect()!;
     onMove({ x: last.clientX - box.x, y: last.clientY - box.y });
-  }
+  };
 
   const onEnd = (offset: Point) => {
     setState({ ...state, mousedown: false });
@@ -89,14 +88,6 @@ export function Canvas(props: CanvasProps) {
 
     if (props.tool === TOOL.DROPPER) {
       CanvasController.pickColor(props, offset, ctx!);
-    } else if (props.tool === TOOL.MOVE) {
-      const data = canvasRef.current!.toDataURL();
-      CanvasController.paintData(props, data, ctx!, {
-        x: props.pan.x / props.zoom,
-        y: props.pan.y / props.zoom,
-      });
-      props.onPanChange({x: 0, y: 0})
-      setState({ ...state, moveOrigin: undefined });
     }
 
     CanvasController.save(canvasRef.current!);
@@ -117,35 +108,16 @@ export function Canvas(props: CanvasProps) {
     const x = Math.floor(point.x / props.zoom);
     const y = Math.floor(point.y / props.zoom);
     setState({ ...state, mousedown: true, moveOrigin: { x, y } });
-    if (props.tool !== TOOL.MOVE) {
-      CanvasController.stopMove(
-        state,
-        setState,
-        props,
-        canvasRef.current?.getContext("2d")!,
-        point
-      );
-    }
   };
   const continueMoving = (point: Point) => {
     if (!state.mousedown) {
       return;
     }
-    if (props.tool !== TOOL.MOVE) {
-      CanvasController.stopMove(
-        state,
-        setState,
-        props,
-        canvasRef.current?.getContext("2d")!,
-        point
-      );
-    }
-    CanvasController.paint(
+    CanvasController.move(
       state,
       setState,
-      props,
-      canvasRef.current?.getContext("2d")!,
-      point
+      { x: point.x / props.zoom, y: point.y / props.zoom },
+      state.moveOrigin
     );
   };
   const pauseMoving = () => {
@@ -177,25 +149,12 @@ export function Canvas(props: CanvasProps) {
   const height = `${props.size.height * props.zoom}px`;
   const width = `${props.size.width * props.zoom}px`;
   const backgroundSize = `${props.zoom * 2}px`;
-  const moveTranslate = state.translate && `${state.translate.x}px ${state.translate.y}px`
+  const moveTranslate =
+    state.translate &&
+    `${state.translate.x * props.zoom}px ${state.translate.y * props.zoom}px`;
 
   return (
     <>
-      {props.tool === TOOL.MOVE && (
-        <canvas
-          ref={moveCanvasRef}
-          className={styles.moveCanvas}
-          width={props.size.width}
-          height={props.size.height}
-          onTouchStart={onMoveTouchStart}
-          onTouchMove={onMoveTouchMove} // may need passive = false here
-          onTouchEnd={pauseMoving}
-          onMouseDown={onMoveMouseStart}
-          onMouseMove={onMoveMouseMove}
-          onMouseUp={pauseMoving}
-          style={{ translate: moveTranslate, scale, height, width, backgroundSize }}
-        />
-      )}
       <canvas
         ref={canvasRef}
         className={styles.canvas}
@@ -209,6 +168,28 @@ export function Canvas(props: CanvasProps) {
         onTouchEnd={onTouchEnd}
         style={{ translate, scale, height, width, backgroundSize }}
       />
+
+      {props.tool === TOOL.MOVE && (
+        <canvas
+          ref={moveCanvasRef}
+          className={styles.moveCanvas}
+          width={props.size.width}
+          height={props.size.height}
+          onTouchStart={onMoveTouchStart}
+          onTouchMove={onMoveTouchMove} // may need passive = false here
+          onTouchEnd={pauseMoving}
+          onMouseDown={onMoveMouseStart}
+          onMouseMove={onMoveMouseMove}
+          onMouseUp={pauseMoving}
+          style={{
+            translate: moveTranslate,
+            scale,
+            height,
+            width,
+            backgroundSize,
+          }}
+        />
+      )}
     </>
   );
 }
