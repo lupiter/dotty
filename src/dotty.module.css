@@ -1,0 +1,14 @@
+
+
+.wrapper {
+  display: flex;
+  flex-direction: column;
+  justify-content: start;
+  overflow: auto;
+  flex: 1;
+}
+
+.inner {
+  margin: auto;
+  position: relative;
+}

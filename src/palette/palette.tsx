@@ -7,7 +7,7 @@ type PaletteState = {
 
 export function Palette(props: {color: string, onColorChange: (color: string) => void}) {
   const [state, setState] = useState<PaletteState>({
-    history: ["#ffffff", "#ff0000", "#00ff00", "#0000ff"],
+    history: ["#ffffffff", "#ff0000ff", "#00ff00ff", "#0000ffff"],
   });
 
   const setColor = (color: string) => {
@@ -17,8 +17,10 @@ export function Palette(props: {color: string, onColorChange: (color: string) =>
   };
 
   const updateColor = (e: ChangeEvent<HTMLInputElement>) => {
-    setColor(e.target.value);
+    setColor(e.target.value + "ff");
   };
+
+  const value = props.color.slice(0, 7);
 
   return (
     <div className={styles.window}>
@@ -27,7 +29,7 @@ export function Palette(props: {color: string, onColorChange: (color: string) =>
           type="color"
           aria-label="Color"
           onChange={updateColor}
-          value={props.color}
+          value={value}
           className={styles.input}
         />
       </div>

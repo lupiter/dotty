@@ -3,12 +3,14 @@ import { Point, Geometry, Size } from "./geometry";
 import { ArtMaths } from "./maths";
 
 export type CanvasProps = {
-  size: Size,
+  size: Size;
   tool: TOOL;
   color: string;
-  setScroll: (scroll: Point, size: Size) => void;
+  setScroll: (scroll: Point) => void;
   onColorChange: (color: string) => void;
   zoom: number;
+  pan: Point;
+  onPanChange: (pan: Point) => void;
   onZoomChange: (zoom: number) => void;
 };
 
@@ -16,7 +18,6 @@ export type CanvasState = {
   initialTouch?: React.TouchList;
   lastTouch?: React.TouchList;
   mousedown: boolean;
-  pan: Point;
   scale: number;
   moveOrigin?: Point;
   translate?: Point;
@@ -29,6 +30,7 @@ export class CanvasController {
   static panZoom(
     state: CanvasState,
     setState: SetCanvasState,
+    props: CanvasProps,
     touches: React.TouchList
   ) {
     const initial = state.initialTouch ? state.initialTouch : touches;
@@ -37,10 +39,10 @@ export class CanvasController {
     setState({
       ...state,
       lastTouch: touches,
-      pan,
       scale: spread,
       initialTouch: initial,
     });
+    props.onPanChange(pan)
   }
 
   static stopPanZoom(
@@ -53,17 +55,13 @@ export class CanvasController {
         state.initialTouch,
         state.lastTouch
       );
-      console.log("canvas: onstop", pan, spread, state.pan, state.scale);
-      props.setScroll(
-        pan,
-        { width: Math.floor(props.size.width * props.zoom),
-        height: Math.floor(props.size.height * props.zoom)}
-      );
+      console.log("canvas: onstop", pan, spread, props.pan, state.scale);
+      props.setScroll(pan);
+      props.onPanChange(pan);
 
       setState({
         ...state,
         scale: 1.0,
-        pan: { x: 0, y: 0 },
         lastTouch: undefined,
         initialTouch: undefined,
       });
@@ -92,10 +90,11 @@ export class CanvasController {
     ctx: CanvasRenderingContext2D
   ) {
     // Credit: Tom Cantwell https://cantwell-tom.medium.com/flood-fill-and-line-tool-for-html-canvas-65e08e31aec6
-    let imageData = ctx.getImageData(0, 0, props.size.height, props.size.width);
+    let image = ctx.getImageData(0, 0, props.size.height, props.size.width);
+    let imageData = image.data;
 
     let start = (point.y * props.size.width + point.x) * 4;
-    let pixel = imageData.data.slice(start, start + 16);
+    let pixel = imageData.slice(start, start + 16);
     // exit if color is the same
     let color = ArtMaths.pixelToColor(pixel);
     let newColor = ArtMaths.colorToPixel(props.color);
@@ -105,32 +104,27 @@ export class CanvasController {
 
     const matchStartColor = (pixelPos: number) => {
       let col = ArtMaths.pixelToColor(
-        imageData.data.slice(pixelPos, pixelPos + 16)
+        imageData.slice(pixelPos, pixelPos + 16)
       );
       return col === color;
     };
     const colorPixel = (pixelPos: number) => {
-      imageData.data[pixelPos] = newColor.r;
-      imageData.data[pixelPos + 1] = newColor.g;
-      imageData.data[pixelPos + 2] = newColor.b;
-      imageData.data[pixelPos + 3] = newColor.a;
+      imageData[pixelPos] = newColor.r;
+      imageData[pixelPos + 1] = newColor.g;
+      imageData[pixelPos + 2] = newColor.b;
+      imageData[pixelPos + 3] = newColor.a;
     };
 
-    let pixelStack = [[point.x, point.y]];
+    let pixelStack = [point];
     let width = props.size.width;
     let height = props.size.height;
-    let newPos: number[],
-      x: number,
-      y: number,
-      pixelPos: number,
-      reachLeft: boolean,
-      reachRight: boolean;
-    fill();
-    function fill() {
-      newPos = pixelStack.pop()!;
-      x = newPos[0];
-      y = newPos[1]; // get current pixel position
-      pixelPos = (y * width + x) * 4;
+    let reachLeft: boolean;
+    let reachRight: boolean;
+    while(pixelStack.length > 0 && pixelStack.length <= (props.size.width * props.size.height)) {
+      const newPos = pixelStack.pop()!;
+      let x = newPos.x;
+      let y = newPos.y; // get current pixel position
+      let pixelPos = (y * width + x) * 4;
       // Go up as long as the color matches and are inside the canvas
       while (y >= 0 && matchStartColor(pixelPos)) {
         y--;
@@ -141,15 +135,15 @@ export class CanvasController {
       y++;
       reachLeft = false;
       reachRight = false;
-      // Go down as long as the color matches and in inside the canvas
 
+      // Go down as long as the color matches and in inside the canvas
       while (y < height && matchStartColor(pixelPos)) {
         colorPixel(pixelPos);
         if (x > 0) {
           if (matchStartColor(pixelPos - 4)) {
             if (!reachLeft) {
               //Add pixel to stack
-              pixelStack.push([x - 1, y]);
+              pixelStack.push({x: x - 1, y});
               reachLeft = true;
             }
           } else if (reachLeft) {
@@ -160,7 +154,7 @@ export class CanvasController {
           if (matchStartColor(pixelPos + 4)) {
             if (!reachRight) {
               // Add pixel to stack
-              pixelStack.push([x + 1, y]);
+              pixelStack.push({x: x + 1, y});
               reachRight = true;
             }
           } else if (reachRight) {
@@ -169,14 +163,11 @@ export class CanvasController {
         }
         y++;
         pixelPos += width * 4;
-      } // recursive until no more pixels to change
-      if (pixelStack.length) {
-        fill();
       }
     }
 
     // render floodFill result
-    ctx.putImageData(imageData, 0, 0);
+    ctx.putImageData(new ImageData(imageData, image.width), 0, 0);
   }
 
   static startMove(
@@ -294,7 +285,7 @@ export class CanvasController {
     } else if (props.tool === TOOL.MOVE) {
       this.move(state, setState, props, { x, y });
     } else {
-      console.warn("Unexpected tool", props.tool);
+      // ignore other tools
     }
     ctx.closePath();
   }

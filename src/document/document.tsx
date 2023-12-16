@@ -1,26 +1,13 @@
-import { useEffect, useRef, useState } from "react";
 import styles from "./document.module.css";
-import { Point, Size } from "./geometry";
+import { Size } from "./geometry";
 
 type DocumentProps = {
   active: boolean;
   size: Size;
   children: JSX.Element;
-  scroll: Point;
 };
 
 export function Document(props: DocumentProps) {
-  const wrapperRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const wrapper = wrapperRef.current;
-    if (wrapper) {
-      wrapper.scrollLeft = wrapper.scrollLeft - props.scroll.x;
-      wrapper.scrollTop = wrapper.scrollTop - props.scroll.y;
-    }
-  }, [props.scroll])
-
-
   return (
     <div className={styles.window}>
       <div className={`${styles.titlebar} ${props.active && styles.active}`}>
@@ -31,17 +18,7 @@ export function Document(props: DocumentProps) {
           </span>
         </h1>
       </div>
-      <div className={styles.wrapper} ref={wrapperRef}>
-        <div
-          className={styles.inner}
-          style={{
-            width: props.innerStyle.width,
-            height: props.innerStyle.height,
-          }}
-        >
-          {props.children}
-        </div>
-      </div>
+      {props.children}
     </div>
   );
 }
