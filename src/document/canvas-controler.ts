@@ -12,6 +12,8 @@ export type CanvasProps = {
   pan: Point;
   onPanChange: (pan: Point) => void;
   onZoomChange: (zoom: number) => void;
+  onUndoTick: (data: string) => void;
+  data: string;
 };
 
 export type CanvasState = {
@@ -243,7 +245,12 @@ export class CanvasController {
     at: Point = { x: 0, y: 0 }
   ) {
     const img = new Image();
-    img.src = data;
+    if (data === "") {
+      // 1x1 px transparent png
+      img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+    } else {
+      img.src = data;
+    }
     const width = props.size.width;
     const height = props.size.height;
 
@@ -254,6 +261,10 @@ export class CanvasController {
       ctx.closePath();
       URL.revokeObjectURL(img.src);
     };
+
+    img.onerror = function (e) {
+      console.warn('sad data', e, data);
+    }
   }
 
   static save(canvas: HTMLCanvasElement) {

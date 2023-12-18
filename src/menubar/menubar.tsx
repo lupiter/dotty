@@ -2,7 +2,6 @@ import { About } from "../modal/about";
 import { Export } from "../modal/export";
 import { New } from "../modal/new";
 import { Open } from "../modal/open";
-import { Resize } from "../modal/resize";
 import { Menu } from "./menu";
 import style from "./menubar.module.css";
 import { MenuOption } from "./menuoption/menu-option";
@@ -12,6 +11,7 @@ import { useState } from "react";
 import { ImportPalette } from "../modal/import-palette";
 import { CheckMenuOption } from "./menuoption/check-menu-option";
 import { RadioMenuOption } from "./menuoption/radio-menu-option";
+import { ModalContentProps } from "../modal/modal-content";
 
 enum MENU {
   APP,
@@ -38,15 +38,21 @@ type MenuBarProps = {
   modalOpen: (
     ModalContent: (props: { onClose: () => void }) => JSX.Element
   ) => void;
+  openModal: boolean;
+  ExportModal: (props: ModalContentProps) => JSX.Element,
+  ResizeModal: (props: ModalContentProps) => JSX.Element,
 };
 
 type MenuBarState = {
   openMenu?: MENU;
-  openModal: boolean;
 };
 
 export function MenuBar(props: MenuBarProps) {
-  const [state, setState] = useState<MenuBarState>({ openModal: false });
+  const [state, setState] = useState<MenuBarState>({ });
+
+  if (props.openModal && state.openMenu) {
+    state.openMenu = undefined;
+  } 
 
   const onMenuClick = (menu: MENU) => {
     if (menu === state.openMenu) {
@@ -93,7 +99,7 @@ export function MenuBar(props: MenuBarProps) {
         <MenuOption
           label="Export"
           shortcut="cmd e"
-          onClick={() => props.modalOpen(About)}
+          onClick={() => props.modalOpen(props.ExportModal)}
         />
       </Menu>
       <Menu
@@ -115,7 +121,7 @@ export function MenuBar(props: MenuBarProps) {
         />
         <MenuSeparator />
         <MenuOption label="Clear All" onClick={props.onClear} />
-        <MenuOption label="Resize" onClick={() => props.modalOpen(Resize)} />
+        <MenuOption label="Resize" onClick={() => props.modalOpen(props.ResizeModal)} />
       </Menu>
       <Menu
         label="Palette"

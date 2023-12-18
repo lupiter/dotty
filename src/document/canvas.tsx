@@ -29,12 +29,21 @@ export function Canvas(props: CanvasProps) {
     lastTool.current = props.tool;
   }, [props.tool]);
 
+  useEffect(() => {
+    CanvasController.paintData(props, props.data, canvasRef.current?.getContext('2d')!)
+  }, [props.data]);
+
   const undoTick = () => {
-    // todo
+    const data = canvasRef.current?.toDataURL();
+    if (data) {
+      props.onUndoTick(data);
+    }
   };
 
   const onStart = (offset: Point) => {
-    undoTick();
+    if (!props.data) {
+      undoTick();
+    }
     setState({ ...state, mousedown: true });
     CanvasController.paint(props, canvasRef.current?.getContext("2d")!, offset);
   };
@@ -48,7 +57,6 @@ export function Canvas(props: CanvasProps) {
       // What are you trying to do??
       return;
     } else if (e.touches.length === 2) {
-      undoTick();
       CanvasController.panZoom(state, setState, props, e.touches);
     } else {
       const touch = e.touches[0];
@@ -91,6 +99,7 @@ export function Canvas(props: CanvasProps) {
     }
 
     CanvasController.save(canvasRef.current!);
+    undoTick();
   };
 
   const onMouseEnd = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {

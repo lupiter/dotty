@@ -2,8 +2,9 @@ import { ModalContentProps } from "./modal-content";
 import modalContentsStyles from "./modal-contents.module.css";
 import buttonStyle from "../button/button.module.css";
 import { ChangeEvent, useId, useState } from "react";
+import { Size } from "../document/geometry";
 
-enum RESIZE_FROM {
+export enum RESIZE_FROM {
   TOP_LEFT,
   TOP_RIGHT,
   CENTER,
@@ -17,7 +18,11 @@ type ResizeState = {
   from: RESIZE_FROM;
 };
 
-export function Resize(props: ModalContentProps) {
+export function Resize(
+  props: ModalContentProps & {
+    onResize: (from: RESIZE_FROM, size: Size) => void;
+  }
+) {
   const [state, setState] = useState<ResizeState>({
     width: 16,
     height: 16,
@@ -42,6 +47,10 @@ export function Resize(props: ModalContentProps) {
 
   const changeFrom = (value: RESIZE_FROM) => {
     setState({ ...state, from: value });
+  };
+
+  const onResize = () => {
+    props.onResize(state.from, { width: state.width, height: state.height });
   };
 
   return (
@@ -134,14 +143,16 @@ export function Resize(props: ModalContentProps) {
 
       <div className={modalContentsStyles.text}>
         Warning: This action cannot be undone. If your new size is smaller than
-        your curren size, you might loose data!
+        your current size, you might loose data!
       </div>
 
       <section className={modalContentsStyles.buttons}>
         <button className={buttonStyle.btn} onClick={props.onClose}>
           Cancel
         </button>
-        <button className={buttonStyle.btn}>Resize</button>
+        <button className={buttonStyle.btn} onClick={onResize}>
+          Resize
+        </button>
       </section>
     </>
   );
