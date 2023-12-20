@@ -4,6 +4,7 @@ import { Size } from "./geometry";
 type DocumentProps = {
   active: boolean;
   size: Size;
+  title: string;
   children: JSX.Element;
 };
 
@@ -12,7 +13,7 @@ export function Document(props: DocumentProps) {
     <div className={styles.window}>
       <div className={`${styles.titlebar} ${props.active && styles.active}`}>
         <h1 className={styles.title}>
-          <span>Dotty</span>—
+          <span>{props.title}</span>—
           <span>
             {props.size.width}x{props.size.height}
           </span>

@@ -10,16 +10,25 @@ import { Point, Size } from "./document/geometry";
 import styles from "./dotty.module.css";
 import { RESIZE_FROM, Resize } from "./modal/resize";
 import { ModalContentProps } from "./modal/modal-content";
+import { Export } from "./modal/export";
+import { New } from "./modal/new";
+import { SINGLE_TRANSPARENT_PIXEL } from "./document/canvas-controler";
+import { Open } from "./modal/open";
+import { ImportPalette } from "./modal/import-palette";
+import { PALETTE, PaletteLimit } from "./modal/palette-limit";
 
 type DottyState = {
   ModalContent?: (props: { onClose: () => void }) => JSX.Element;
   undo: UndoState;
   tool: TOOL;
   color: string;
+  title: string;
   zoom: number;
   size: Size;
   documentScroll: Point;
   pan: Point;
+  palette: string[];
+  paletteLimit: PALETTE;
 };
 
 function Dotty() {
@@ -28,14 +37,16 @@ function Dotty() {
     tool: TOOL.PEN,
     color: "#000000ff",
     zoom: 1.0,
+    title: "My Cool Art",
     size: { width: 16, height: 16 },
     documentScroll: { x: 0, y: 0 },
     pan: { x: 0, y: 0 },
+    palette: ["#ffffffff", "#ff0000ff", "#00ff00ff", "#0000ffff"],
+    paletteLimit: PALETTE.FULL,
   });
 
   const wrapperRef = useRef<HTMLDivElement>(null);
 
-  const onDownload = () => {};
   const onClear = () => {
     onUndoTick("");
   };
@@ -128,53 +139,91 @@ function Dotty() {
     });
   }, []);
 
-  const onResize = (from: RESIZE_FROM, size: Size) => {
-    let point: Point;
-    switch (from) {
-      case RESIZE_FROM.TOP_LEFT:
-        point = { x: 0, y: 0 };
-        break;
-      case RESIZE_FROM.TOP_RIGHT:
-        point = { x: size.width - state.size.width, y: 0 };
-        break;
-      case RESIZE_FROM.BOTTOM_LEFT:
-        point = { x: 0, y: size.height - state.size.height };
-        break;
-      case RESIZE_FROM.BOTTOM_RIGHT:
-        point = {
-          x: size.width - state.size.width,
-          y: (size.height = state.size.height),
-        };
-        break;
-      case RESIZE_FROM.CENTER:
-        point = {
-          x: (size.width - state.size.width) / 2,
-          y: (size.height - state.size.height) / 2,
-        };
-        break;
-    }
-
-    const img = new Image();
-    img.src = state.undo.current;
-    const tmpCanvas = document.createElement('canvas');
-    const ctx = tmpCanvas.getContext('2d')!;
-
-    img.onload = function () {
-      ctx.beginPath();
-      ctx.drawImage(img, point.x, point.y, state.size.width, state.size.height);
-      ctx.closePath();
-      URL.revokeObjectURL(img.src);
-      const data = tmpCanvas.toDataURL();
-      setState({ ...state, size, undo: { past: [], future: [], current: data }})
-    };
+  const onResize = (size: Size, data: string) => {
+    setState({
+      ...state,
+      size,
+      undo: { past: [], future: [], current: data },
+      ModalContent: undefined,
+    });
+    zoomFit();
   };
-  const ResizeModal = (modalProps: ModalContentProps) => {
-    <Resize onClose={modalProps.onClose} onResize={onResize} />;
+  const ResizeModal = (modalProps: ModalContentProps): JSX.Element => {
+    return (
+      <Resize
+        onClose={modalProps.onClose}
+        onResize={onResize}
+        data={state.undo.current}
+        size={state.size}
+      />
+    );
   };
 
-  const onExport = () => {};
-  const ExportModal = (modalProps: ModalContentProps) => {
-    <Resize onClose={modalProps.onClose} onResize={onExport} />;
+  const ExportModal = (modalProps: ModalContentProps): JSX.Element => {
+    return (
+      <Export
+        onClose={modalProps.onClose}
+        data={state.undo.current}
+        size={state.size}
+        title={state.title}
+      />
+    );
+  };
+
+  const onNew = (size: Size, title: string) => {
+    setState({
+      ...state,
+      size,
+      undo: { past: [], future: [], current: "" },
+      ModalContent: undefined,
+      title,
+      documentScroll: { x: 0, y: 0 },
+      pan: { x: 0, y: 0 },
+    });
+  };
+  const NewModal = (modalProps: ModalContentProps): JSX.Element => {
+    return <New onClose={modalProps.onClose} onNew={onNew} />;
+  };
+
+  const onOpen = (data: string, size: Size, title: string) => {
+    setState({
+      ...state,
+      size,
+      undo: { past: [], future: [], current: data },
+      ModalContent: undefined,
+      title,
+      documentScroll: { x: 0, y: 0 },
+      pan: { x: 0, y: 0 },
+    });
+  };
+  const OpenModal = (modalProps: ModalContentProps): JSX.Element => {
+    return <Open onClose={modalProps.onClose} onOpen={onOpen} />;
+  };
+
+  const onImportPalette = (colors: string[]) => {
+    setState({
+      ...state,
+      ModalContent: undefined,
+      palette: colors,
+    });
+  };
+  const ImportPaletteModal = (modalProps: ModalContentProps): JSX.Element => {
+    return (
+      <ImportPalette onClose={modalProps.onClose} onImport={onImportPalette} />
+    );
+  };
+
+  const onLimitPalette = (limit: PALETTE) => {
+    setState({
+      ...state,
+      ModalContent: undefined,
+      paletteLimit: limit,
+    });
+  };
+  const PaletteLimitModal = (modalProps: ModalContentProps): JSX.Element => {
+    return (
+      <PaletteLimit onClose={modalProps.onClose} onChange={onLimitPalette} />
+    );
   };
 
   return (
@@ -186,7 +235,12 @@ function Dotty() {
       )}
       <MenuBar
         onClear={onClear}
-        onDownload={onDownload}
+        title={state.title}
+        data={
+          state.undo.current !== ""
+            ? state.undo.current
+            : SINGLE_TRANSPARENT_PIXEL
+        }
         undo={undo}
         redo={redo}
         onPaletteChange={onPaletteChange}
@@ -202,8 +256,16 @@ function Dotty() {
         openModal={state.ModalContent !== undefined}
         ResizeModal={ResizeModal}
         ExportModal={ExportModal}
+        NewModal={NewModal}
+        OpenModal={OpenModal}
+        ImportPaletteModal={ImportPaletteModal}
+        PaletteLimitModal={PaletteLimitModal}
       />
-      <Document active={state.ModalContent === undefined} size={state.size}>
+      <Document
+        active={state.ModalContent === undefined}
+        size={state.size}
+        title={state.title}
+      >
         <div className={styles.wrapper} ref={wrapperRef}>
           <div className={styles.inner}>
             <Canvas
@@ -233,7 +295,11 @@ function Dotty() {
         onToolChange={onToolChange}
         tool={state.tool}
       />
-      <Palette onColorChange={onColorChange} color={state.color} />
+      <Palette
+        onColorChange={onColorChange}
+        color={state.color}
+        palette={state.palette}
+      />
     </>
   );
 }

@@ -1,7 +1,7 @@
 @import '../base.module.css';
 
 .window {
-  background: white;
+  background: #f8f8f8;
   border: 2px solid black;
   box-shadow: 2px 2px 0px black;
   grid-row: 2 / 3;
@@ -30,6 +30,7 @@
   border-bottom: 2px solid black;
   border-left: 2px solid white;
   border-right: 2px solid white;
+  background: white;
 }
 
 .active {
@@ -63,4 +64,5 @@
   left: 0;
   right: 0;
   opacity: 50%;
+  border: 1px dashed black;
 }

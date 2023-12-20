@@ -86,3 +86,21 @@
     flex-direction: row;
   }
 }
+
+@media (max-width: 510px) {
+  .largerDevice {
+    display: none;
+  }
+}
+
+@media (max-width: 415px) {
+  .mediumDevice {
+    display: none;
+  }
+}
+
+@media (max-width: 375px) {
+  .actions {
+    display: none;
+  }
+}

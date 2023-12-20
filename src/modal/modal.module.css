@@ -12,5 +12,9 @@
   align-items: center;
   justify-content: center;
   border: 4px solid black;
-  padding: 24px 16px;
+  padding: 0.5rem;
+}
+
+.modalContent {
+  max-width: 100%;
 }

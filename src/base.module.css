@@ -14,3 +14,10 @@
   --ui-font: 'ChiKareGo2';
   --text-font: 'FindersKeepers';
 }
+
+@media (max-width: 350px) {
+  :root {
+    --font-size: 26px;
+    --touch-target-size: 40px;
+  }
+}

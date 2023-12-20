@@ -1,17 +1,13 @@
 import { About } from "../modal/about";
-import { Export } from "../modal/export";
-import { New } from "../modal/new";
-import { Open } from "../modal/open";
 import { Menu } from "./menu";
 import style from "./menubar.module.css";
 import { MenuOption } from "./menuoption/menu-option";
 import { MenuSeparator } from "./separator";
 import logo from "../assets/logo.png";
 import { useState } from "react";
-import { ImportPalette } from "../modal/import-palette";
 import { CheckMenuOption } from "./menuoption/check-menu-option";
-import { RadioMenuOption } from "./menuoption/radio-menu-option";
 import { ModalContentProps } from "../modal/modal-content";
+import { LinkMenuOption } from "./menuoption/link-menu-option";
 
 enum MENU {
   APP,
@@ -22,7 +18,8 @@ enum MENU {
 }
 
 type MenuBarProps = {
-  onDownload: () => void;
+  data: string;
+  title: string;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -39,8 +36,12 @@ type MenuBarProps = {
     ModalContent: (props: { onClose: () => void }) => JSX.Element
   ) => void;
   openModal: boolean;
-  ExportModal: (props: ModalContentProps) => JSX.Element,
-  ResizeModal: (props: ModalContentProps) => JSX.Element,
+  ExportModal: (props: ModalContentProps) => JSX.Element;
+  ResizeModal: (props: ModalContentProps) => JSX.Element;
+  NewModal: (props: ModalContentProps) => JSX.Element;
+  OpenModal: (props: ModalContentProps) => JSX.Element;
+  ImportPaletteModal: (props: ModalContentProps) => JSX.Element;
+  PaletteLimitModal: (props: ModalContentProps) => JSX.Element;
 };
 
 type MenuBarState = {
@@ -48,11 +49,11 @@ type MenuBarState = {
 };
 
 export function MenuBar(props: MenuBarProps) {
-  const [state, setState] = useState<MenuBarState>({ });
+  const [state, setState] = useState<MenuBarState>({});
 
   if (props.openModal && state.openMenu) {
     state.openMenu = undefined;
-  } 
+  }
 
   const onMenuClick = (menu: MENU) => {
     if (menu === state.openMenu) {
@@ -73,6 +74,7 @@ export function MenuBar(props: MenuBarProps) {
         <MenuOption
           label="About"
           shortcut="cmd ?"
+          hasChildren={true}
           onClick={() => props.modalOpen(About)}
         />
       </Menu>
@@ -84,21 +86,25 @@ export function MenuBar(props: MenuBarProps) {
         <MenuOption
           label="Open"
           shortcut="cmd o"
-          onClick={() => props.modalOpen(Open)}
+          hasChildren={true}
+          onClick={() => props.modalOpen(props.OpenModal)}
         />
         <MenuOption
           label="New"
           shortcut="cmd n"
-          onClick={() => props.modalOpen(New)}
+          hasChildren={true}
+          onClick={() => props.modalOpen(props.NewModal)}
         />
-        <MenuOption
+        <LinkMenuOption
           label="Download"
           shortcut="cmd-s"
-          onClick={props.onDownload}
+          href={props.data}
+          download={`${props.title}.png`}
         />
         <MenuOption
           label="Export"
           shortcut="cmd e"
+          hasChildren={true}
           onClick={() => props.modalOpen(props.ExportModal)}
         />
       </Menu>
@@ -121,23 +127,21 @@ export function MenuBar(props: MenuBarProps) {
         />
         <MenuSeparator />
         <MenuOption label="Clear All" onClick={props.onClear} />
-        <MenuOption label="Resize" onClick={() => props.modalOpen(props.ResizeModal)} />
+        <MenuOption
+          label="Resize"
+          hasChildren={true}
+          onClick={() => props.modalOpen(props.ResizeModal)}
+        />
       </Menu>
       <Menu
         label="Palette"
         open={state.openMenu === MENU.PALETTE}
         onClick={() => onMenuClick(MENU.PALETTE)}
       >
-        <RadioMenuOption
+        <MenuOption
           label="Limit Colours"
-          options={[
-            { label: "16 colours (CGA)", value: "cga" },
-            { label: "256 colours (Websafe)", value: "web" },
-            { label: "Thousands (GBC)", value: "gbc" },
-            { label: "No limit", value: "full" },
-          ]}
-          value="full"
-          onChange={props.onPaletteChange}
+          hasChildren={true}
+          onClick={() => props.modalOpen(props.PaletteLimitModal)}
         />
         <CheckMenuOption
           label="Lock"
@@ -147,7 +151,8 @@ export function MenuBar(props: MenuBarProps) {
         <MenuOption label="Clear" onClick={props.onPaletteClear} />
         <MenuOption
           label="Import"
-          onClick={() => props.modalOpen(ImportPalette)}
+          hasChildren={true}
+          onClick={() => props.modalOpen(props.ImportPaletteModal)}
         />
       </Menu>
       <Menu

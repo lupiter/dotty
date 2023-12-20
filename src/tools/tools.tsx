@@ -118,21 +118,21 @@ export function Tools(props: ToolProps) {
           <img src={redoIcon} alt="Redo" className={styles.pixelIcon} />
         </button>
         <button
-          className={styles.iconButton}
+          className={`${styles.iconButton} ${styles.largerDevice}`}
           aria-label="zoom out"
           onClick={props.zoomOut}
         >
           <img src={zoomOutIcon} alt="-" className={styles.pixelIcon} />
         </button>
         <button
-          className={styles.iconButton}
+          className={`${styles.iconButton} ${styles.largerDevice}`}
           aria-label="zoom in"
           onClick={props.zoomIn}
         >
           <img src={zoomInIcon} alt="+" className={styles.pixelIcon} />
         </button>
         <button
-          className={styles.iconButton}
+          className={`${styles.iconButton} ${styles.mediumDevice}`}
           aria-label="zoom to fit"
           onClick={props.zoomFit}
         >

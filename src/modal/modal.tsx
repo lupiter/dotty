@@ -1,19 +1,21 @@
-import { useRef } from "react";
+import { useEffect, useRef } from "react";
 import styles from "./modal.module.css";
 
 export function Modal(props: { children: JSX.Element; onClose: () => void }) {
   const dialogRef = useRef<HTMLDialogElement>(null);
 
-  dialogRef.current?.showModal();
-
-  // TODO: capture dialog close
+  useEffect(() => {
+    dialogRef.current?.showModal();
+  }, [dialogRef]);
 
   return (
-    <dialog ref={dialogRef} className={styles.modalDialog} open>
+    <dialog
+      ref={dialogRef}
+      className={styles.modalDialog}
+      onClose={props.onClose}
+    >
       <div className={styles.modalInner}>
-        <div className="inner-border center">
-          <div className={styles.modalContent}>{props.children}</div>
-        </div>
+        <div className={styles.modalContent}>{props.children}</div>
       </div>
     </dialog>
   );

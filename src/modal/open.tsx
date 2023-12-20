@@ -1,19 +1,64 @@
 import { ModalContentProps } from "./modal-content";
 import modalContentsStyles from "./modal-contents.module.css";
 import buttonStyle from "../button/button.module.css";
-import { ChangeEvent, useId, useState } from "react";
+import { ChangeEvent, useId, useRef, useState } from "react";
+import { Size } from "../document/geometry";
 
 type OpenState = {
   image?: string;
+  name?: string;
   error?: string;
+  ready: boolean;
 };
 
-export function Open(props: ModalContentProps) {
-  const [state, setState] = useState<OpenState>({});
+export function Open(
+  props: ModalContentProps & {
+    onOpen: (data: string, size: Size, title: string) => void;
+  }
+) {
+  const [state, setState] = useState<OpenState>({ ready: false });
   const fileId = useId();
+  const image = useRef<HTMLImageElement>(null);
 
   const onFileChanged = (event: ChangeEvent<HTMLInputElement>) => {
-    // TODO
+    if (event.target.files) {
+      const file = event.target.files![0];
+      setState({
+        ready: false,
+        name: file.name,
+        image: URL.createObjectURL(file),
+      });
+    }
+  };
+
+  const onLoad = () => {
+    if (image.current) {
+      if (
+        image.current.naturalWidth > 256 ||
+        image.current.naturalHeight > 256
+      ) {
+        setState({
+          ...state,
+          error:
+            "Sorry, this image is too large. Files should be no larger than 256x256 pixels",
+        });
+        return;
+      }
+      setState({ ...state, ready: true });
+    }
+  };
+
+  const onOpen = () => {
+    if (state.image && image.current && state.name) {
+      props.onOpen(
+        state.image,
+        {
+          width: image.current.naturalWidth,
+          height: image.current.naturalHeight,
+        },
+        state.name
+      );
+    }
   };
 
   return (
@@ -35,7 +80,7 @@ export function Open(props: ModalContentProps) {
 
       <div className={modalContentsStyles.grid}>
         <label className={modalContentsStyles.text}>Preview:</label>
-        <img src={state.image} />
+        <img src={state.image} onLoad={onLoad} ref={image} />
       </div>
 
       <div className={modalContentsStyles.text}>{state.error}</div>
@@ -44,7 +89,13 @@ export function Open(props: ModalContentProps) {
         <button className={buttonStyle.btn} onClick={props.onClose}>
           Cancel
         </button>
-        <button className={buttonStyle.btn}>Open</button>
+        <button
+          className={buttonStyle.btn}
+          disabled={!state.ready}
+          onClick={onOpen}
+        >
+          Open
+        </button>
       </section>
     </>
   );

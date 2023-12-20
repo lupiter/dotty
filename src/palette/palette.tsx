@@ -5,9 +5,13 @@ type PaletteState = {
   history: string[];
 };
 
-export function Palette(props: {color: string, onColorChange: (color: string) => void}) {
+export function Palette(props: {
+  color: string;
+  onColorChange: (color: string) => void;
+  palette: string[];
+}) {
   const [state, setState] = useState<PaletteState>({
-    history: ["#ffffffff", "#ff0000ff", "#00ff00ff", "#0000ffff"],
+    history: [],
   });
 
   const setColor = (color: string) => {
@@ -35,6 +39,17 @@ export function Palette(props: {color: string, onColorChange: (color: string) =>
       </div>
       <div className={styles.history}>
         {state.history.map((color) => (
+          <button
+            className={styles.colorChip}
+            style={{ color: color, backgroundColor: color }}
+            onClick={() => setColor(color)}
+            key={color}
+          >
+            {color}
+          </button>
+        ))}
+
+        {props.palette.map((color) => (
           <button
             className={styles.colorChip}
             style={{ color: color, backgroundColor: color }}

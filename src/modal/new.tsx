@@ -2,6 +2,7 @@ import { ModalContentProps } from "./modal-content";
 import modalContentsStyles from "./modal-contents.module.css";
 import buttonStyle from "../button/button.module.css";
 import { ChangeEvent, useId, useState } from "react";
+import { Size } from "../document/geometry";
 
 type NewState = {
   height: number;
@@ -9,10 +10,12 @@ type NewState = {
   name: string;
 };
 
-export function New(props: ModalContentProps) {
+export function New(
+  props: ModalContentProps & { onNew: (size: Size, name: string) => void }
+) {
   const [state, setState] = useState<NewState>({
     height: 16,
-    width: 15,
+    width: 16,
     name: "My Cool Art",
   });
   const nameId = useId();
@@ -37,6 +40,10 @@ export function New(props: ModalContentProps) {
     setState({ ...state, height: newSize, width: newSize });
   };
 
+  const onNew = () => {
+    props.onNew({ width: state.width, height: state.height }, state.name);
+  };
+
   return (
     <>
       <h1 className={modalContentsStyles.header}>New</h1>
@@ -55,7 +62,11 @@ export function New(props: ModalContentProps) {
         <label className="modeless-text field-label" htmlFor={presetId}>
           Presets:
         </label>
-        <select id={presetId} onChange={onPresetChange} className={modalContentsStyles.select}>
+        <select
+          id={presetId}
+          onChange={onPresetChange}
+          className={modalContentsStyles.select}
+        >
           <option value="16">S - 16x16</option>
           <option value="32">M - 32x32</option>
           <option value="64">L - 64x64</option>
@@ -95,7 +106,9 @@ export function New(props: ModalContentProps) {
         <button className={buttonStyle.btn} onClick={props.onClose}>
           Cancel
         </button>
-        <button className={buttonStyle.btn}>Create</button>
+        <button className={buttonStyle.btn} onClick={onNew}>
+          Create
+        </button>
       </section>
     </>
   );

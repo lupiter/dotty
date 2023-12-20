@@ -64,7 +64,10 @@
   box-shadow: 2px 2px 0px black;
 }
 
-.menu .menu {
-  left: 100%;
-  top: -2px;
+@media (max-width: 500px) {
+  .menuItem:nth-child(4) .menu, .menuItem:nth-child(5) .menu {
+    right: 0;
+    left: auto;
+  }
 }
+

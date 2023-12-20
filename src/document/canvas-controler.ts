@@ -26,6 +26,8 @@ export type CanvasState = {
   backgroundSize: number;
 };
 
+export const SINGLE_TRANSPARENT_PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=";
+
 export type SetCanvasState = React.Dispatch<React.SetStateAction<CanvasState>>;
 
 export class CanvasController {
@@ -246,8 +248,7 @@ export class CanvasController {
   ) {
     const img = new Image();
     if (data === "") {
-      // 1x1 px transparent png
-      img.src = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII="
+      img.src = SINGLE_TRANSPARENT_PIXEL;
     } else {
       img.src = data;
     }

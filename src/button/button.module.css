@@ -10,4 +10,15 @@
   text-align: center;
   min-height: var(--touch-target-size);
   border-image: svg-load("../assets/border.svg") 3;
+  text-decoration: none;
+  color: black;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.btn:disabled {
+  opacity: 0.5;
 }
