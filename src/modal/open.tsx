@@ -21,6 +21,20 @@ export function Open(
   const [state, setState] = useState<OpenState>({ ready: false });
   const image = useRef<HTMLImageElement>(null);
 
+  const readFile = async (file: File): Promise<string> => {
+    const reader = new FileReader();
+    const promise = new Promise<string>((resolve, reject) => {
+      reader.addEventListener('load', () => {
+        resolve(reader.result as string);
+      });
+      reader.addEventListener('error', (e) => {
+        reject(e);
+      })
+      reader.readAsDataURL(file);
+    })
+    return promise;
+  }
+
   useEffect(() => {
     async function setRoot() {
       const root = await navigator.storage.getDirectory();
@@ -37,13 +51,17 @@ export function Open(
             "No available files. If this is surprising, you might have cleaned your browser cache recently.",
         });
       } else {
-        setState({ ...state, files, root });
+        setState({ ...state, files, root, selected: files[0], image: await readFile(await files[0].getFile())});
       }
     }
     if (!state.root) {
       setRoot();
     }
   }, []);
+
+  const onSelect = async (file: FileSystemFileHandle) => {
+    setState({ ...state, selected: file, image: await readFile(await file.getFile())});
+  }
 
   const onLoad = () => {
     if (image.current) {
@@ -77,18 +95,27 @@ export function Open(
 
   return (
     <>
-      <div className={modalContentsStyles.grid}>
-        <ul className={modalContentsStyles.list}>
-          {state.files &&
-            state.files.map((file) => (
-              <li className={modalContentsStyles.listElement} key={file.name}>
-                {file.name}
-              </li>
-            ))}
-        </ul>
+      <ul className={modalContentsStyles.select}>
+        {state.files &&
+          state.files.map((file) => (
+            <li
+            onClick={() => onSelect(file)}
+              className={`${modalContentsStyles.selectItem} ${
+                state.selected &&
+                file.name === state.selected.name &&
+                modalContentsStyles.selected
+              }`}
+              key={file.name}
+              aria-selected={
+                state.selected && file.name === state.selected.name
+              }
+            >
+              {file.name}
+            </li>
+          ))}
+      </ul>
 
-        {state.root && state.root.name}
-      </div>
+      {state.root && state.root.name}
 
       {state.image && (
         <div className={modalContentsStyles.grid}>

@@ -5,7 +5,7 @@ import { ChangeEvent, useId, useState } from "react";
 
 type SaveAsState = {
   name: string;
-  clash?: boolean;
+  clash: boolean;
 };
 
 export function SaveAs(
@@ -13,23 +13,23 @@ export function SaveAs(
 ) {
   const [state, setState] = useState<SaveAsState>({
     name: props.title,
+    clash: true,
   });
   const nameId = useId();
 
-  const checkNameClash = async () => {
+  const checkNameClash = async (name: string) => {
     const root = await navigator.storage.getDirectory();
     for await (const handle of root.values()) {
-      if (handle.name === state.name) {
-        setState({...state, clash: true});
+      if (handle.name === name + ".png") {
+        setState({ ...state, clash: true, name });
         return;
       }
     }
-    setState({...state, clash: false});
-  }
+    setState({ ...state, clash: false, name });
+  };
 
   const onNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setState({ ...state, name: event.target.value });
-    checkNameClash();
+    checkNameClash(event.target.value);
   };
 
   const onSaveAs = () => {
@@ -62,7 +62,11 @@ export function SaveAs(
         <button className={buttonStyle.btn} onClick={props.onClose}>
           Cancel
         </button>
-        <button className={buttonStyle.btn} onClick={onSaveAs} disabled={state.clash === undefined}>
+        <button
+          className={buttonStyle.btn}
+          onClick={onSaveAs}
+          disabled={state.clash === undefined}
+        >
           Save As
         </button>
       </section>

@@ -85,3 +85,26 @@ h2 {
   width: var(--touch-target-size);
   overflow: hidden;
 }
+
+.select {
+  display: flex;
+  flex-direction: column;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  border: 2px solid black;
+  overflow-y: scroll;
+  height: calc(var(--touch-target-size) * 5.5);
+}
+
+.selectItem {
+  display: grid;
+  grid-column: 1fr;
+  min-height: var(--touch-target-size);
+  padding: 0 0.5rem;
+}
+
+.selectItem.selected {
+  color: white;
+  background: black;
+}
