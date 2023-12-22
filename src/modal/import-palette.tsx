@@ -2,18 +2,18 @@ import { ModalContentProps } from "./modal-content";
 import modalContentsStyles from "./modal-contents.module.css";
 import buttonStyle from "../button/button.module.css";
 import { ChangeEvent, useId, useRef, useState } from "react";
-import { Size } from "../document/geometry";
-import { ArtMaths } from "../document/maths";
+import { Size } from "../color/geometry";
+import { Color } from "../color/color";
 
 type ImportPaletteState = {
   error?: string;
   data?: string;
   size?: Size;
-  colors: string[];
+  colors: Color[];
 };
 
 export function ImportPalette(
-  props: ModalContentProps & { onImport: (colors: string[]) => void }
+  props: ModalContentProps & { onImport: (colors: Color[]) => void }
 ) {
   const [state, setState] = useState<ImportPaletteState>({ colors: [] });
   const id = useId();
@@ -40,10 +40,10 @@ export function ImportPalette(
       ctx.drawImage(image.current, 0, 0);
       ctx.closePath();
 
-      const colors = new Set<string>();
+      const colors = new Set<Color>();
       for (let x = 0; x < image.current.naturalWidth; x++) {
         for (let y = 0; y < image.current.naturalHeight; y++) {
-          const color = ArtMaths.pixelToColor(
+          const color = Color.fromPixel(
             ctx.getImageData(x, y, 1, 1).data
           );
           colors.add(color);
@@ -58,7 +58,7 @@ export function ImportPalette(
         }
       }
 
-      setState({ ...state, colors: Array.from(colors).sort(ArtMaths.colorSort) });
+      setState({ ...state, colors: Array.from(colors).sort(Color.sort) });
     }
   }
 
@@ -97,13 +97,13 @@ export function ImportPalette(
       <div className={modalContentsStyles.text}>{state.error}</div>
 
       <div className={modalContentsStyles.chipGrid}>
-        {state.colors.map((color: string) => (
+        {state.colors.map((color: Color) => (
           <div
             className={modalContentsStyles.colorChip}
-            style={{ backgroundColor: color, color }}
-            key={color}
+            style={{ backgroundColor: color.hex, color: color.hex }}
+            key={color.hex}
           >
-            {color}
+            {color.hex}
           </div>
         ))}
       </div>

@@ -2,7 +2,7 @@ import { ModalContentProps } from "./modal-content";
 import modalContentsStyles from "./modal-contents.module.css";
 import buttonStyle from "../button/button.module.css";
 import { ChangeEvent, useEffect, useId, useRef, useState } from "react";
-import { Point, Size } from "../document/geometry";
+import { Point, Size } from "../color/geometry";
 import { SINGLE_TRANSPARENT_PIXEL } from "../document/canvas-controler";
 
 export enum RESIZE_FROM {

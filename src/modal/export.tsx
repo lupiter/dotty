@@ -2,7 +2,7 @@ import { useEffect, useId, useRef, useState } from "react";
 import modalContentsStyles from "./modal-contents.module.css";
 import { ModalContentProps } from "./modal-content";
 import buttonStyle from "../button/button.module.css";
-import { Size } from "../document/geometry";
+import { Size } from "../color/geometry";
 import { SINGLE_TRANSPARENT_PIXEL } from "../document/canvas-controler";
 
 enum ExportSize {

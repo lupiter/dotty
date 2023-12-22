@@ -14,13 +14,26 @@ export enum PALETTE {
   FULL,
 }
 
+export const paletteLabel = (palette: PALETTE): string => {
+  switch (palette) {
+    case PALETTE.CGA:
+      return "CGA"
+    case PALETTE.GBC:
+      return "GBC"
+    case PALETTE.WEB:
+      return "WEB"
+    case PALETTE.FULL:
+      return "Unlimited";
+  }
+}
+
 type PaletteLimitOption = { label: string; value: PALETTE; id: string };
 
 export function PaletteLimit(
-  props: ModalContentProps & { onChange: (limit: PALETTE) => void }
+  props: ModalContentProps & { onChange: (limit: PALETTE) => void, limit: PALETTE }
 ) {
   const [state, setState] = useState<PaletteLimitState>({
-    limit: PALETTE.FULL,
+    limit: props.limit,
   });
 
   const LIMITS: PaletteLimitOption[] = [
@@ -58,6 +71,7 @@ export function PaletteLimit(
           </div>
         ))}
       </fieldset>
+      <p>Please note, this action cannot be undone.</p>
 
       <section className={modalContentsStyles.buttons}>
         <button className={buttonStyle.btn} onClick={props.onClose}>

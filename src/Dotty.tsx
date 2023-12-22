@@ -6,9 +6,9 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "./modal/modal";
 import { UndoManager, UndoState } from "./document/undo-manager";
 import { Canvas } from "./document/canvas";
-import { Point, Size } from "./document/geometry";
+import { Point, Size } from "./color/geometry";
 import styles from "./dotty.module.css";
-import { RESIZE_FROM, Resize } from "./modal/resize";
+import { Resize } from "./modal/resize";
 import { ModalContentProps } from "./modal/modal-content";
 import { Export } from "./modal/export";
 import { New } from "./modal/new";
@@ -16,33 +16,36 @@ import { SINGLE_TRANSPARENT_PIXEL } from "./document/canvas-controler";
 import { Open } from "./modal/open";
 import { ImportPalette } from "./modal/import-palette";
 import { PALETTE, PaletteLimit } from "./modal/palette-limit";
+import { Color } from "./color/color";
 
 type DottyState = {
   ModalContent?: (props: { onClose: () => void }) => JSX.Element;
   undo: UndoState;
   tool: TOOL;
-  color: string;
+  color: Color;
   title: string;
   zoom: number;
   size: Size;
   documentScroll: Point;
   pan: Point;
-  palette: string[];
+  palette: Color[];
   paletteLimit: PALETTE;
+  paletteLocked: boolean;
 };
 
 function Dotty() {
   const [state, setState] = useState<DottyState>({
     undo: { future: [], past: [], current: "" },
     tool: TOOL.PEN,
-    color: "#000000ff",
+    color: Color.fromHex("#000000"),
     zoom: 1.0,
     title: "My Cool Art",
     size: { width: 16, height: 16 },
     documentScroll: { x: 0, y: 0 },
     pan: { x: 0, y: 0 },
-    palette: ["#ffffffff", "#ff0000ff", "#00ff00ff", "#0000ffff"],
+    palette: [Color.fromHex("#ffffff"), Color.fromHex("#ff0000"), Color.fromHex("#00ff00"), Color.fromHex("#0000ff")],
     paletteLimit: PALETTE.FULL,
+    paletteLocked: false,
   });
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -50,9 +53,12 @@ function Dotty() {
   const onClear = () => {
     onUndoTick("");
   };
-  const onPaletteChange = (palette: string) => {};
-  const onPaletteClear = () => {};
-  const onPaletteLockChange = (value: boolean) => {};
+  const onPaletteClear = () => {
+    setState({...state, palette: []})
+  };
+  const onPaletteLockChange = (value: boolean) => {
+    setState({...state, paletteLocked: value});
+  };
   const undo = () => {
     const undone = UndoManager.undo(state.undo);
     setState({ ...state, undo: undone });
@@ -102,7 +108,7 @@ function Dotty() {
     setState({ ...state, ModalContent });
   };
 
-  const onColorChange = (color: string) => {
+  const onColorChange = (color: Color) => {
     setState({ ...state, color });
   };
 
@@ -200,7 +206,7 @@ function Dotty() {
     return <Open onClose={modalProps.onClose} onOpen={onOpen} />;
   };
 
-  const onImportPalette = (colors: string[]) => {
+  const onImportPalette = (colors: Color[]) => {
     setState({
       ...state,
       ModalContent: undefined,
@@ -222,7 +228,11 @@ function Dotty() {
   };
   const PaletteLimitModal = (modalProps: ModalContentProps): JSX.Element => {
     return (
-      <PaletteLimit onClose={modalProps.onClose} onChange={onLimitPalette} />
+      <PaletteLimit
+        onClose={modalProps.onClose}
+        onChange={onLimitPalette}
+        limit={state.paletteLimit}
+      />
     );
   };
 
@@ -243,12 +253,11 @@ function Dotty() {
         }
         undo={undo}
         redo={redo}
-        onPaletteChange={onPaletteChange}
         canRedo={canRedo}
         canUndo={canUndo}
         onPaletteClear={onPaletteClear}
         onPaletteLockChange={onPaletteLockChange}
-        paletteLocked={true}
+        paletteLocked={state.paletteLocked}
         zoomIn={zoomIn}
         zoomOut={zoomOut}
         zoomFit={zoomFit}
@@ -299,6 +308,8 @@ function Dotty() {
         onColorChange={onColorChange}
         color={state.color}
         palette={state.palette}
+        limit={state.paletteLimit}
+        locked={state.paletteLocked}
       />
     </>
   );

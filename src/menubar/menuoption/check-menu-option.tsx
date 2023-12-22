@@ -17,7 +17,6 @@ export function CheckMenuOption(
     <li
       role="menuitem"
       aria-haspopup="menu"
-      onClick={onChange}
       className={`${styles.menuButton} ${styles.menuItem} ${styles.checkMenu}`}
     >
       <input

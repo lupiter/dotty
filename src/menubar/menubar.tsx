@@ -25,7 +25,6 @@ type MenuBarProps = {
   canUndo: boolean;
   canRedo: boolean;
   onClear: () => void;
-  onPaletteChange: (palette: string) => void;
   onPaletteLockChange: (value: boolean) => void;
   paletteLocked: boolean;
   onPaletteClear: () => void;

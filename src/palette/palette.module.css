@@ -58,6 +58,24 @@
   box-shadow: 2px 2px 0 black;
 }
 
+.locked {
+  background: white;
+  image-rendering: pixelated;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  margin-left: auto;
+  border: 2px solid black;
+  box-shadow: 2px 2px 0 black;
+}
+
+.locked img {
+  width: 16px;
+  height: 16px;
+}
+
 @media (max-width: 900px) {
   .window {
     grid-row: 4 / 5;

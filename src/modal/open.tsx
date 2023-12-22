@@ -2,7 +2,7 @@ import { ModalContentProps } from "./modal-content";
 import modalContentsStyles from "./modal-contents.module.css";
 import buttonStyle from "../button/button.module.css";
 import { ChangeEvent, useId, useRef, useState } from "react";
-import { Size } from "../document/geometry";
+import { Size } from "../color/geometry";
 
 type OpenState = {
   image?: string;

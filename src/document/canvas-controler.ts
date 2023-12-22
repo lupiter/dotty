@@ -1,13 +1,13 @@
 import { TOOL } from "../tools/tools";
-import { Point, Geometry, Size } from "./geometry";
-import { ArtMaths } from "./maths";
+import { Point, Geometry, Size } from "../color/geometry";
+import { Color } from "../color/color";
 
 export type CanvasProps = {
   size: Size;
   tool: TOOL;
-  color: string;
+  color: Color;
   setScroll: (scroll: Point) => void;
-  onColorChange: (color: string) => void;
+  onColorChange: (color: Color) => void;
   zoom: number;
   pan: Point;
   onPanChange: (pan: Point) => void;
@@ -83,7 +83,7 @@ export class CanvasController {
       const x = Math.floor(offset.x / props.zoom);
       const y = Math.floor(offset.y / props.zoom);
       props.onColorChange(
-        ArtMaths.pixelToColor(ctx.getImageData(x, y, 1, 1).data)
+        Color.fromPixel(ctx.getImageData(x, y, 1, 1).data)
       );
     }
   }
@@ -100,21 +100,20 @@ export class CanvasController {
     let start = (point.y * props.size.width + point.x) * 4;
     let pixel = imageData.slice(start, start + 16);
     // exit if color is the same
-    let color = ArtMaths.pixelToColor(pixel);
-    let newColor = ArtMaths.colorToPixel(props.color);
-    if (props.color === color) {
+    let color = Color.fromPixel(pixel);
+    if (props.color.hex === color.hex) {
       return;
     }
 
     const matchStartColor = (pixelPos: number) => {
-      let col = ArtMaths.pixelToColor(imageData.slice(pixelPos, pixelPos + 16));
-      return col === color;
+      let col = Color.fromPixel(imageData.slice(pixelPos, pixelPos + 16));
+      return col.hex === color.hex;
     };
     const colorPixel = (pixelPos: number) => {
-      imageData[pixelPos] = newColor.r;
-      imageData[pixelPos + 1] = newColor.g;
-      imageData[pixelPos + 2] = newColor.b;
-      imageData[pixelPos + 3] = newColor.a;
+      imageData[pixelPos] = props.color.r;
+      imageData[pixelPos + 1] = props.color.g;
+      imageData[pixelPos + 2] = props.color.b;
+      imageData[pixelPos + 3] = props.color.a;
     };
 
     let pixelStack = [point];
@@ -279,7 +278,7 @@ export class CanvasController {
   ) {
     const x = Math.floor(offset.x / props.zoom);
     const y = Math.floor(offset.y / props.zoom);
-    const fillStyle = props.color;
+    const fillStyle = props.color.hex;
     // console.log(drawMode, fillStyle);
     ctx.beginPath();
     if (props.tool === TOOL.PEN) {

@@ -1,5 +1,5 @@
 import styles from "./document.module.css";
-import { Size } from "./geometry";
+import { Size } from "../color/geometry";
 
 type DocumentProps = {
   active: boolean;

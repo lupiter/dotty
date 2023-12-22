@@ -1,6 +1,6 @@
 import { createRef, useEffect, useRef, useState } from "react";
 import styles from "./document.module.css";
-import { Point } from "./geometry";
+import { Point } from "../color/geometry";
 import { CanvasProps, CanvasController, CanvasState } from "./canvas-controler";
 import { TOOL } from "../tools/tools";
 
