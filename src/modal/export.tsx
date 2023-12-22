@@ -9,31 +9,60 @@ enum ExportSize {
   SMALL,
   MEDIUM,
   LARGE,
+  ORIGINAL,
 }
 
 type ExportState = {
-  size: ExportSize;
+  size: ExportSizeOption;
   src?: string;
+};
+
+type ExportSizeOption = {
+  size: ExportSize;
+  label: string;
+  pixels?: number;
+  id: string;
 };
 
 export function Export(
   props: { data: string; size: Size; title: string } & ModalContentProps
 ) {
-  const [state, setState] = useState<ExportState>({ size: ExportSize.MEDIUM });
-  const idSmall = useId();
-  const idMedium = useId();
-  const idLarge = useId();
+  const exportSizeOptions: ExportSizeOption[] = [
+    {
+      size: ExportSize.SMALL,
+      label: "256px - Small, for forums",
+      pixels: 256,
+      id: useId(),
+    },
+    {
+      size: ExportSize.MEDIUM,
+      label: "1080px - Medium, for social media",
+      pixels: 1080,
+      id: useId(),
+    },
+    {
+      size: ExportSize.LARGE,
+      label: "2480px - Large, for printing",
+      pixels: 2480,
+      id: useId(),
+    },
+    {
+      size: ExportSize.ORIGINAL,
+      label: "Original - for game assets etc.",
+      id: useId(),
+    },
+  ];
+
+  const [state, setState] = useState<ExportState>({
+    size: exportSizeOptions[2],
+  });
   const name = useId();
   const img = useRef<HTMLImageElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
 
-  let requestedSize: number = 256;
-  if (state.size === ExportSize.MEDIUM) {
-    requestedSize = 1080;
-  } else if (state.size === ExportSize.LARGE) {
-    requestedSize = 2480;
-  }
-  const zoom = Math.ceil(requestedSize / props.size.width);
+  const zoom = state.size.pixels
+    ? Math.ceil(state.size.pixels / props.size.width)
+    : 1;
   const width = zoom * props.size.width;
   const height = zoom * props.size.height;
 
@@ -49,7 +78,7 @@ export function Export(
   };
   useEffect(onLoad, [state.size]);
 
-  const exportSizeChanged = (value: ExportSize) => {
+  const exportSizeChanged = (value: ExportSizeOption) => {
     setState({ ...state, size: value });
   };
 
@@ -60,43 +89,24 @@ export function Export(
     <>
       <h1 className={modalContentsStyles.header}>Export</h1>
 
-      <div className={modalContentsStyles.grid}>
-        <fieldset className={modalContentsStyles.fieldset}>
-          <legend>Size, at least:</legend>
-          <input
-            id={idSmall}
-            className={modalContentsStyles.input}
-            type="radio"
-            name={name}
-            value={ExportSize.SMALL}
-            checked={state.size === ExportSize.SMALL}
-            onChange={() => exportSizeChanged(ExportSize.SMALL)}
-          />
-          <label htmlFor={idSmall}>256px wide - Small, for forums</label>
-          <input
-            id={idMedium}
-            className={modalContentsStyles.input}
-            type="radio"
-            name={name}
-            value={ExportSize.MEDIUM}
-            checked={state.size === ExportSize.MEDIUM}
-            onChange={() => exportSizeChanged(ExportSize.MEDIUM)}
-          />
-          <label htmlFor={idMedium}>
-            1080px wide - Medium, for social media
-          </label>
-          <input
-            id={idLarge}
-            className={modalContentsStyles.input}
-            type="radio"
-            name={name}
-            value={ExportSize.LARGE}
-            checked={state.size === ExportSize.LARGE}
-            onChange={() => exportSizeChanged(ExportSize.LARGE)}
-          />
-          <label htmlFor={idLarge}>2480px wide - Large, for printing</label>
-        </fieldset>
-      </div>
+      <fieldset className={modalContentsStyles.groupedFieldset}>
+        <legend>Size</legend>
+
+        {exportSizeOptions.map((option) => (
+          <span className={modalContentsStyles.fieldset}>
+            <input
+              id={option.id}
+              className={modalContentsStyles.input}
+              type="radio"
+              name={name}
+              value={option.size}
+              checked={state.size.size === option.size}
+              onChange={() => exportSizeChanged(option)}
+            />
+            <label htmlFor={option.id}>{option.label}</label>
+          </span>
+        ))}
+      </fieldset>
       <img
         src={src}
         onLoad={onLoad}

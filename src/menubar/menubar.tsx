@@ -7,7 +7,6 @@ import logo from "../assets/logo.png";
 import { useState } from "react";
 import { CheckMenuOption } from "./menuoption/check-menu-option";
 import { ModalContentProps } from "../modal/modal-content";
-import { LinkMenuOption } from "./menuoption/link-menu-option";
 
 enum MENU {
   APP,
@@ -18,8 +17,6 @@ enum MENU {
 }
 
 type MenuBarProps = {
-  data: string;
-  title: string;
   undo: () => void;
   redo: () => void;
   canUndo: boolean;
@@ -28,6 +25,7 @@ type MenuBarProps = {
   onPaletteLockChange: (value: boolean) => void;
   paletteLocked: boolean;
   onPaletteClear: () => void;
+  save: () => void;
   zoomIn: () => void;
   zoomOut: () => void;
   zoomFit: () => void;
@@ -38,9 +36,11 @@ type MenuBarProps = {
   ExportModal: (props: ModalContentProps) => JSX.Element;
   ResizeModal: (props: ModalContentProps) => JSX.Element;
   NewModal: (props: ModalContentProps) => JSX.Element;
-  OpenModal: (props: ModalContentProps) => JSX.Element;
+  ImportModal: (props: ModalContentProps) => JSX.Element;
   ImportPaletteModal: (props: ModalContentProps) => JSX.Element;
   PaletteLimitModal: (props: ModalContentProps) => JSX.Element;
+  SaveAsModal: (props: ModalContentProps) => JSX.Element;
+  OpenModal: (props: ModalContentProps) => JSX.Element;
 };
 
 type MenuBarState = {
@@ -83,22 +83,30 @@ export function MenuBar(props: MenuBarProps) {
         onClick={() => onMenuClick(MENU.FILE)}
       >
         <MenuOption
-          label="Open"
-          shortcut="cmd o"
-          hasChildren={true}
-          onClick={() => props.modalOpen(props.OpenModal)}
-        />
-        <MenuOption
           label="New"
           shortcut="cmd n"
           hasChildren={true}
           onClick={() => props.modalOpen(props.NewModal)}
         />
-        <LinkMenuOption
-          label="Download"
-          shortcut="cmd-s"
-          href={props.data}
-          download={`${props.title}.png`}
+        <MenuOption
+          label="Open"
+          shortcut="cmd o"
+          hasChildren={true}
+          onClick={() => props.modalOpen(props.OpenModal)}
+        />
+        <MenuSeparator />
+        <MenuOption label="Save" shortcut="cmd s" onClick={() => props.save()} />
+        <MenuOption
+          label="Save As"
+          shortcut="cmd shift s"
+          hasChildren={true}
+          onClick={() => props.modalOpen(props.SaveAsModal)}
+        />
+        <MenuSeparator />
+        <MenuOption
+          label="Import"
+          hasChildren={true}
+          onClick={() => props.modalOpen(props.ImportModal)}
         />
         <MenuOption
           label="Export"

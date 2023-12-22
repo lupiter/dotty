@@ -12,11 +12,17 @@ import { Resize } from "./modal/resize";
 import { ModalContentProps } from "./modal/modal-content";
 import { Export } from "./modal/export";
 import { New } from "./modal/new";
-import { SINGLE_TRANSPARENT_PIXEL } from "./document/canvas-controler";
-import { Open } from "./modal/open";
+import { Import } from "./modal/import";
 import { ImportPalette } from "./modal/import-palette";
 import { PALETTE, PaletteLimit } from "./modal/palette-limit";
 import { Color } from "./color/color";
+import { Open } from "./modal/open";
+import { FileWrieOperationMessage } from "./worker/messages";
+import { SaveAs } from "./modal/save-as";
+import FileWorker from './worker/file.worker?worker&url';
+
+const fileWorker = new Worker(FileWorker);
+
 
 type DottyState = {
   ModalContent?: (props: { onClose: () => void }) => JSX.Element;
@@ -31,6 +37,7 @@ type DottyState = {
   palette: Color[];
   paletteLimit: PALETTE;
   paletteLocked: boolean;
+  file?: FileSystemFileHandle;
 };
 
 function Dotty() {
@@ -176,7 +183,9 @@ function Dotty() {
     );
   };
 
-  const onNew = (size: Size, title: string) => {
+  const onNew = async (size: Size, title: string) => {
+    const root = await navigator.storage.getDirectory();
+    const file = await root.getFileHandle(`${title}.png`, { "create" : true });
     setState({
       ...state,
       size,
@@ -185,13 +194,14 @@ function Dotty() {
       title,
       documentScroll: { x: 0, y: 0 },
       pan: { x: 0, y: 0 },
+      file,
     });
   };
   const NewModal = (modalProps: ModalContentProps): JSX.Element => {
     return <New onClose={modalProps.onClose} onNew={onNew} />;
   };
 
-  const onOpen = (data: string, size: Size, title: string) => {
+  const onImport = (data: string, size: Size, title: string) => {
     setState({
       ...state,
       size,
@@ -202,8 +212,8 @@ function Dotty() {
       pan: { x: 0, y: 0 },
     });
   };
-  const OpenModal = (modalProps: ModalContentProps): JSX.Element => {
-    return <Open onClose={modalProps.onClose} onOpen={onOpen} />;
+  const ImportModal = (modalProps: ModalContentProps): JSX.Element => {
+    return <Import onClose={modalProps.onClose} onImport={onImport} />;
   };
 
   const onImportPalette = (colors: Color[]) => {
@@ -236,6 +246,51 @@ function Dotty() {
     );
   };
 
+  const onOpen = (data: string, size: Size, title: string) => {
+    setState({
+      ...state,
+      size,
+      undo: { past: [], future: [], current: data },
+      ModalContent: undefined,
+      title,
+      documentScroll: { x: 0, y: 0 },
+      pan: { x: 0, y: 0 },
+    });
+  }
+  const OpenModal = (modalProps: ModalContentProps): JSX.Element => {
+    return (
+      <Open onClose={modalProps.onClose} onOpen={onOpen} />
+    );
+  }
+
+  const onSaveAs = async (title: string) => {
+    const root = await navigator.storage.getDirectory();
+    const file = await root.getFileHandle(`${title}.png`, { "create" : true });
+    setState({
+      ...state,
+      ModalContent: undefined,
+      title,
+      file,
+    });
+    onSave(file);
+  }
+  const SaveAsModal = (modalProps: ModalContentProps): JSX.Element => {
+    return (
+      <SaveAs onClose={modalProps.onClose} title={state.title} onSaveAs={onSaveAs} />
+    );
+  }
+
+  const onSave = async (file?: FileSystemFileHandle) => {
+    const theFile = file ? file : state.file;
+    if (theFile) {
+      const operation: FileWrieOperationMessage = {
+        file: theFile.name,
+        data: state.undo.current,
+      }
+      fileWorker.postMessage(JSON.stringify(operation))
+    }
+  };
+
   return (
     <>
       {state.ModalContent && (
@@ -245,12 +300,6 @@ function Dotty() {
       )}
       <MenuBar
         onClear={onClear}
-        title={state.title}
-        data={
-          state.undo.current !== ""
-            ? state.undo.current
-            : SINGLE_TRANSPARENT_PIXEL
-        }
         undo={undo}
         redo={redo}
         canRedo={canRedo}
@@ -266,9 +315,12 @@ function Dotty() {
         ResizeModal={ResizeModal}
         ExportModal={ExportModal}
         NewModal={NewModal}
-        OpenModal={OpenModal}
+        ImportModal={ImportModal}
         ImportPaletteModal={ImportPaletteModal}
         PaletteLimitModal={PaletteLimitModal}
+        OpenModal={OpenModal}
+        SaveAsModal={SaveAsModal}
+        save={onSave}
       />
       <Document
         active={state.ModalContent === undefined}
