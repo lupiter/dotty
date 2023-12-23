@@ -2,18 +2,16 @@ import { FileWrieOperationMessage } from "./messages";
 
 self.onmessage = async (e: MessageEvent) => {
   const message = JSON.parse(e.data);
+  const fileMessage = message as FileWrieOperationMessage;
 
-  if ("operation" in message) {
-    const fileMessage = message as FileWrieOperationMessage;
+  const root = await navigator.storage.getDirectory();
+  const file = await root.getFileHandle(fileMessage.file);
+  
+  const base64 = fileMessage.data.split('base64,')[1];
+  const data = Uint8Array.from(atob(base64), c => c.charCodeAt(0))
 
-    const root = await navigator.storage.getDirectory();
-    const file = await root.getFileHandle(fileMessage.file);
-
-    const accessHandle = await file.createSyncAccessHandle();
-    const encoder = new TextEncoder();
-    const writeBuffer = encoder.encode(fileMessage.data);
-    accessHandle.write(writeBuffer, { at: 0 });
-    accessHandle.flush();
-    accessHandle.close();
-  }
+  const accessHandle = await file.createSyncAccessHandle();
+  accessHandle.write(data.buffer, { at: 0 });
+  accessHandle.flush();
+  accessHandle.close();
 };

@@ -19,10 +19,9 @@ import { Color } from "./color/color";
 import { Open } from "./modal/open";
 import { FileWrieOperationMessage } from "./worker/messages";
 import { SaveAs } from "./modal/save-as";
-import FileWorker from './worker/file.worker?worker&url';
+import FileWorker from "./worker/file.worker?worker";
 
-const fileWorker = new Worker(FileWorker);
-
+const fileWorker = new FileWorker();
 
 type DottyState = {
   ModalContent?: (props: { onClose: () => void }) => JSX.Element;
@@ -50,7 +49,12 @@ function Dotty() {
     size: { width: 16, height: 16 },
     documentScroll: { x: 0, y: 0 },
     pan: { x: 0, y: 0 },
-    palette: [Color.fromHex("#ffffff"), Color.fromHex("#ff0000"), Color.fromHex("#00ff00"), Color.fromHex("#0000ff")],
+    palette: [
+      Color.fromHex("#ffffff"),
+      Color.fromHex("#ff0000"),
+      Color.fromHex("#00ff00"),
+      Color.fromHex("#0000ff"),
+    ],
     paletteLimit: PALETTE.FULL,
     paletteLocked: false,
   });
@@ -61,10 +65,10 @@ function Dotty() {
     onUndoTick("");
   };
   const onPaletteClear = () => {
-    setState({...state, palette: []})
+    setState({ ...state, palette: [] });
   };
   const onPaletteLockChange = (value: boolean) => {
-    setState({...state, paletteLocked: value});
+    setState({ ...state, paletteLocked: value });
   };
   const undo = () => {
     const undone = UndoManager.undo(state.undo);
@@ -185,7 +189,7 @@ function Dotty() {
 
   const onNew = async (size: Size, title: string) => {
     const root = await navigator.storage.getDirectory();
-    const file = await root.getFileHandle(`${title}.png`, { "create" : true });
+    const file = await root.getFileHandle(`${title}.png`, { create: true });
     setState({
       ...state,
       size,
@@ -256,16 +260,14 @@ function Dotty() {
       documentScroll: { x: 0, y: 0 },
       pan: { x: 0, y: 0 },
     });
-  }
+  };
   const OpenModal = (modalProps: ModalContentProps): JSX.Element => {
-    return (
-      <Open onClose={modalProps.onClose} onOpen={onOpen} />
-    );
-  }
+    return <Open onClose={modalProps.onClose} onOpen={onOpen} />;
+  };
 
   const onSaveAs = async (title: string) => {
     const root = await navigator.storage.getDirectory();
-    const file = await root.getFileHandle(`${title}.png`, { "create" : true });
+    const file = await root.getFileHandle(`${title}.png`, { create: true });
     setState({
       ...state,
       ModalContent: undefined,
@@ -273,12 +275,16 @@ function Dotty() {
       file,
     });
     onSave(file);
-  }
+  };
   const SaveAsModal = (modalProps: ModalContentProps): JSX.Element => {
     return (
-      <SaveAs onClose={modalProps.onClose} title={state.title} onSaveAs={onSaveAs} />
+      <SaveAs
+        onClose={modalProps.onClose}
+        title={state.title}
+        onSaveAs={onSaveAs}
+      />
     );
-  }
+  };
 
   const onSave = async (file?: FileSystemFileHandle) => {
     const theFile = file ? file : state.file;
@@ -286,8 +292,8 @@ function Dotty() {
       const operation: FileWrieOperationMessage = {
         file: theFile.name,
         data: state.undo.current,
-      }
-      fileWorker.postMessage(JSON.stringify(operation))
+      };
+      fileWorker.postMessage(JSON.stringify(operation));
     }
   };
 

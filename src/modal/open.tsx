@@ -8,7 +8,6 @@ type OpenState = {
   root?: FileSystemDirectoryHandle;
   files?: FileSystemFileHandle[];
   error?: string;
-  ready: boolean;
   image?: string;
   selected?: FileSystemFileHandle;
 };
@@ -18,7 +17,7 @@ export function Open(
     onOpen: (data: string, size: Size, title: string) => void;
   }
 ) {
-  const [state, setState] = useState<OpenState>({ ready: false });
+  const [state, setState] = useState<OpenState>({  });
   const image = useRef<HTMLImageElement>(null);
 
   const readFile = async (file: File): Promise<string> => {
@@ -63,23 +62,6 @@ export function Open(
     setState({ ...state, selected: file, image: await readFile(await file.getFile())});
   }
 
-  const onLoad = () => {
-    if (image.current) {
-      if (
-        image.current.naturalWidth > 256 ||
-        image.current.naturalHeight > 256
-      ) {
-        setState({
-          ...state,
-          error:
-            "Sorry, this image is too large. Files should be no larger than 256x256 pixels",
-        });
-        return;
-      }
-      setState({ ...state, ready: true });
-    }
-  };
-
   const onImport = () => {
     if (state.image && image.current && state.selected && state.selected.name) {
       props.onOpen(
@@ -88,7 +70,7 @@ export function Open(
           width: image.current.naturalWidth,
           height: image.current.naturalHeight,
         },
-        state.selected?.name
+        state.selected?.name.split(".png")[0]
       );
     }
   };
@@ -120,7 +102,7 @@ export function Open(
       {state.image && (
         <div className={modalContentsStyles.grid}>
           <label className={modalContentsStyles.text}>Preview:</label>
-          <img src={state.image} onLoad={onLoad} ref={image} />
+          <img src={state.image} className={modalContentsStyles.preview}  ref={image} />
         </div>
       )}
 
@@ -132,7 +114,7 @@ export function Open(
         </button>
         <button
           className={buttonStyle.btn}
-          disabled={!state.ready}
+          disabled={!state.image}
           onClick={onImport}
         >
           Open
