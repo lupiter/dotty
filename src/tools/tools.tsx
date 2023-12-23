@@ -96,6 +96,7 @@ export function Tools(props: ToolProps) {
                 src={tool.icon}
                 className={styles.pixelIcon}
                 alt={tool.label}
+                title={tool.label}
               />
             </label>
           </span>

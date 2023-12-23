@@ -90,6 +90,9 @@ export function keyboardShortcut(
       case "p":
         setState({ ...state, tool: TOOL.PEN });
         break;
+      case "m":
+        setState({ ...state, tool: TOOL.MOVE });
+        break;
     }
   }
 }
