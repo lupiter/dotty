@@ -12,3 +12,37 @@
   margin: auto;
   position: relative;
 }
+
+.root {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  display: grid;
+  font-size: var(--font-size);
+  font-family: var(--ui-font);
+  grid-template-columns:
+    calc(
+      var(--touch-target-size) + 4px +
+        max(env(safe-area-inset-right, 0.5rem), 0.5rem) * 2
+    )
+    auto;
+  background-color: white;
+  background: url("./assets/bg.png");
+  grid-template-rows: calc(var(--touch-target-size) + 0.5rem) auto calc(
+      var(--touch-target-size) * 2 + 4px +
+        max(env(safe-area-inset-bottom), 0.5rem)
+    );
+  /* background-size: 4px 4px; */
+  image-rendering: pixelated;
+}
+
+@media (max-width: 900px) {
+  .root {
+    grid-template-columns: 1fr;
+    grid-template-rows: calc(var(--touch-target-size) + 0.5rem) calc(
+        var(--touch-target-size) + 4px + 0.5rem
+      ) auto calc(
+        var(--touch-target-size) * 2 + 4px + 0.5rem + env(safe-area-inset-bottom)
+      );
+  }
+}

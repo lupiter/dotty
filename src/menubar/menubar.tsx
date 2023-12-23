@@ -62,6 +62,11 @@ export function MenuBar(props: MenuBarProps) {
     }
   };
 
+  const onSave = () => {
+    props.save();
+    setState({ ...state, openMenu: undefined });
+  };
+
   return (
     <menu role="menubar" className={style.menuBar}>
       <Menu
@@ -72,7 +77,7 @@ export function MenuBar(props: MenuBarProps) {
       >
         <MenuOption
           label="About"
-          shortcut="cmd ?"
+          shortcut="⌘ ?"
           hasChildren={true}
           onClick={() => props.modalOpen(About)}
         />
@@ -84,21 +89,21 @@ export function MenuBar(props: MenuBarProps) {
       >
         <MenuOption
           label="New"
-          shortcut="cmd n"
+          shortcut="⌘ N"
           hasChildren={true}
           onClick={() => props.modalOpen(props.NewModal)}
         />
         <MenuOption
           label="Open"
-          shortcut="cmd o"
+          shortcut="⌘ O"
           hasChildren={true}
           onClick={() => props.modalOpen(props.OpenModal)}
         />
         <MenuSeparator />
-        <MenuOption label="Save" shortcut="cmd s" onClick={() => props.save()} />
+        <MenuOption label="Save" shortcut="⌘ S" onClick={onSave} />
         <MenuOption
           label="Save As"
-          shortcut="cmd shift s"
+          shortcut="⇧ ⌘ S"
           hasChildren={true}
           onClick={() => props.modalOpen(props.SaveAsModal)}
         />
@@ -110,7 +115,7 @@ export function MenuBar(props: MenuBarProps) {
         />
         <MenuOption
           label="Export"
-          shortcut="cmd e"
+          shortcut="⌘ E"
           hasChildren={true}
           onClick={() => props.modalOpen(props.ExportModal)}
         />
@@ -122,13 +127,13 @@ export function MenuBar(props: MenuBarProps) {
       >
         <MenuOption
           label="Undo"
-          shortcut="cmd z"
+          shortcut="⌘ Z"
           onClick={props.undo}
           disabled={!props.canUndo}
         />
         <MenuOption
           label="Redo"
-          shortcut="shift cmd z"
+          shortcut="⇧ ⌘ Z"
           onClick={props.redo}
           disabled={!props.canRedo}
         />
@@ -167,11 +172,11 @@ export function MenuBar(props: MenuBarProps) {
         open={state.openMenu === MENU.VIEW}
         onClick={() => onMenuClick(MENU.VIEW)}
       >
-        <MenuOption label="Zoom in" shortcut="cmd =" onClick={props.zoomIn} />
-        <MenuOption label="Zoom out" shortcut="cmd -" onClick={props.zoomOut} />
+        <MenuOption label="Zoom in" shortcut="⌘ =" onClick={props.zoomIn} />
+        <MenuOption label="Zoom out" shortcut="⌘ -" onClick={props.zoomOut} />
         <MenuOption
           label="Zoom to fit"
-          shortcut="shift cmd ="
+          shortcut="⇧ ⌘ ="
           onClick={props.zoomFit}
         />
       </Menu>
