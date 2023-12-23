@@ -19,7 +19,8 @@ export class Geometry {
 
   static distance(touches: React.TouchList) {
     // we'll assume 2 touches
-    let [t1, t2] = touches;
+    let t1 = touches[0];
+    let t2 = touches[1];
     let x = Math.abs(t1.screenX - t2.screenX);
     let y = Math.abs(t1.screenY - t2.screenY);
     return Math.sqrt(Math.pow(x, 2) + Math.pow(y, 2));

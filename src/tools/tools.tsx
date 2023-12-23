@@ -10,7 +10,7 @@ import zoomFitIcon from "../assets/tools/zoom-fit.png";
 import zoomInIcon from "../assets/tools/zoom-in.png";
 import zoomOutIcon from "../assets/tools/zoom-out.png";
 import styles from "./tools.module.css";
-import { useId, useState } from "react";
+import { useId } from "react";
 
 export enum TOOL {
   PENCIL,
