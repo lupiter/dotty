@@ -4,7 +4,7 @@ import { TOOL, Tools } from "./tools/tools";
 import { Palette } from "./palette/palette";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "./modal/modal";
-import { UndoManager, UndoState } from "./document/undo-manager";
+import { UndoManager } from "./document/undo-manager";
 import { Canvas } from "./document/canvas";
 import { Point, Size } from "./color/geometry";
 import styles from "./dotty.module.css";
@@ -20,25 +20,10 @@ import { Open } from "./modal/open";
 import { FileWrieOperationMessage } from "./worker/messages";
 import { SaveAs } from "./modal/save-as";
 import FileWorker from "./worker/file.worker?worker";
-import { About } from "./modal/about";
+import { DottyState } from "./state";
+import { keyboardShortcut } from "./keyboard/shortcuts";
 
 const fileWorker = new FileWorker();
-
-type DottyState = {
-  ModalContent?: (props: { onClose: () => void }) => JSX.Element;
-  undo: UndoState;
-  tool: TOOL;
-  color: Color;
-  title: string;
-  zoom: number;
-  size: Size;
-  documentScroll: Point;
-  pan: Point;
-  palette: Color[];
-  paletteLimit: PALETTE;
-  paletteLocked: boolean;
-  file?: FileSystemFileHandle;
-};
 
 function Dotty() {
   const [state, setState] = useState<DottyState>({
@@ -299,79 +284,20 @@ function Dotty() {
   };
 
   const onKeyUp = (e: KeyboardEvent) => {
-    if (e.metaKey || e.ctrlKey) {
-      switch (e.key) {
-        case "E":
-        case "e":
-          setState({ ...state, ModalContent: ExportModal });
-          e.preventDefault();
-          break;
-        case "S":
-        case "s":
-          onSave();
-          e.preventDefault();
-          break;
-        case "O":
-        case "o":
-          setState({ ...state, ModalContent: OpenModal });
-          e.preventDefault();
-          break;
-        case "N":
-        case "n":
-          setState({ ...state, ModalContent: NewModal });
-          e.preventDefault();
-          break;
-        case "?":
-          setState({ ...state, ModalContent: About });
-          e.preventDefault();
-          break;
-        case "z":
-          if (!e.shiftKey) {
-            undo();
-          } else {
-            redo();
-          }
-          e.preventDefault();
-          break;
-        case "Z":
-          redo();
-          e.preventDefault();
-          break;
-        case "=":
-          if (!e.shiftKey) {
-            zoomIn();
-          } else {
-            zoomFit();
-          }
-          e.preventDefault();
-          break;
-        case "+":
-          zoomFit();
-          e.preventDefault();
-          break;
-        case "-":
-          zoomOut();
-          e.preventDefault();
-      }
-    } else {
-      switch (e.key) {
-        case "b":
-          setState({...state, tool: TOOL.PENCIL});
-          break;
-        case "e":
-          setState({...state, tool: TOOL.ERASER});
-          break;
-        case "g":
-          setState({...state, tool: TOOL.BUCKET});
-          break;
-        case "i":
-          setState({...state, tool: TOOL.DROPPER});
-          break;
-        case "p":
-          setState({...state, tool: TOOL.PEN});
-          break;
-      }
-    }
+    keyboardShortcut(
+      e,
+      state,
+      setState,
+      onSave,
+      undo,
+      redo,
+      zoomIn,
+      zoomOut,
+      zoomFit,
+      ExportModal,
+      OpenModal,
+      NewModal
+    );
   };
 
   useEffect(() => {
