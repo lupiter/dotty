@@ -283,7 +283,7 @@ function Dotty() {
     }
   };
 
-  const onKeyUp = (e: KeyboardEvent) => {
+  const onKeyDown = (e: KeyboardEvent) => {
     keyboardShortcut(
       e,
       state,
@@ -296,12 +296,13 @@ function Dotty() {
       zoomFit,
       ExportModal,
       OpenModal,
-      NewModal
+      NewModal,
+      SaveAsModal
     );
   };
 
   useEffect(() => {
-    document.onkeyup = onKeyUp;
+    document.onkeydown = onKeyDown;
   });
 
   return (

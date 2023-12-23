@@ -16,6 +16,7 @@ export function keyboardShortcut(
   ExportModal: ModalMaker,
   OpenModal: ModalMaker,
   NewModal: ModalMaker,
+  SaveAsModal: ModalMaker,
 ) {
   if (e.metaKey || e.ctrlKey) {
     switch (e.key) {
@@ -26,7 +27,11 @@ export function keyboardShortcut(
         break;
       case "S":
       case "s":
-        onSave();
+        if (!e.shiftKey) {
+          onSave();
+        } else {
+          setState({ ...state, ModalContent: SaveAsModal });
+        }
         e.preventDefault();
         break;
       case "O":
@@ -44,15 +49,12 @@ export function keyboardShortcut(
         e.preventDefault();
         break;
       case "z":
+        case "Z":
         if (!e.shiftKey) {
           undo();
         } else {
           redo();
         }
-        e.preventDefault();
-        break;
-      case "Z":
-        redo();
         e.preventDefault();
         break;
       case "=":
