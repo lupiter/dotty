@@ -67,6 +67,11 @@ export function MenuBar(props: MenuBarProps) {
     setState({ ...state, openMenu: undefined });
   };
 
+  const onClear = () => {
+    props.onClear();
+    setState({ ...state, openMenu: undefined });
+  }
+
   return (
     <menu role="menubar" className={style.menuBar}>
       <Menu
@@ -138,7 +143,7 @@ export function MenuBar(props: MenuBarProps) {
           disabled={!props.canRedo}
         />
         <MenuSeparator />
-        <MenuOption label="Clear All" onClick={props.onClear} />
+        <MenuOption label="Clear All" onClick={onClear} />
         <MenuOption
           label="Resize"
           hasChildren={true}
