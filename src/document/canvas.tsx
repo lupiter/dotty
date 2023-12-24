@@ -1,5 +1,5 @@
 import { createRef, useEffect, useRef, useState } from "react";
-import styles from "./document.module.css";
+import styles from "./canvas.module.css";
 import { Point } from "../color/geometry";
 import { CanvasProps, CanvasController, CanvasState } from "./canvas-controler";
 import { TOOL } from "../tools/tools";
@@ -30,7 +30,11 @@ export function Canvas(props: CanvasProps) {
   }, [props.tool]);
 
   useEffect(() => {
-    CanvasController.paintData(props, props.data, canvasRef.current?.getContext('2d')!)
+    CanvasController.paintData(
+      props,
+      props.data,
+      canvasRef.current?.getContext("2d")!
+    );
   }, [props.data]);
 
   const undoTick = () => {
@@ -53,6 +57,7 @@ export function Canvas(props: CanvasProps) {
   };
 
   const onTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    console.log("start", e);
     if (e.touches.length > 2) {
       // What are you trying to do??
       return;
@@ -82,19 +87,21 @@ export function Canvas(props: CanvasProps) {
   };
 
   const onTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    console.log("move", e);
     e.preventDefault();
+    setState({ ...state, lastTouch: e.touches });
     const last = e.touches[e.touches.length - 1];
     const box = canvasRef.current?.getBoundingClientRect()!;
     onMove({ x: last.clientX - box.x, y: last.clientY - box.y });
   };
 
-  const onEnd = (offset: Point) => {
+  const onEnd = (offset?: Point) => {
     setState({ ...state, mousedown: false });
 
     CanvasController.stopPanZoom(state, setState, props);
     const ctx = canvasRef.current?.getContext("2d");
 
-    if (props.tool === TOOL.DROPPER) {
+    if (props.tool === TOOL.DROPPER && offset) {
       CanvasController.pickColor(props, offset, ctx!);
     }
 
@@ -107,10 +114,17 @@ export function Canvas(props: CanvasProps) {
   };
 
   const onTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    const last = e.touches[e.touches.length - 1];
+    console.log("end", e.touches);
+    if (!state.lastTouch) {
+      onEnd();
+      return;
+    }
+    const last = state.lastTouch[state.lastTouch?.length - 1];
     const box = canvasRef.current?.getBoundingClientRect()!;
     onEnd({ x: last.clientX - box.x, y: last.clientY - box.y });
   };
+
+  // Moving
 
   const resumeMoving = (point: Point) => {
     console.log("canvas: resume moving");
@@ -152,6 +166,8 @@ export function Canvas(props: CanvasProps) {
   ) => {
     continueMoving({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
   };
+
+  // Inline Styles
 
   const translate = `${props.pan.x}px ${props.pan.y}px`;
   const scale = `${state.scale}`;

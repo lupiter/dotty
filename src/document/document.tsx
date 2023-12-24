@@ -19,6 +19,7 @@ export function Document(props: DocumentProps) {
           </span>
         </h1>
       </div>
+      <hr className={styles.divider} />
       {props.children}
     </div>
   );
