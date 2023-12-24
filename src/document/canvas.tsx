@@ -111,7 +111,7 @@ export function Canvas(props: CanvasProps) {
     onEnd({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
   };
 
-  const onTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
+  const onTouchEnd = () => {
     if (!state.lastTouch) {
       onEnd();
       return;
