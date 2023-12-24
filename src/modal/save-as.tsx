@@ -1,11 +1,12 @@
 import { ModalContentProps } from "./modal-content";
 import modalContentsStyles from "./modal-contents.module.css";
 import buttonStyle from "../button/button.module.css";
-import { ChangeEvent, useId, useState } from "react";
+import { ChangeEvent, useEffect, useId, useState } from "react";
 
 type SaveAsState = {
   name: string;
   clash: boolean;
+  available?: boolean;
 };
 
 export function SaveAs(
@@ -16,6 +17,14 @@ export function SaveAs(
     clash: true,
   });
   const nameId = useId();
+
+  const checkAvailable = async () => {
+    setState({ ...state, available: navigator.storage !== undefined });
+  };
+
+  useEffect(() => {
+    checkAvailable();
+  }, []);
 
   const checkNameClash = async (name: string) => {
     const root = await navigator.storage.getDirectory();
@@ -43,33 +52,52 @@ export function SaveAs(
 
   return (
     <>
-      <h1 className={modalContentsStyles.header}>New</h1>
+      <h1 className={modalContentsStyles.header}>Save As</h1>
 
-      <div className={modalContentsStyles.grid}>
-        <label className={modalContentsStyles.text} htmlFor={nameId}>
-          Name:
-        </label>
-        <input
-          type="text"
-          className={modalContentsStyles.input}
-          value={state.name}
-          id={nameId}
-          onChange={onNameChange}
-        />
-      </div>
+      {state.available === false && (
+        <>
+          <p>
+            We're unable to save to local storage on this device, browser, or
+            domain. Please use File &gt; Export instead.
+          </p>
 
-      <section className={modalContentsStyles.buttons}>
-        <button className={buttonStyle.btn} onClick={props.onClose}>
-          Cancel
-        </button>
-        <button
-          className={buttonStyle.btn}
-          onClick={onSaveAs}
-          disabled={state.clash === undefined}
-        >
-          Save As
-        </button>
-      </section>
+          <section className={modalContentsStyles.buttons}>
+            <button className={buttonStyle.btn} onClick={props.onClose}>
+              Close
+            </button>
+          </section>
+        </>
+      )}
+
+      {state.available === true && (
+        <>
+          <div className={modalContentsStyles.flex}>
+            <label className={modalContentsStyles.text} htmlFor={nameId}>
+              Name:
+            </label>
+            <input
+              type="text"
+              className={modalContentsStyles.input}
+              value={state.name}
+              id={nameId}
+              onChange={onNameChange}
+            />
+          </div>
+
+          <section className={modalContentsStyles.buttons}>
+            <button className={buttonStyle.btn} onClick={props.onClose}>
+              Cancel
+            </button>
+            <button
+              className={buttonStyle.btn}
+              onClick={onSaveAs}
+              disabled={state.clash === undefined}
+            >
+              Save As
+            </button>
+          </section>
+        </>
+      )}
     </>
   );
 }

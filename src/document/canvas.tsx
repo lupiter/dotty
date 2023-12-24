@@ -103,7 +103,6 @@ export function Canvas(props: CanvasProps) {
       CanvasController.pickColor(props, offset, ctx!);
     }
 
-    CanvasController.save(canvasRef.current!);
     undoTick();
   };
 

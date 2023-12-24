@@ -5,6 +5,12 @@
   margin-bottom: 0.5rem;
 }
 
+.flex {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+}
+
 .header {
   text-align: center;
   margin: 0;
@@ -13,6 +19,10 @@
 
 h2 {
   margin: 0;
+}
+
+input {
+  max-width: 90%;
 }
 
 .buttons {

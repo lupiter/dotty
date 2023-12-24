@@ -23,8 +23,8 @@ export function Palette(props: {
     if (props.locked && (!props.palette.includes(color) && !state.history.includes(color))) {
       return;
     }
-    const history = new Set([props.color, ...state.history]);
-    setState({ ...state, history: [...history] });
+    const history = [props.color, ...state.history];
+    setState({ ...state, history: Color.dedupe(history) });
     props.onColorChange(color.limit(props.limit));
   };
 

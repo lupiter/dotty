@@ -7,7 +7,7 @@
   margin: 0 max(env(safe-area-inset-right, 0.5rem), 0.5rem) 0.5rem
     max(env(safe-area-inset-right, 0.5rem), 0.5rem);
   flex-direction: row;
-  justify-content: space-between;
+  justify-content: flex-start;
   grid-column: 1 / 3;
   flex-wrap: nowrap;
   align-items: stretch;
@@ -16,19 +16,19 @@
 .active {
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  align-items: center;
+  justify-content: flex-start;
+  align-items: stretch;
 }
 
 .history {
   display: flex;
   flex-direction: row;
-  flex: 1;
   flex-wrap: wrap;
   border: 2px solid black;
   gap: 2px;
   background-color: black;
   box-shadow: 2px 2px 0 black;
+  overflow: hidden;
 }
 
 .colorChip {

@@ -23,7 +23,9 @@ export class Color {
     const pixel = new DataView(imageData.buffer);
     const pixelToHex = (idx: number) =>
       ("00" + pixel.getUint8(idx).toString(16)).slice(-2);
-      return Color.fromHex("#" + pixelToHex(0) + pixelToHex(1) + pixelToHex(2) + pixelToHex(3));
+    return Color.fromHex(
+      "#" + pixelToHex(0) + pixelToHex(1) + pixelToHex(2) + pixelToHex(3)
+    );
   }
 
   constructor(
@@ -129,7 +131,7 @@ export class Color {
     }
   }
 
-  hsv(): {h:number, s: number, v: number} {
+  hsv(): { h: number; s: number; v: number } {
     const maxC = Math.max(this.r, this.g, this.b);
     const minC = Math.min(this.r, this.g, this.b);
     if (minC === maxC) {
@@ -163,11 +165,27 @@ export class Color {
     const aHSV = a.hsv();
     const bHSV = b.hsv();
 
-		if (aHSV.h !== bHSV.h) {
-			return aHSV.h - bHSV.h;
-		} else if (aHSV.s !== bHSV.s) {
-			return aHSV.s - bHSV.s;
-		}
-		return aHSV.v - bHSV.v;
+    if (aHSV.h !== bHSV.h) {
+      return aHSV.h - bHSV.h;
+    } else if (aHSV.s !== bHSV.s) {
+      return aHSV.s - bHSV.s;
+    }
+    return aHSV.v - bHSV.v;
+  }
+
+  static includes(list: Color[], value: Color): boolean {
+    const match = list.find((col) => value.hex === col.hex);
+    return match !== undefined;
+  }
+
+  static dedupe(list: Color[]): Color[] {
+    const unique: Color[] = [];
+    for (let i = 0; i < list.length; i++) {
+      const current = list[i];
+      if (!Color.includes(unique, current)) {
+        unique.push(current);
+      }
+    }
+    return unique;
   }
 }

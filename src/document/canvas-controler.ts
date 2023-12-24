@@ -267,10 +267,6 @@ export class CanvasController {
     }
   }
 
-  static save(canvas: HTMLCanvasElement) {
-    localStorage.setItem("canvas", canvas.toDataURL());
-  }
-
   static paint(
     props: CanvasProps,
     ctx: CanvasRenderingContext2D,
