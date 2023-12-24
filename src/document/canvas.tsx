@@ -57,7 +57,6 @@ export function Canvas(props: CanvasProps) {
   };
 
   const onTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    console.log("start", e);
     if (e.touches.length > 2) {
       // What are you trying to do??
       return;
@@ -87,7 +86,6 @@ export function Canvas(props: CanvasProps) {
   };
 
   const onTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    console.log("move", e);
     e.preventDefault();
     setState({ ...state, lastTouch: e.touches });
     const last = e.touches[e.touches.length - 1];
@@ -114,7 +112,6 @@ export function Canvas(props: CanvasProps) {
   };
 
   const onTouchEnd = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    console.log("end", e.touches);
     if (!state.lastTouch) {
       onEnd();
       return;
@@ -127,7 +124,6 @@ export function Canvas(props: CanvasProps) {
   // Moving
 
   const resumeMoving = (point: Point) => {
-    console.log("canvas: resume moving");
     const x = Math.floor(point.x / props.zoom);
     const y = Math.floor(point.y / props.zoom);
     setState({ ...state, mousedown: true, moveOrigin: { x, y } });
