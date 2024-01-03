@@ -7,6 +7,7 @@ import logo from "../assets/logo.png";
 import { useState } from "react";
 import { CheckMenuOption } from "./menuoption/check-menu-option";
 import { ModalContentProps } from "../modal/modal-content";
+import { Backup } from "../modal/backup";
 
 enum MENU {
   APP,
@@ -129,6 +130,11 @@ export function MenuBar(props: MenuBarProps) {
           shortcut="⌘ E"
           hasChildren={true}
           onClick={() => props.modalOpen(props.ExportModal)}
+        />
+        <MenuOption
+          label="Backup"
+          hasChildren={true}
+          onClick={() => props.modalOpen(Backup)}
         />
       </Menu>
       <Menu
