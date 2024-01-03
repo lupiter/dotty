@@ -82,7 +82,7 @@ export function Backup(props: ModalContentProps) {
           <button className={buttonStyle.btn} onClick={props.onClose}>
             Cancel
           </button>
-          <a href={state.zip} className={buttonStyle.btn} disabled={!state.zip}>
+          <a href={state.zip} className={`${buttonStyle.btn} ${!state.zip && 'disabled'}`}>
             Backup All
           </a>
         </section>
