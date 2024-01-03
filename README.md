@@ -11,4 +11,5 @@ TODO Technical
 * More than 2 unit tests
 
 TODO Features
-* Picking CGA should pre-fill palette colours since there's so few
+* Bulk export
+* Bulk import

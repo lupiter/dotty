@@ -20,15 +20,23 @@
   align-items: stretch;
 }
 
+.chips {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: hidden;
+  gap: 4px;
+  padding-right: 2px;
+}
+
 .history {
   display: flex;
   flex-direction: row;
-  flex-wrap: wrap;
   border: 2px solid black;
   gap: 2px;
   background-color: black;
   box-shadow: 2px 2px 0 black;
-  overflow: hidden;
+  overflow-x: scroll;
 }
 
 .colorChip {

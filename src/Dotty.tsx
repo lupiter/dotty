@@ -220,10 +220,32 @@ function Dotty() {
   };
 
   const onLimitPalette = (limit: PALETTE) => {
+    let palette = state.palette;
+    if (limit === PALETTE.CGA) {
+      palette = [
+        Color.fromHex("#000000"),
+        Color.fromHex("#0000AA"),
+        Color.fromHex("#00AA00"),
+        Color.fromHex("#00AAAA"),
+        Color.fromHex("#AA0000"),
+        Color.fromHex("#AA00AA"),
+        Color.fromHex("#AA5500"),
+        Color.fromHex("#AAAAAA"),
+        Color.fromHex("#555555"),
+        Color.fromHex("#5555FF"),
+        Color.fromHex("#55FF55"),
+        Color.fromHex("#55FFFF"),
+        Color.fromHex("#FF5555"),
+        Color.fromHex("#FF55FF"),
+        Color.fromHex("#FFFF55"),
+        Color.fromHex("#FFFFFF"),
+      ];
+    }
     setState({
       ...state,
       ModalContent: undefined,
       paletteLimit: limit,
+      palette,
     });
   };
   const PaletteLimitModal = (modalProps: ModalContentProps): JSX.Element => {

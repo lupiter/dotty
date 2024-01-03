@@ -2,7 +2,7 @@ import { ChangeEvent, useState } from "react";
 import styles from "./palette.module.css";
 import { PALETTE, paletteLabel } from "../modal/palette-limit";
 import { Color } from "../color/color";
-import lockIcon from "../assets/lock.png"
+import lockIcon from "../assets/lock.png";
 
 type PaletteState = {
   history: Color[];
@@ -20,7 +20,11 @@ export function Palette(props: {
   });
 
   const setColor = (color: Color) => {
-    if (props.locked && (!props.palette.includes(color) && !state.history.includes(color))) {
+    if (
+      props.locked &&
+      !props.palette.includes(color) &&
+      !state.history.includes(color)
+    ) {
       return;
     }
     const history = [props.color, ...state.history];
@@ -42,33 +46,45 @@ export function Palette(props: {
           value={props.color.hex}
           className={styles.input}
         />
-        {props.limit !== PALETTE.FULL && <div className={styles.limited}>{paletteLabel(props.limit)}</div>}
+        {props.limit !== PALETTE.FULL && (
+          <div className={styles.limited}>{paletteLabel(props.limit)}</div>
+        )}
       </div>
-      <div className={styles.history}>
-        {state.history.map((color) => (
-          <button
-            className={styles.colorChip}
-            style={{ color: color.hex, backgroundColor: color.hex }}
-            onClick={() => setColor(color)}
-            key={color.hex}
-          >
-            {color.hex}
-          </button>
-        ))}
+      <div className={styles.chips}>
+        {state.history.length > 0 && (
+          <div className={styles.history}>
+            {state.history.map((color) => (
+              <button
+                className={styles.colorChip}
+                style={{ color: color.hex, backgroundColor: color.hex }}
+                onClick={() => setColor(color)}
+                key={color.hex}
+              >
+                {color.hex}
+              </button>
+            ))}
+          </div>
+        )}
 
-        {props.palette.map((color) => (
-          <button
-            className={styles.colorChip}
-            style={{ color: color.hex, backgroundColor: color.hex }}
-            onClick={() => setColor(color)}
-            key={color.hex}
-          >
-            {color.hex}
-          </button>
-        ))}
+        <div className={styles.history}>
+          {props.palette.map((color) => (
+            <button
+              className={styles.colorChip}
+              style={{ color: color.hex, backgroundColor: color.hex }}
+              onClick={() => setColor(color)}
+              key={color.hex}
+            >
+              {color.hex}
+            </button>
+          ))}
+        </div>
       </div>
 
-      {props.locked && <div className={styles.locked}><img src={lockIcon} alt="Palette locked" /></div>}
+      {props.locked && (
+        <div className={styles.locked}>
+          <img src={lockIcon} alt="Palette locked" />
+        </div>
+      )}
     </div>
   );
 }
