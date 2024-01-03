@@ -78,6 +78,7 @@ input {
   color: black;
   font-family: var(--ui-font);
   font-size: var(--font-size);
+  border-radius: 0;
 }
 
 .hidden {
@@ -96,27 +97,48 @@ input {
   overflow: hidden;
 }
 
-.select {
+.selectFile {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   list-style: none;
   margin: 0;
   padding: 0;
   border: 2px solid black;
   overflow-y: scroll;
   height: calc(var(--touch-target-size) * 5.5);
+  align-items: baseline;
+  justify-content: space-evenly;
+  flex-wrap: wrap;
+  padding: 2px;
 }
 
 .selectItem {
-  display: grid;
-  grid-column: 1fr;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: baseline;
   min-height: var(--touch-target-size);
   padding: 0 0.5rem;
+  text-align: center;
 }
 
-.selectItem.selected {
+.selectItem img {
+  min-width: var(--touch-target-size);
+  background-color: white;
+  border: 2px solid black;
+}
+
+.selectItem .label {
+  padding: 2px;
+}
+
+.selectItem.selected .label {
   color: white;
   background: black;
+}
+
+.selectItem.selected img {
+  box-shadow: 2px 2px 0 black;
 }
 
 .preview {

@@ -1,12 +1,11 @@
 import { ModalContentProps } from "./modal-content";
 import modalContentsStyles from "./modal-contents.module.css";
 import buttonStyle from "../button/button.module.css";
-import { ChangeEvent, useEffect, useId, useState } from "react";
+import { ChangeEvent, useId, useState } from "react";
 
 type SaveAsState = {
   name: string;
   clash: boolean;
-  available?: boolean;
 };
 
 export function SaveAs(
@@ -17,14 +16,6 @@ export function SaveAs(
     clash: true,
   });
   const nameId = useId();
-
-  const checkAvailable = async () => {
-    setState({ ...state, available: navigator.storage !== undefined });
-  };
-
-  useEffect(() => {
-    checkAvailable();
-  }, []);
 
   const checkNameClash = async (name: string) => {
     const root = await navigator.storage.getDirectory();
@@ -49,12 +40,13 @@ export function SaveAs(
     }
     props.onSaveAs(state.name);
   };
+  const available = navigator.storage !== undefined;
 
   return (
     <>
       <h1 className={modalContentsStyles.header}>Save As</h1>
 
-      {state.available === false && (
+      {available === false && (
         <>
           <p>
             We're unable to save to local storage on this device, browser, or
@@ -69,7 +61,7 @@ export function SaveAs(
         </>
       )}
 
-      {state.available === true && (
+      {available === true && (
         <>
           <div className={modalContentsStyles.flex}>
             <label className={modalContentsStyles.text} htmlFor={nameId}>

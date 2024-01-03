@@ -72,6 +72,8 @@ export function MenuBar(props: MenuBarProps) {
     setState({ ...state, openMenu: undefined });
   }
 
+  const storageAvailable = navigator.storage !== undefined;
+
   return (
     <menu role="menubar" className={style.menuBar}>
       <Menu
@@ -97,20 +99,24 @@ export function MenuBar(props: MenuBarProps) {
           shortcut="⌘ N"
           hasChildren={true}
           onClick={() => props.modalOpen(props.NewModal)}
+          disabled={!storageAvailable}
         />
         <MenuOption
           label="Open"
           shortcut="⌘ O"
           hasChildren={true}
           onClick={() => props.modalOpen(props.OpenModal)}
+          disabled={!storageAvailable}
         />
         <MenuSeparator />
-        <MenuOption label="Save" shortcut="⌘ S" onClick={onSave} />
+        <MenuOption label="Save" shortcut="⌘ S" onClick={onSave} 
+          disabled={!storageAvailable} />
         <MenuOption
           label="Save As"
           shortcut="⇧ ⌘ S"
           hasChildren={true}
           onClick={() => props.modalOpen(props.SaveAsModal)}
+          disabled={!storageAvailable}
         />
         <MenuSeparator />
         <MenuOption

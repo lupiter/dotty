@@ -6,11 +6,14 @@ import { Size } from "../color/geometry";
 
 type OpenState = {
   root?: FileSystemDirectoryHandle;
-  files?: FileSystemFileHandle[];
+  files?: FilePreview[];
   error?: string;
-  image?: string;
-  selected?: FileSystemFileHandle;
-  available?: boolean;
+  selected?: FilePreview;
+};
+
+type FilePreview = {
+  meta: FileSystemFileHandle;
+  preview: string;
 };
 
 export function Open(
@@ -18,16 +21,8 @@ export function Open(
     onOpen: (data: string, size: Size, title: string) => void;
   }
 ) {
-  const [state, setState] = useState<OpenState>({});
+  const [state, setState] = useState<OpenState>({ });
   const image = useRef<HTMLImageElement>(null);
-
-  const checkAvailable = async () => {
-    setState({ ...state, available: navigator.storage !== undefined });
-  };
-
-  useEffect(() => {
-    checkAvailable();
-  }, []);
 
   const readFile = async (file: File): Promise<string> => {
     const reader = new FileReader();
@@ -46,10 +41,14 @@ export function Open(
   useEffect(() => {
     async function setRoot() {
       const root = await navigator.storage.getDirectory();
-      const files: FileSystemFileHandle[] = [];
+      const files: FilePreview[] = [];
       for await (const handle of root.values()) {
         if (handle.kind === "file") {
-          files.push(handle as FileSystemFileHandle);
+          const file = handle as FileSystemFileHandle;
+          files.push({
+            meta: file,
+            preview: await readFile(await file.getFile()),
+          });
         }
       }
       if (files.length === 0) {
@@ -64,7 +63,6 @@ export function Open(
           files,
           root,
           selected: files[0],
-          image: await readFile(await files[0].getFile()),
         });
       }
     }
@@ -73,33 +71,38 @@ export function Open(
     }
   }, []);
 
-  const onSelect = async (file: FileSystemFileHandle) => {
+  const onSelect = async (file: FilePreview) => {
     setState({
       ...state,
       selected: file,
-      image: await readFile(await file.getFile()),
     });
   };
 
   const onImport = () => {
-    if (state.image && image.current && state.selected && state.selected.name) {
+    if (
+      image.current &&
+      state.selected &&
+      state.selected.preview &&
+      state.selected.meta.name
+    ) {
       props.onOpen(
-        state.image,
+        state.selected.preview,
         {
           width: image.current.naturalWidth,
           height: image.current.naturalHeight,
         },
-        state.selected?.name.split(".png")[0]
+        state.selected?.meta.name.split(".png")[0]
       );
     }
   };
+  const available = navigator.storage !== undefined;
 
   return (
     <>
-      {state.available === false && (
+      {available === false && (
         <>
           <p>
-            We're unable to save to local storage on this device, browser, or
+            We're unable to use local storage on this device, browser, or
             domain. Please use File &gt; Import instead.
           </p>
 
@@ -111,52 +114,53 @@ export function Open(
         </>
       )}
 
-      {state.available === true && (
+      {available === true && (
         <>
-          <ul className={modalContentsStyles.select}>
+          <ul className={modalContentsStyles.selectFile}>
             {state.files &&
               state.files.map((file) => (
                 <li
                   onClick={() => onSelect(file)}
                   className={`${modalContentsStyles.selectItem} ${
                     state.selected &&
-                    file.name === state.selected.name &&
+                    file.meta.name === state.selected.meta.name &&
                     modalContentsStyles.selected
                   }`}
-                  key={file.name}
+                  key={file.meta.name}
                   aria-selected={
-                    state.selected && file.name === state.selected.name
+                    state.selected &&
+                    file.meta.name === state.selected.meta.name
                   }
                 >
-                  {file.name}
+                  <img
+                    src={file.preview}
+                    alt=""
+                    ref={
+                      state.selected &&
+                      file.meta.name === state.selected.meta.name
+                        ? image
+                        : undefined
+                    }
+                  />
+                  <span className={modalContentsStyles.label}>
+                    {file.meta.name}
+                  </span>
                 </li>
               ))}
           </ul>
 
-          {state.root && state.root.name}
-
-          {state.image && (
-            <div className={modalContentsStyles.grid}>
-              <label className={modalContentsStyles.text}>Preview:</label>
-              <img
-                src={state.image}
-                className={modalContentsStyles.preview}
-                ref={image}
-              />
+          {state.files?.length === 0 && (
+            <div className={modalContentsStyles.text}>
+              No available files. If this is surprising, you might have cleaned
+              your browser cache recently.
             </div>
           )}
-
-          <div className={modalContentsStyles.text}>{state.error}</div>
 
           <section className={modalContentsStyles.buttons}>
             <button className={buttonStyle.btn} onClick={props.onClose}>
               Cancel
             </button>
-            <button
-              className={buttonStyle.btn}
-              disabled={!state.image}
-              onClick={onImport}
-            >
+            <button className={buttonStyle.btn} onClick={onImport}>
               Open
             </button>
           </section>
