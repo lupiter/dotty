@@ -18,6 +18,9 @@ export class Geometry {
   }
 
   static distance(touches: React.TouchList) {
+    if (touches.length < 2) {
+      return 0;
+    }
     // we'll assume 2 touches
     let t1 = touches[0];
     let t2 = touches[1];
