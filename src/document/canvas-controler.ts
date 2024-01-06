@@ -34,19 +34,18 @@ export class CanvasController {
   static panZoom(
     state: CanvasState,
     setState: SetCanvasState,
-    props: CanvasProps,
+    onPanChange: CanvasProps["onPanChange"],
     touches: React.TouchList
   ) {
     const initial = state.initialTouch ? state.initialTouch : touches;
     const { pan, spread } = Geometry.panAndSpread(initial, touches);
-    console.log(`pan: ${pan.x},${pan.y} spread: ${spread}`);
     setState({
       ...state,
       lastTouch: touches,
       scale: spread,
       initialTouch: initial,
     });
-    props.onPanChange(pan);
+    onPanChange(pan);
   }
 
   static stopPanZoom(
