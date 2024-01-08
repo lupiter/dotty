@@ -17,7 +17,7 @@ export type CanvasProps = {
 };
 
 export type CanvasState = {
-  initialTouch?: React.TouchList;
+  initialPanZoomTouch?: React.TouchList;
   lastTouch?: React.TouchList;
   mousedown: boolean;
   scale: number;
@@ -37,13 +37,13 @@ export class CanvasController {
     onPanChange: CanvasProps["onPanChange"],
     touches: React.TouchList
   ) {
-    const initial = state.initialTouch ? state.initialTouch : touches;
+    const initial = state.initialPanZoomTouch ? state.initialPanZoomTouch : touches;
     const { pan, spread } = Geometry.panAndSpread(initial, touches);
     setState({
       ...state,
       lastTouch: touches,
       scale: spread,
-      initialTouch: initial,
+      initialPanZoomTouch: initial,
     });
     onPanChange(pan);
   }
@@ -53,9 +53,9 @@ export class CanvasController {
     setState: SetCanvasState,
     props: CanvasProps
   ) {
-    if (state.initialTouch && state.lastTouch) {
+    if (state.initialPanZoomTouch && state.lastTouch) {
       const { pan, spread } = Geometry.panAndSpread(
-        state.initialTouch,
+        state.initialPanZoomTouch,
         state.lastTouch
       );
       console.log("canvas: onstop", pan, spread, props.pan, state.scale);
@@ -66,7 +66,7 @@ export class CanvasController {
         ...state,
         scale: 1.0,
         lastTouch: undefined,
-        initialTouch: undefined,
+        initialPanZoomTouch: undefined,
       });
 
       props.onZoomChange(props.zoom * spread);

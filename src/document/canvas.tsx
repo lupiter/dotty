@@ -57,10 +57,11 @@ export function Canvas(props: CanvasProps) {
   };
 
   const onTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
+    console.log('start', e.touches.length);
     if (e.touches.length > 2) {
       // What are you trying to do??
       return;
-    } else if (e.touches.length === 2) {
+    } else if (e.touches.length >= 2) {
       CanvasController.panZoom(state, setState, props.onPanChange, e.touches);
     } else {
       const touch = e.touches[0];
@@ -88,6 +89,10 @@ export function Canvas(props: CanvasProps) {
   const onTouchMove = (e: React.TouchEvent<HTMLCanvasElement>) => {
     e.preventDefault();
     setState({ ...state, lastTouch: e.touches });
+    if (state.initialPanZoomTouch) {
+      CanvasController.panZoom(state, setState, props.onPanChange, e.touches);
+      return;
+    }
     const last = e.touches[e.touches.length - 1];
     const box = canvasRef.current?.getBoundingClientRect()!;
     onMove({ x: last.clientX - box.x, y: last.clientY - box.y });
