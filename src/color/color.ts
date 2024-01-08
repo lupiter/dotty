@@ -10,7 +10,7 @@ export class Color {
   }
 
   static fromHexWithAlpha(hex: string): Color {
-    const bigint = parseInt(hex.slice(1), 18);
+    const bigint = parseInt(hex.slice(1), 16);
     const r = (bigint >> 24) & 255;
     const g = (bigint >> 16) & 255;
     const b = (bigint >> 8) & 255;
@@ -19,13 +19,7 @@ export class Color {
   }
 
   static fromPixel(imageData: Uint8ClampedArray): Color {
-    // todo: simplify logic here
-    const pixel = new DataView(imageData.buffer);
-    const pixelToHex = (idx: number) =>
-      ("00" + pixel.getUint8(idx).toString(16)).slice(-2);
-    return Color.fromHex(
-      "#" + pixelToHex(0) + pixelToHex(1) + pixelToHex(2) + pixelToHex(3)
-    );
+    return new Color(imageData[0], imageData[1], imageData[2], imageData[3]);
   }
 
   constructor(
