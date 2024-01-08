@@ -3,19 +3,19 @@ import { Geometry } from "./geometry";
 
 class FakeTarget implements EventTarget {
   addEventListener(
-    type: string,
-    callback: EventListenerOrEventListenerObject | null,
-    options?: boolean | AddEventListenerOptions | undefined
+    _type: string,
+    _callback: EventListenerOrEventListenerObject | null,
+    _options?: boolean | AddEventListenerOptions | undefined
   ): void {
     throw new Error("Method not implemented: addEventListener.");
   }
-  dispatchEvent(event: Event): boolean {
+  dispatchEvent(_event: Event): boolean {
     throw new Error("Method not implemented: dispatchEvent.");
   }
   removeEventListener(
-    type: string,
-    callback: EventListenerOrEventListenerObject | null,
-    options?: boolean | EventListenerOptions | undefined
+    _type: string,
+    _callback: EventListenerOrEventListenerObject | null,
+    _options?: boolean | EventListenerOptions | undefined
   ): void {
     throw new Error("Method not implemented: removeEventListener.");
   }

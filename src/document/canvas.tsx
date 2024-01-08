@@ -61,7 +61,7 @@ export function Canvas(props: CanvasProps) {
       // What are you trying to do??
       return;
     } else if (e.touches.length === 2) {
-      CanvasController.panZoom(state, setState, props, e.touches);
+      CanvasController.panZoom(state, setState, props.onPanChange, e.touches);
     } else {
       const touch = e.touches[0];
       const box = canvasRef.current?.getBoundingClientRect()!;
