@@ -6,6 +6,7 @@
   justify-content: start;
   overflow: auto;
   flex: 1;
+  touch-action: none;
 }
 
 .inner {

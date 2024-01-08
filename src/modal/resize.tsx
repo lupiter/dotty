@@ -82,21 +82,21 @@ export function Resize(
         point = { x: 0, y: 0 };
         break;
       case RESIZE_FROM.TOP_RIGHT:
-        point = { x: state.width - props.size.width, y: 0 };
+        point = { x: niceInt(state.width) - props.size.width, y: 0 };
         break;
       case RESIZE_FROM.BOTTOM_LEFT:
-        point = { x: 0, y: state.height - props.size.height };
+        point = { x: 0, y: niceInt(state.height) - props.size.height };
         break;
       case RESIZE_FROM.BOTTOM_RIGHT:
         point = {
-          x: state.width - props.size.width,
-          y: state.height - props.size.height,
+          x: niceInt(state.width) - props.size.width,
+          y: niceInt(state.height) - props.size.height,
         };
         break;
       case RESIZE_FROM.CENTER:
         point = {
-          x: (state.width - props.size.width) / 2,
-          y: (state.height - props.size.height) / 2,
+          x: (niceInt(state.width) - props.size.width) / 2,
+          y: (niceInt(state.height) - props.size.height) / 2,
         };
         break;
     }
