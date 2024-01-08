@@ -136,7 +136,7 @@ function Dotty() {
   }, [state.documentScroll]);
 
   useMemo(() => {
-    // on first load, twice, attempt this timeout setting
+    // on first load, attempt this timeout setting
     window.setTimeout(() => {
       zoomFit();
     });
@@ -149,8 +149,12 @@ function Dotty() {
       undo: { past: [], future: [], current: data },
       ModalContent: undefined,
     });
-    zoomFit();
   };
+
+  useEffect(() => {
+    zoomFit();
+  }, [state.size]);
+
   const ResizeModal = (modalProps: ModalContentProps): JSX.Element => {
     return (
       <Resize

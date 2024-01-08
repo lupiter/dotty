@@ -14,8 +14,8 @@ export enum RESIZE_FROM {
 }
 
 type ResizeState = {
-  width: number;
-  height: number;
+  width: string;
+  height: string;
   from: RESIZE_FROM;
   modifiedData?: string;
 };
@@ -28,8 +28,8 @@ export function Resize(
   }
 ) {
   const [state, setState] = useState<ResizeState>({
-    width: props.size.width,
-    height: props.size.height,
+    width: `${props.size.width}`,
+    height: `${props.size.height}`,
     from: RESIZE_FROM.CENTER,
   });
   const widthId = useId();
@@ -43,18 +43,23 @@ export function Resize(
   const img = useRef<HTMLImageElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
 
+  const niceInt = (numberValue: string) => {
+    return numberValue ? parseInt(numberValue) : 0;
+  }
+
   const changeWidth = (e: ChangeEvent<HTMLInputElement>) => {
     setState({
       ...state,
-      width: parseInt(e.target.value),
+      width: e.target.value,
       modifiedData: undefined,
     });
   };
 
   const changeHeight = (e: ChangeEvent<HTMLInputElement>) => {
+    
     setState({
       ...state,
-      height: parseInt(e.target.value),
+      height: e.target.value,
       modifiedData: undefined,
     });
   };
@@ -65,7 +70,7 @@ export function Resize(
 
   const onResize = () => {
     props.onResize(
-      { width: state.width, height: state.height },
+      { width: niceInt(state.width), height: niceInt(state.height) },
       state.modifiedData!
     );
   };

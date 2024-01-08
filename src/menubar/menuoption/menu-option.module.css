@@ -24,6 +24,10 @@
   color: black;
 }
 
+.menuButton:disabled {
+  opacity: 0.5;
+}
+
 .menuButton:hover {
   background: black;
   color: white;

@@ -1,6 +1,7 @@
 Something something pixel art
 
 Bugs
+* Resize not work
 * Got to undo twice (touch events)
 * Using larger images can cause the body to scroll (mobile)
 
