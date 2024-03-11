@@ -58,7 +58,7 @@ export class CanvasController {
         state.initialPanZoomTouch,
         state.lastTouch
       );
-      console.log("canvas: onstop", pan, spread, props.pan, state.scale);
+      // console.log("canvas: onstop", pan, spread, props.pan, state.scale);
       props.setScroll(pan);
       props.onPanChange(pan);
 
@@ -90,18 +90,17 @@ export class CanvasController {
   static floodFill(
     props: CanvasProps,
     point: Point,
-    ctx: CanvasRenderingContext2D
-  ) {
+    imageData: Uint8ClampedArray,
+  ): Uint8ClampedArray {
+    console.log('flood fill', point, props);
     // Credit: Tom Cantwell https://cantwell-tom.medium.com/flood-fill-and-line-tool-for-html-canvas-65e08e31aec6
-    let image = ctx.getImageData(0, 0, props.size.height, props.size.width);
-    let imageData = image.data;
 
     let start = (point.y * props.size.width + point.x) * 4;
     let pixel = imageData.slice(start, start + 16);
     // exit if color is the same
     let color = Color.fromPixel(pixel);
     if (props.color.hex === color.hex) {
-      return;
+      return imageData;
     }
 
     const matchStartColor = (pixelPos: number) => {
@@ -170,7 +169,7 @@ export class CanvasController {
     }
 
     // render floodFill result
-    ctx.putImageData(new ImageData(imageData, image.width), 0, 0);
+    return imageData;
   }
 
   static startMove(
@@ -274,7 +273,7 @@ export class CanvasController {
     const x = Math.floor(offset.x / props.zoom);
     const y = Math.floor(offset.y / props.zoom);
     const fillStyle = props.color.hex;
-    // console.log(drawMode, fillStyle);
+    // console.log(props.tool, fillStyle, {x, y});
     ctx.beginPath();
     if (props.tool === TOOL.PEN) {
       ctx.fillStyle = fillStyle;
@@ -289,7 +288,9 @@ export class CanvasController {
         ctx.fillRect(x, y, 1, 1);
       }
     } else if (props.tool === TOOL.BUCKET) {
-      this.floodFill(props, { x, y }, ctx);
+      const image = ctx.getImageData(0, 0, props.size.height, props.size.width);
+      const imageData = this.floodFill(props, { x, y }, image.data);
+      ctx.putImageData(new ImageData(imageData, image.width), 0, 0);
     } else {
       // ignore other tools
     }

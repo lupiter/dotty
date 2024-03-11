@@ -49,6 +49,7 @@ export function Canvas(props: CanvasProps) {
       undoTick();
     }
     setState({ ...state, mousedown: true });
+    // console.log("onStart", offset);
     CanvasController.paint(props, canvasRef.current?.getContext("2d")!, offset);
   };
 
@@ -57,7 +58,7 @@ export function Canvas(props: CanvasProps) {
   };
 
   const onTouchStart = (e: React.TouchEvent<HTMLCanvasElement>) => {
-    console.log('start', e.touches.length);
+    // console.log('start', e.touches.length);
     if (e.touches.length > 2) {
       // What are you trying to do??
       return;
@@ -78,6 +79,7 @@ export function Canvas(props: CanvasProps) {
       return;
     }
     const ctx = canvasRef.current?.getContext("2d");
+    // console.log("onMove", offset);
     CanvasController.paint(props, ctx!, offset);
   };
 
@@ -136,6 +138,7 @@ export function Canvas(props: CanvasProps) {
     if (!state.mousedown) {
       return;
     }
+    // console.log("continueMoving", point);
     CanvasController.move(
       state,
       setState,
