@@ -288,9 +288,9 @@ export class CanvasController {
         ctx.fillRect(x, y, 1, 1);
       }
     } else if (props.tool === TOOL.BUCKET) {
-      const image = ctx.getImageData(0, 0, props.size.height, props.size.width);
+      const image = ctx.getImageData(0, 0, props.size.width, props.size.height);
       const imageData = this.floodFill(props, { x, y }, image.data);
-      ctx.putImageData(new ImageData(imageData, image.width), 0, 0);
+      ctx.putImageData(new ImageData(imageData, props.size.width, props.size.height), 0, 0);
     } else {
       // ignore other tools
     }
