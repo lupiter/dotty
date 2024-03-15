@@ -1,5 +1,5 @@
 import { TOOL } from "../tools/tools";
-import { Point, Geometry, Size } from "../color/geometry";
+import { Point, Geometry, Size, PointSet } from "../color/geometry";
 import { Color } from "../color/color";
 
 export type CanvasProps = {
@@ -103,32 +103,32 @@ export class CanvasController {
       return imageData;
     }
 
-    const matchStartColor = (pixelPos: number) => {
-      let col = Color.fromPixel(imageData.slice(pixelPos, pixelPos + 16));
+    const matchStartColor = (pixelPos: number, data: Uint8ClampedArray) => {
+      let col = Color.fromPixel(data.slice(pixelPos, pixelPos + 16));
       return col.hex === color.hex;
     };
-    const colorPixel = (pixelPos: number) => {
-      imageData[pixelPos] = props.color.r;
-      imageData[pixelPos + 1] = props.color.g;
-      imageData[pixelPos + 2] = props.color.b;
-      imageData[pixelPos + 3] = props.color.a;
+    const colorPixel = (data: Uint8ClampedArray, pixelPos: number, color: Color) => {
+      data[pixelPos] = color.r;
+      data[pixelPos + 1] = color.g;
+      data[pixelPos + 2] = color.b;
+      data[pixelPos + 3] = color.a;
     };
 
-    let pixelStack = [point];
+    let pixelStack = new PointSet([point]);
     let width = props.size.width;
     let height = props.size.height;
     let reachLeft: boolean;
     let reachRight: boolean;
     while (
-      pixelStack.length > 0 &&
-      pixelStack.length <= props.size.width * props.size.height
+      pixelStack.size > 0 &&
+      pixelStack.size <= props.size.width * props.size.height
     ) {
       const newPos = pixelStack.pop()!;
       let x = newPos.x;
       let y = newPos.y; // get current pixel position
       let pixelPos = (y * width + x) * 4;
       // Go up as long as the color matches and are inside the canvas
-      while (y >= 0 && matchStartColor(pixelPos)) {
+      while (y >= 0 && matchStartColor(pixelPos, imageData)) {
         y--;
         pixelPos -= width * 4;
       }
@@ -139,13 +139,13 @@ export class CanvasController {
       reachRight = false;
 
       // Go down as long as the color matches and in inside the canvas
-      while (y < height && matchStartColor(pixelPos)) {
-        colorPixel(pixelPos);
+      while (y < height && matchStartColor(pixelPos, imageData)) {
+        colorPixel(imageData, pixelPos, props.color);
         if (x > 0) {
-          if (matchStartColor(pixelPos - 4)) {
+          if (matchStartColor(pixelPos - 4, imageData)) {
             if (!reachLeft) {
               //Add pixel to stack
-              pixelStack.push({ x: x - 1, y });
+              pixelStack.add({ x: x - 1, y });
               reachLeft = true;
             }
           } else if (reachLeft) {
@@ -153,10 +153,10 @@ export class CanvasController {
           }
         }
         if (x < width - 1) {
-          if (matchStartColor(pixelPos + 4)) {
+          if (matchStartColor(pixelPos + 4, imageData)) {
             if (!reachRight) {
               // Add pixel to stack
-              pixelStack.push({ x: x + 1, y });
+              pixelStack.add({ x: x + 1, y });
               reachRight = true;
             }
           } else if (reachRight) {

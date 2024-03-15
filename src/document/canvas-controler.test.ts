@@ -10,7 +10,7 @@ const arrayOf = (
   height: number
 ): Uint8ClampedArray => {
   return new Uint8ClampedArray(
-    Array(width * height).fill([color.r, color.g, color.b, color.a])
+    Array(width * height * 4).fill([color.r, color.g, color.b, color.a])
   );
 };
 

@@ -1,5 +1,32 @@
 export type Point = { x: number; y: number };
 
+export class PointSet {
+  private _points: Point[];
+
+  constructor(values?: readonly Point[] | null) {
+    if (values) {
+      this._points = values.slice();
+    } else {
+      this._points = [];
+    }
+  }
+
+  add(point: Point): void {
+    const match = this._points.find(p => p.x === point.x && p.y === point.y);
+    if (!match) {
+      this._points.push(point);
+    }
+  }
+
+  pop(): Point | undefined {
+    return this._points.pop();
+  }
+
+  get size(): number {
+    return this._points.length;
+  }
+}
+
 export type Size = { width: number; height: number };
 
 export class Geometry {
