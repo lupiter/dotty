@@ -1,7 +1,7 @@
 import { ModalContentProps } from "./modal-content";
 import modalContentsStyles from "./modal-contents.module.css";
 import buttonStyle from "../button/button.module.css";
-import { useId } from "react";
+import { useId, useState } from "react";
 
 export enum PIXEL_SHAPE {
   SQUARE,
@@ -19,10 +19,16 @@ export function ViewOptions(
     onStateChange: (state: ViewOptionsState) => void
   }
 ) {
+  const [state, setState] = useState(props.state);
   const pixelShape = useId();
   const pixelShapeSquare = useId();
   const pixelShapeThreeFour = useId();
   const pixelShapeKnit = useId();
+
+  const onChange = (shape: PIXEL_SHAPE) => {
+    props.onStateChange({...props.state, shape})
+    setState({...state, shape})
+  }
   
   return (
     <>
@@ -38,8 +44,8 @@ export function ViewOptions(
             type="radio"
             name={pixelShape}
             value={PIXEL_SHAPE.SQUARE}
-            checked={props.state.shape === PIXEL_SHAPE.SQUARE}
-            onChange={() => props.onStateChange({...props.state, shape: PIXEL_SHAPE.SQUARE})}
+            checked={state.shape === PIXEL_SHAPE.SQUARE}
+            onChange={() => onChange(PIXEL_SHAPE.SQUARE)}
           />
           <label htmlFor={pixelShapeSquare}>Square</label>
           <input
@@ -48,8 +54,8 @@ export function ViewOptions(
             type="radio"
             name={pixelShape}
             value={PIXEL_SHAPE.THREE_FOUR}
-            checked={props.state.shape === PIXEL_SHAPE.THREE_FOUR}
-            onChange={() => props.onStateChange({...props.state, shape: PIXEL_SHAPE.THREE_FOUR})}
+            checked={state.shape === PIXEL_SHAPE.THREE_FOUR}
+            onChange={() => onChange(PIXEL_SHAPE.THREE_FOUR)}
           />
           <label htmlFor={pixelShapeThreeFour}>4:3</label>
           <input
@@ -58,8 +64,8 @@ export function ViewOptions(
             type="radio"
             name={pixelShape}
             value={PIXEL_SHAPE.KNIT}
-            checked={props.state.shape === PIXEL_SHAPE.KNIT}
-            onChange={() => props.onStateChange({...props.state, shape: PIXEL_SHAPE.KNIT})}
+            checked={state.shape === PIXEL_SHAPE.KNIT}
+            onChange={() => onChange(PIXEL_SHAPE.KNIT)}
           />
           <label htmlFor={pixelShapeKnit}>Knitting</label>
         </fieldset>

@@ -179,12 +179,13 @@ function Dotty() {
     );
   };
 
+  const onViewOptionsStateChange = (viewState: ViewOptionsState) => {
+    setState({...state, pixelShape: viewState.shape, ModalContent: ViewOptionsModal});
+  };
   const ViewOptionsModal = (modalProps: ModalContentProps): JSX.Element => {
-    const onStateChange = (viewState: ViewOptionsState) => {
-      setState({...state, pixelShape: viewState.shape});
-    };
+    console.log(state.pixelShape);
     return (
-      <ViewOptions onClose={modalProps.onClose} state={{shape: state.pixelShape}} onStateChange={onStateChange} />
+      <ViewOptions onClose={modalProps.onClose} state={{shape: state.pixelShape}} onStateChange={onViewOptionsStateChange} />
     )
   }
 
