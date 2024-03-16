@@ -9,7 +9,8 @@ Hard Problems
 * iOS colour picker causes lots of colours in palette
 
 TODO Technical
-* More than 2 unit tests
+* Selecting a view mode causes modal to close
 
 TODO Features
 * Bulk import from backup
+* Delete files

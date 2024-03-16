@@ -93,7 +93,7 @@ export function Export(
         <legend>Size</legend>
 
         {exportSizeOptions.map((option) => (
-          <span className={modalContentsStyles.fieldset}>
+          <span className={modalContentsStyles.fieldset} key={option.id}>
             <input
               id={option.id}
               className={modalContentsStyles.input}

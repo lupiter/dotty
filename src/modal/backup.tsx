@@ -3,7 +3,7 @@ import buttonStyle from "../button/button.module.css";
 import { ModalContentProps } from "./modal-content";
 import { useEffect, useState } from "react";
 import { FilePreview, getFiles } from "../file-management/file-management";
-import * as JSZip from "jszip";
+import { downloadZip } from "client-zip";
 
 type BackupState = {
   zip?: string;
@@ -17,16 +17,15 @@ export function Backup(props: ModalContentProps) {
   useEffect(() => {
     async function setFiles() {
       const files = await getFiles();
-      const zipper = new JSZip();
-      files.forEach(file => {
-        zipper.file(file.meta.name, file.preview.split("base64,")[1], {base64: true});
-      })
-      const archive = await zipper.generateAsync({type: "base64"});
+      const fileData = await Promise.all(files.map(async file => {
+        return {name: file.meta.name, input: await fetch(file.preview).then(r => r.blob())}
+      }));
+      const archive = await downloadZip(fileData).blob()
     
       setState({
         ...state,
         files: files,
-        zip: "data:application/zip;base64," + archive,
+        zip:  URL.createObjectURL(archive),
       });
     }
     if (!state.zip) {
