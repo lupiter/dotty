@@ -1,6 +1,7 @@
 import { TOOL } from "../tools/tools";
 import { Point, Geometry, Size, PointSet } from "../color/geometry";
 import { Color } from "../color/color";
+import { PIXEL_SHAPE } from "../modal/view-options";
 
 export type CanvasProps = {
   size: Size;
@@ -14,6 +15,7 @@ export type CanvasProps = {
   onZoomChange: (zoom: number) => void;
   onUndoTick: (data: string) => void;
   data: string;
+  pixelShape: PIXEL_SHAPE;
 };
 
 export type CanvasState = {
@@ -99,13 +101,16 @@ export class CanvasController {
     let pixel = imageData.slice(start, start + 16);
     // exit if color is the same
     let color = Color.fromPixel(pixel);
-    if (props.color.hex === color.hex) {
+    if (props.color.hexWithAlpha === color.hexWithAlpha) {
+      console.log(`shorcut, ${color.hexWithAlpha} already matches ${props.color.hexWithAlpha}`);
       return imageData;
+    } else {
+      console.log(`fill! ${color.hexWithAlpha} to ${props.color.hexWithAlpha}`);
     }
 
     const matchStartColor = (pixelPos: number, data: Uint8ClampedArray) => {
       let col = Color.fromPixel(data.slice(pixelPos, pixelPos + 16));
-      return col.hex === color.hex;
+      return col.hexWithAlpha === color.hexWithAlpha;
     };
     const colorPixel = (data: Uint8ClampedArray, pixelPos: number, color: Color) => {
       data[pixelPos] = color.r;

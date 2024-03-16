@@ -22,6 +22,7 @@ import { SaveAs } from "./modal/save-as";
 import FileWorker from "./worker/file.worker?worker";
 import { DottyState } from "./state";
 import { keyboardShortcut } from "./keyboard/shortcuts";
+import { PIXEL_SHAPE, ViewOptions, ViewOptionsState } from "./modal/view-options";
 
 const fileWorker = new FileWorker();
 
@@ -43,6 +44,7 @@ function Dotty() {
     ],
     paletteLimit: PALETTE.FULL,
     paletteLocked: false,
+    pixelShape: PIXEL_SHAPE.SQUARE,
   });
 
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -176,6 +178,15 @@ function Dotty() {
       />
     );
   };
+
+  const ViewOptionsModal = (modalProps: ModalContentProps): JSX.Element => {
+    const onStateChange = (viewState: ViewOptionsState) => {
+      setState({...state, pixelShape: viewState.shape});
+    };
+    return (
+      <ViewOptions onClose={modalProps.onClose} state={{shape: state.pixelShape}} onStateChange={onStateChange} />
+    )
+  }
 
   const onNew = async (size: Size, title: string) => {
     const root = await navigator.storage.getDirectory();
@@ -360,6 +371,7 @@ function Dotty() {
         PaletteLimitModal={PaletteLimitModal}
         OpenModal={OpenModal}
         SaveAsModal={SaveAsModal}
+        ViewOptionsModal={ViewOptionsModal}
         save={onSave}
       />
       <Document
@@ -381,6 +393,7 @@ function Dotty() {
               onPanChange={onPanChange}
               onUndoTick={onUndoTick}
               data={state.undo.current}
+              pixelShape={state.pixelShape}
             />
           </div>
         </div>

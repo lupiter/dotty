@@ -2,6 +2,7 @@ import { Color } from "./color/color";
 import { Point, Size } from "./color/geometry";
 import { UndoState } from "./document/undo-manager";
 import { PALETTE } from "./modal/palette-limit";
+import { PIXEL_SHAPE } from "./modal/view-options";
 import { TOOL } from "./tools/tools";
 
 
@@ -21,4 +22,5 @@ export type DottyState = {
   paletteLimit: PALETTE;
   paletteLocked: boolean;
   file?: FileSystemFileHandle;
+  pixelShape: PIXEL_SHAPE;
 };

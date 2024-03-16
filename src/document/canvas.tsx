@@ -3,6 +3,7 @@ import styles from "./canvas.module.css";
 import { Point } from "../color/geometry";
 import { CanvasProps, CanvasController, CanvasState } from "./canvas-controler";
 import { TOOL } from "../tools/tools";
+import { PIXEL_SHAPE } from "../modal/view-options";
 
 export function Canvas(props: CanvasProps) {
   const [state, setState] = useState<CanvasState>({
@@ -175,8 +176,8 @@ export function Canvas(props: CanvasProps) {
   const translate = `${props.pan.x}px ${props.pan.y}px`;
   const scale = `${state.scale}`;
   const height = `${props.size.height * props.zoom}px`;
-  const width = `${props.size.width * props.zoom}px`;
-  const backgroundSize = `${props.zoom * 2}px`;
+  const width = `${props.size.width * props.zoom * (props.pixelShape === PIXEL_SHAPE.SQUARE ? 1 : 1.333)}px`;
+  const backgroundSize = `${props.zoom * 2 * (props.pixelShape === PIXEL_SHAPE.SQUARE ? 1 : 1.333)}px`;
   const moveTranslate =
     state.translate &&
     `${state.translate.x * props.zoom}px ${state.translate.y * props.zoom}px`;
@@ -194,8 +195,22 @@ export function Canvas(props: CanvasProps) {
         onTouchStart={onTouchStart}
         onTouchMove={onTouchMove}
         onTouchEnd={onTouchEnd}
-        style={{ translate, scale, height, width, backgroundSize }}
+        style={{ 
+          translate, 
+          scale, 
+          height, 
+          width, 
+          backgroundSize
+        }}
       />
+
+      <div className={`${styles.canvasOverlay} ${props.pixelShape === PIXEL_SHAPE.THREE_FOUR ? styles.threeFourOverlay : props.pixelShape === PIXEL_SHAPE.KNIT ? styles.knitOverlay : styles.squareOverlay}`}
+        style={{
+          width,
+          height,
+          backgroundSize,
+        }}
+        />
 
       {props.tool === TOOL.MOVE && (
         <canvas

@@ -42,6 +42,7 @@ type MenuBarProps = {
   PaletteLimitModal: (props: ModalContentProps) => JSX.Element;
   SaveAsModal: (props: ModalContentProps) => JSX.Element;
   OpenModal: (props: ModalContentProps) => JSX.Element;
+  ViewOptionsModal: (props: ModalContentProps) => JSX.Element;
 };
 
 type MenuBarState = {
@@ -196,6 +197,11 @@ export function MenuBar(props: MenuBarProps) {
           shortcut="⇧ ⌘ ="
           onClick={props.zoomFit}
         />
+        <MenuOption
+        label="Options"
+        hasChildren={true}
+        onClick={() => props.modalOpen(props.ViewOptionsModal)}
+      />
       </Menu>
     </menu>
   );
