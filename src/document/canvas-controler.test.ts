@@ -3,6 +3,7 @@ import { CanvasController, CanvasProps, CanvasState } from "./canvas-controler";
 import { Point } from "../color/geometry";
 import { TOOL } from "../tools/tools";
 import { Color } from "../color/color";
+import { PIXEL_SHAPE } from "../modal/view-options";
 
 const arrayOf = (
   color: Color,
@@ -10,7 +11,7 @@ const arrayOf = (
   height: number
 ): Uint8ClampedArray => {
   return new Uint8ClampedArray(
-    Array(width * height * 4).fill([color.r, color.g, color.b, color.a])
+    Array(width * height * 4).fill(0).map((_, i) => [color.r, color.g, color.b, color.a][i % 4])
   );
 };
 
@@ -26,7 +27,7 @@ describe("flood", () => {
     const props: CanvasProps = {
       size: { width: 2, height: 2 },
       tool: TOOL.BUCKET,
-      color: new Color(0, 0, 0, 256),
+      color: new Color(0, 0, 0, 255),
       setScroll: () => {},
       onColorChange: () => {},
       zoom: 1,
@@ -35,6 +36,7 @@ describe("flood", () => {
       onZoomChange: () => {},
       onUndoTick: () => {},
       data: "",
+      pixelShape: PIXEL_SHAPE.SQUARE,
     };
     const point = { x: 0, y: 0 };
     const data = CanvasController.floodFill(
@@ -49,7 +51,7 @@ describe("flood", () => {
     const props: CanvasProps = {
       size: { width: 2, height: 8 },
       tool: TOOL.BUCKET,
-      color: new Color(0, 0, 0, 256),
+      color: new Color(0, 0, 0, 255),
       setScroll: () => {},
       onColorChange: () => {},
       zoom: 1,
@@ -58,6 +60,7 @@ describe("flood", () => {
       onZoomChange: () => {},
       onUndoTick: () => {},
       data: "",
+      pixelShape: PIXEL_SHAPE.SQUARE,
     };
     const point = { x: 0, y: 0 };
     const data = CanvasController.floodFill(
@@ -72,7 +75,7 @@ describe("flood", () => {
     const props: CanvasProps = {
       size: { width: 24, height: 80 },
       tool: TOOL.BUCKET,
-      color: new Color(0, 0, 0, 256),
+      color: new Color(0, 0, 0, 255),
       setScroll: () => {},
       onColorChange: () => {},
       zoom: 1,
@@ -81,6 +84,7 @@ describe("flood", () => {
       onZoomChange: () => {},
       onUndoTick: () => {},
       data: "",
+      pixelShape: PIXEL_SHAPE.SQUARE,
     };
     const point = { x: 20, y: 70 };
     const data = CanvasController.floodFill(
@@ -95,7 +99,7 @@ describe("flood", () => {
     const props: CanvasProps = {
       size: { width: 24, height: 80 },
       tool: TOOL.BUCKET,
-      color: new Color(0, 0, 0, 256),
+      color: new Color(0, 0, 0, 255),
       setScroll: () => {},
       onColorChange: () => {},
       zoom: 1,
@@ -104,6 +108,7 @@ describe("flood", () => {
       onZoomChange: () => {},
       onUndoTick: () => {},
       data: "",
+      pixelShape: PIXEL_SHAPE.SQUARE,
     };
     const point = { x: 20, y: 70 };
     const data = CanvasController.floodFill(
@@ -111,17 +116,17 @@ describe("flood", () => {
       point,
       join(
         arrayOf(new Color(255, 255, 255, 255), 24, 40),
-        arrayOf(new Color(0, 0, 0, 255), 24, 40)
+        arrayOf(new Color(255, 0, 0, 255), 24, 40)
       )
     );
-    expect(data).toEqual(arrayOf(new Color(0, 0, 0, 255), 24, 80));
+    expect(data).toEqual(join(arrayOf(new Color(255, 255, 255, 255), 24, 40), arrayOf(new Color(0, 0, 0, 255), 24, 40)));
   });
 
   test("24x40, sample", () => {
     const props: CanvasProps = {
       size: { width: 24, height: 40 },
       tool: TOOL.BUCKET,
-      color: new Color(0, 0, 0, 256),
+      color: new Color(0, 0, 0, 255),
       setScroll: () => {},
       onColorChange: () => {},
       zoom: 1,
@@ -130,6 +135,7 @@ describe("flood", () => {
       onZoomChange: () => {},
       onUndoTick: () => {},
       data: "",
+      pixelShape: PIXEL_SHAPE.SQUARE,
     };
     const point = { x: 23, y: 39 };
 const sample = [
