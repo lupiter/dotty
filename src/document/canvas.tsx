@@ -51,8 +51,15 @@ export function Canvas(props: CanvasProps) {
     }
     setState({ ...state, mousedown: true });
     // console.log("onStart", offset);
-    CanvasController.paint(props, canvasRef.current?.getContext("2d")!, offset);
+    CanvasController.paint(props, canvasRef.current?.getContext("2d")!, adjustPointForPixelShape(offset));
   };
+
+  const adjustPointForPixelShape = (point: Point): Point => {
+    if (props.pixelShape === PIXEL_SHAPE.SQUARE) {
+      return point;
+    }
+    return {y: point.y, x: point.x/1.333}
+  }
 
   const onMouseStart = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
     onStart({ x: e.nativeEvent.offsetX, y: e.nativeEvent.offsetY });
@@ -81,7 +88,7 @@ export function Canvas(props: CanvasProps) {
     }
     const ctx = canvasRef.current?.getContext("2d");
     // console.log("onMove", offset);
-    CanvasController.paint(props, ctx!, offset);
+    CanvasController.paint(props, ctx!, adjustPointForPixelShape(offset));
   };
 
   const onMouseMove = (e: React.MouseEvent<HTMLCanvasElement, MouseEvent>) => {
@@ -108,7 +115,7 @@ export function Canvas(props: CanvasProps) {
     const ctx = canvasRef.current?.getContext("2d");
 
     if (props.tool === TOOL.DROPPER && offset) {
-      CanvasController.pickColor(props, offset, ctx!);
+      CanvasController.pickColor(props, adjustPointForPixelShape(offset), ctx!);
     }
 
     undoTick();
