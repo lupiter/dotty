@@ -202,7 +202,6 @@ describe("flood fill edge cases", () => {
     const whiteData = arrayOf(whiteColor, 4, 4);
     data.set(whiteData);
     // Set middle black square
-    const point = { x: 1, y: 1 };
     for (let y = 1; y <= 2; y++) {
       for (let x = 1; x <= 2; x++) {
         const pos = (y * 4 + x) * 4;

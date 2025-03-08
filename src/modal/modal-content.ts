@@ -1,3 +1,4 @@
+import { JSX } from "react";
 
 export type ModalContentProps = {
   onClose(): void;
