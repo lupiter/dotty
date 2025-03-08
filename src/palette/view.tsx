@@ -1,39 +1,40 @@
-import { ChangeEvent, useState } from "react";
+import { ChangeEvent } from "react";
 import styles from "./palette.module.css";
 import { PALETTE, paletteLabel } from "../modal/palette-limit";
 import { Color } from "../color/color";
 import lockIcon from "../assets/lock.png";
+import { PaletteModel } from "./model";
+import { PaletteController } from "./controller";
 
-type PaletteState = {
-  history: Color[];
-};
-
-export function Palette(props: {
+interface PaletteProps {
   color: Color;
   onColorChange: (color: Color) => void;
   palette: Color[];
   limit: PALETTE;
   locked: boolean;
-}) {
-  const [state, setState] = useState<PaletteState>({
-    history: [],
-  });
+  model: PaletteModel;
+  controller: PaletteController;
+}
 
-  const setColor = (color: Color) => {
-    if (
-      props.locked &&
-      !props.palette.includes(color) &&
-      !state.history.includes(color)
-    ) {
-      return;
-    }
-    const history = [props.color, ...state.history];
-    setState({ ...state, history: Color.dedupe(history) });
-    props.onColorChange(color.limit(props.limit));
+export function PaletteView(props: PaletteProps) {
+  const updateColor = (e: ChangeEvent<HTMLInputElement>) => {
+    props.controller.handleInputChange(
+      e,
+      props.locked,
+      props.palette,
+      props.limit,
+      props.onColorChange
+    );
   };
 
-  const updateColor = (e: ChangeEvent<HTMLInputElement>) => {
-    setColor(Color.fromHex(e.target.value));
+  const handleColorClick = (color: Color) => {
+    props.controller.handleColorChange(
+      color,
+      props.locked,
+      props.palette,
+      props.limit,
+      props.onColorChange
+    );
   };
 
   return (
@@ -41,7 +42,7 @@ export function Palette(props: {
       <div className={styles.active}>
         <input
           type="color"
-          aria-label={`Current color`}
+          aria-label="Current color"
           onChange={updateColor}
           value={props.color.hex}
           className={styles.input}
@@ -51,13 +52,13 @@ export function Palette(props: {
         )}
       </div>
       <div className={styles.chips}>
-        {state.history.length > 0 && (
+        {props.model.getHistory().length > 0 && (
           <div className={styles.history}>
-            {state.history.map((color) => (
+            {props.model.getHistory().map((color) => (
               <button
                 className={styles.colorChip}
                 style={{ color: color.hex, backgroundColor: color.hex }}
-                onClick={() => setColor(color)}
+                onClick={() => handleColorClick(color)}
                 key={color.hex}
               >
                 {color.hex}
@@ -71,7 +72,7 @@ export function Palette(props: {
             <button
               className={styles.colorChip}
               style={{ color: color.hex, backgroundColor: color.hex }}
-              onClick={() => setColor(color)}
+              onClick={() => handleColorClick(color)}
               key={color.hex}
             >
               {color.hex}
@@ -87,4 +88,4 @@ export function Palette(props: {
       )}
     </div>
   );
-}
+} 

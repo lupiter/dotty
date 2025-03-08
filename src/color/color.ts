@@ -2,6 +2,16 @@ import { PALETTE } from "../modal/palette-limit";
 
 export class Color {
   static fromHex(hex: string): Color {
+    // Validate hex format
+    if (!/^#([A-Fa-f0-9]{3}|[A-Fa-f0-9]{6})$/.test(hex)) {
+      throw new Error('Invalid hex color format');
+    }
+
+    // Handle shorthand hex (#RGB -> #RRGGBB)
+    if (hex.length === 4) {
+      hex = '#' + hex[1] + hex[1] + hex[2] + hex[2] + hex[3] + hex[3];
+    }
+
     const bigint = parseInt(hex.slice(1), 16);
     const r = (bigint >> 16) & 255;
     const g = (bigint >> 8) & 255;
@@ -10,6 +20,11 @@ export class Color {
   }
 
   static fromHexWithAlpha(hex: string): Color {
+    // Validate hex+alpha format
+    if (!/^#[A-Fa-f0-9]{8}$/.test(hex)) {
+      throw new Error('Invalid hex color with alpha format');
+    }
+
     const bigint = parseInt(hex.slice(1), 16);
     const r = (bigint >> 24) & 255;
     const g = (bigint >> 16) & 255;
@@ -19,15 +34,32 @@ export class Color {
   }
 
   static fromPixel(imageData: Uint8ClampedArray): Color {
+    // Validate pixel array
+    if (imageData.length < 4) {
+      throw new Error('Invalid pixel data: requires at least 4 components (RGBA)');
+    }
+
     return new Color(imageData[0], imageData[1], imageData[2], imageData[3]);
   }
 
   constructor(
-    public readonly r: number,
-    public readonly g: number,
-    public readonly b: number,
-    public readonly a: number
-  ) {}
+    r: number,
+    g: number,
+    b: number,
+    a: number
+  ) {
+    // Clamp values to 0-255 range
+    this.r = Math.min(255, Math.max(0, Math.round(r)));
+    this.g = Math.min(255, Math.max(0, Math.round(g)));
+    this.b = Math.min(255, Math.max(0, Math.round(b)));
+    this.a = Math.min(255, Math.max(0, Math.round(a)));
+  }
+
+  // Make r, g, b, a readonly after clamping in constructor
+  readonly r: number;
+  readonly g: number;
+  readonly b: number;
+  readonly a: number;
 
   static roundTo(component: number, possibilities: number[]): number {
     return possibilities.reduce((prev, curr) => {

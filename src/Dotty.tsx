@@ -48,6 +48,7 @@ function Dotty() {
   });
 
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const innerWrapperRef = useRef<HTMLDivElement>(null);
 
   const onClear = () => {
     onUndoTick("");
@@ -75,13 +76,14 @@ function Dotty() {
   const zoomFit = () => {
     let zoom: number;
     const wrapper = wrapperRef.current;
-    if (!wrapper) {
+    const innerWrapper = innerWrapperRef.current;
+    if (!wrapper || !innerWrapper) {
       return;
     }
     console.log(
-      `canvas: zoom reset; wrapper offset w: ${wrapper.offsetWidth} h ${wrapper.offsetHeight}; document w: ${state.size.width} h: ${state.size.height}`
+      `canvas: zoom reset; wrapper offset w: ${wrapper.offsetWidth} h ${wrapper.offsetHeight}; inner w: ${innerWrapper.offsetWidth} h ${innerWrapper.offsetHeight}; document w: ${state.size.width} h: ${state.size.height}`
     );
-    if (wrapper.offsetWidth < wrapper.offsetHeight) {
+    if (wrapper.offsetWidth > wrapper.offsetHeight) {
       zoom = Math.floor(wrapper.offsetWidth / state.size.width); // * 10) / 10;
     } else {
       zoom = Math.floor(wrapper.offsetHeight / state.size.height); // * 10) / 10;
@@ -381,7 +383,7 @@ function Dotty() {
         title={state.title}
       >
         <div className={styles.wrapper} ref={wrapperRef}>
-          <div className={styles.inner}>
+          <div className={styles.inner} ref={innerWrapperRef}>
             <Canvas
               size={state.size}
               color={state.color}
