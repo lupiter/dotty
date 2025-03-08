@@ -4,7 +4,7 @@ import style from "./menubar.module.css";
 import { MenuOption } from "./menuoption/menu-option";
 import { MenuSeparator } from "./separator";
 import logo from "../assets/logo.png";
-import { useState } from "react";
+import { JSX, useState } from "react";
 import { CheckMenuOption } from "./menuoption/check-menu-option";
 import { ModalContentProps } from "../modal/modal-content";
 import { Backup } from "../modal/backup";

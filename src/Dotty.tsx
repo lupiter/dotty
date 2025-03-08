@@ -1,8 +1,8 @@
 import { MenuBar } from "./menubar/menubar";
 import { Document } from "./document/document";
 import { TOOL, Tools } from "./tools/tools";
-import { Palette } from "./palette/palette";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { installPalette } from "./palette/install";
+import { JSX, useEffect, useMemo, useRef, useState } from "react";
 import { Modal } from "./modal/modal";
 import { UndoManager } from "./document/undo-manager";
 import { Canvas } from "./document/canvas";
@@ -345,6 +345,8 @@ function Dotty() {
     document.onkeydown = onKeyDown;
   });
 
+  const Palette = () => installPalette({...state, onColorChange, limit: state.paletteLimit, locked: state.paletteLocked});
+
   return (
     <div className={styles.root}>
       {state.ModalContent && (
@@ -412,13 +414,7 @@ function Dotty() {
         onToolChange={onToolChange}
         tool={state.tool}
       />
-      <Palette
-        onColorChange={onColorChange}
-        color={state.color}
-        palette={state.palette}
-        limit={state.paletteLimit}
-        locked={state.paletteLocked}
-      />
+      <Palette />
     </div>
   );
 }

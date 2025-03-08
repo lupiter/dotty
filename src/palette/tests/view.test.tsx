@@ -1,10 +1,10 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, fireEvent, screen } from '@testing-library/react';
-import { PaletteView } from './view';
-import { PaletteModel } from './model';
-import { PaletteController } from './controller';
-import { Color } from '../color/color';
-import { PALETTE } from '../modal/palette-limit';
+import { PaletteView } from '../view';
+import { PaletteModel } from '../model';
+import { PaletteController } from '../controller';
+import { Color } from '../../color/color';
+import { PALETTE } from '../../modal/palette-limit';
 
 describe('PaletteView', () => {
   const setupTest = () => {

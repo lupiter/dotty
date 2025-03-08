@@ -1,8 +1,8 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { PaletteController } from './controller';
-import { PaletteModel } from './model';
-import { Color } from '../color/color';
-import { PALETTE } from '../modal/palette-limit';
+import { PaletteController } from '../controller';
+import { PaletteModel } from '../model';
+import { Color } from '../../color/color';
+import { PALETTE } from '../../modal/palette-limit';
 import type { ChangeEvent } from 'react';
 
 describe('PaletteController', () => {

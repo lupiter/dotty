@@ -1,3 +1,4 @@
+import { JSX } from 'react';
 import styles from './menu.module.css';
 
 export function Menu(props: {

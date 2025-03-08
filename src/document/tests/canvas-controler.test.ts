@@ -1,9 +1,9 @@
 import { describe, expect, test, vi } from "vitest";
-import { CanvasController, CanvasProps, CanvasState } from "./canvas-controler";
-import { Point } from "../color/geometry";
-import { TOOL } from "../tools/tools";
-import { Color } from "../color/color";
-import { PIXEL_SHAPE } from "../modal/view-options";
+import { CanvasController, CanvasProps, CanvasState } from "../canvas-controler";
+import { Point } from "../../color/geometry";
+import { TOOL } from "../../tools/tools";
+import { Color } from "../../color/color";
+import { PIXEL_SHAPE } from "../../modal/view-options";
 import { sample } from "./sample-canvas-data";
 
 const arrayOf = (

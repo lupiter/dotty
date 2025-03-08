@@ -1,5 +1,6 @@
 import styles from "./document.module.css";
 import { Size } from "../color/geometry";
+import { JSX } from "react";
 
 type DocumentProps = {
   active: boolean;

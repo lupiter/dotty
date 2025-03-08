@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { JSX, useEffect, useRef } from "react";
 import styles from "./modal.module.css";
 
 export function Modal(props: { children: JSX.Element; onClose: () => void }) {

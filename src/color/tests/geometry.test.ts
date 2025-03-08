@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Geometry, PointSet } from "./geometry";
+import { Geometry, PointSet } from "../geometry";
 
 class FakeTarget implements EventTarget {
   addEventListener(

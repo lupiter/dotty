@@ -1,5 +1,5 @@
 import { describe, expect, test } from "vitest";
-import { Color } from "./color";
+import { Color } from "../color";
 
 const red = Color.fromHex("#ff0000");
 const redAgain = Color.fromHex("#ff0000");

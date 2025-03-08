@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { PaletteModel } from './model';
-import { Color } from '../color/color';
+import { PaletteModel } from '../model';
+import { Color } from '../../color/color';
 
 describe('PaletteModel', () => {
   describe('getHistory', () => {

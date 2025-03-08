@@ -1,3 +1,4 @@
+import { JSX } from "react";
 import { Color } from "./color/color";
 import { Point, Size } from "./color/geometry";
 import { UndoState } from "./document/undo-manager";
