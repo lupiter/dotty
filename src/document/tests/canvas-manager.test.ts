@@ -1,5 +1,5 @@
 import { describe, expect, test, vi } from "vitest";
-import { CanvasController, CanvasProps, CanvasState } from "../canvas-controler";
+import { CanvasManager, CanvasProps, CanvasState } from "../canvas-manager";
 import { Point } from "../../color/geometry";
 import { TOOL } from "../../tools/tools";
 import { Color } from "../../color/color";
@@ -40,7 +40,7 @@ describe("flood", () => {
       pixelShape: PIXEL_SHAPE.SQUARE,
     };
     const point = { x: 0, y: 0 };
-    const data = CanvasController.floodFill(
+    const data = CanvasManager.floodFill(
       props,
       point,
       arrayOf(new Color(255, 255, 255, 255), 2, 2)
@@ -64,7 +64,7 @@ describe("flood", () => {
       pixelShape: PIXEL_SHAPE.SQUARE,
     };
     const point = { x: 0, y: 0 };
-    const data = CanvasController.floodFill(
+    const data = CanvasManager.floodFill(
       props,
       point,
       arrayOf(new Color(255, 255, 255, 255), 2, 8)
@@ -88,7 +88,7 @@ describe("flood", () => {
       pixelShape: PIXEL_SHAPE.SQUARE,
     };
     const point = { x: 20, y: 70 };
-    const data = CanvasController.floodFill(
+    const data = CanvasManager.floodFill(
       props,
       point,
       arrayOf(new Color(255, 255, 255, 255), 24, 80)
@@ -112,7 +112,7 @@ describe("flood", () => {
       pixelShape: PIXEL_SHAPE.SQUARE,
     };
     const point = { x: 20, y: 70 };
-    const data = CanvasController.floodFill(
+    const data = CanvasManager.floodFill(
       props,
       point,
       join(
@@ -141,7 +141,7 @@ describe("flood", () => {
     const point = { x: 23, y: 39 };
 
 
-    const data = CanvasController.floodFill(
+    const data = CanvasManager.floodFill(
       props,
       point,
       new Uint8ClampedArray(sample)
@@ -171,7 +171,7 @@ describe("flood fill edge cases", () => {
     };
     const point = { x: 0, y: 0 };
     const originalData = arrayOf(new Color(255, 255, 255, 255), 2, 2);
-    const data = CanvasController.floodFill(props, point, originalData);
+    const data = CanvasManager.floodFill(props, point, originalData);
     expect(data).toEqual(originalData);
   });
 
@@ -215,7 +215,7 @@ describe("flood fill edge cases", () => {
     
     // Fill from corner - should not affect black square
     const fillPoint = { x: 0, y: 0 };
-    const result = CanvasController.floodFill(props, fillPoint, data);
+    const result = CanvasManager.floodFill(props, fillPoint, data);
     
     // Verify black square remains unchanged
     for (let y = 1; y <= 2; y++) {
@@ -240,7 +240,7 @@ describe("move", () => {
     const point: Point = { x: 10, y: 10 };
     const origin: Point = { x: 0, y: 0 };
     const callback = vi.fn();
-    CanvasController.move(state, callback, point, origin);
+    CanvasManager.move(state, callback, point, origin);
     expect(callback).toHaveBeenCalledTimes(1);
     expect(callback).toHaveBeenCalledWith({
       mousedown: true,
@@ -262,7 +262,7 @@ describe("move", () => {
     const point: Point = { x: 0, y: 0 };
     const origin: Point = { x: 10, y: 10 };
     const callback = vi.fn();
-    CanvasController.move(state, callback, point, origin);
+    CanvasManager.move(state, callback, point, origin);
     expect(callback).toHaveBeenCalledTimes(1);
     expect(callback).toHaveBeenCalledWith({
       mousedown: true,
@@ -292,7 +292,7 @@ describe("move", () => {
     const point: Point = { x: 10, y: 10 };
     const origin: Point = { x: 0, y: 0 };
     const callback = vi.fn();
-    CanvasController.move(state, callback, point, origin);
+    CanvasManager.move(state, callback, point, origin);
     expect(callback).toHaveBeenCalledTimes(1);
     expect(callback).toHaveBeenCalledWith({
       mousedown: true,
@@ -334,13 +334,13 @@ describe("paint operations", () => {
     const mockFillRect = vi.spyOn(ctx, 'fillRect');
     
     // Should paint when in middle of pixel
-    CanvasController.paint(props, ctx, { x: 0.5, y: 0.5 });
+    CanvasManager.paint(props, ctx, { x: 0.5, y: 0.5 });
     expect(mockFillRect).toHaveBeenCalledTimes(1);
     
     mockFillRect.mockClear();
     
     // Should not paint when near edge of pixel
-    CanvasController.paint(props, ctx, { x: 0.1, y: 0.1 });
+    CanvasManager.paint(props, ctx, { x: 0.1, y: 0.1 });
     expect(mockFillRect).not.toHaveBeenCalled();
   });
 
@@ -366,7 +366,7 @@ describe("paint operations", () => {
     const ctx = canvas.getContext('2d')!;
     const mockClearRect = vi.spyOn(ctx, 'clearRect');
     
-    CanvasController.paint(props, ctx, { x: 3, y: 3 }); // With zoom=2, should clear at (1,1)
+    CanvasManager.paint(props, ctx, { x: 3, y: 3 }); // With zoom=2, should clear at (1,1)
     expect(mockClearRect).toHaveBeenCalledWith(1, 1, 1, 1);
   });
 });
@@ -392,7 +392,7 @@ describe("pan zoom operations", () => {
       { identifier: 2, pageX: 150, pageY: 0 }
     ]);
     
-    CanvasController.panZoom(state, setState, onPanChange, newTouches);
+    CanvasManager.panZoom(state, setState, onPanChange, newTouches);
     
     expect(setState).toHaveBeenCalledWith(expect.objectContaining({
       scale: expect.any(Number),
@@ -432,7 +432,7 @@ describe("pan zoom operations", () => {
       pixelShape: PIXEL_SHAPE.SQUARE,
     };
     
-    CanvasController.stopPanZoom(state, setState, props);
+    CanvasManager.stopPanZoom(state, setState, props);
     
     expect(setState).toHaveBeenCalledWith(expect.objectContaining({
       scale: 1.0,

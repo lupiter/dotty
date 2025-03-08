@@ -32,7 +32,7 @@ export const SINGLE_TRANSPARENT_PIXEL = "data:image/png;base64,iVBORw0KGgoAAAANS
 
 export type SetCanvasState = React.Dispatch<React.SetStateAction<CanvasState>>;
 
-export class CanvasController {
+export class CanvasManager {
   static panZoom(
     state: CanvasState,
     setState: SetCanvasState,

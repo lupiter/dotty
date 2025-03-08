@@ -3,7 +3,7 @@ import modalContentsStyles from "./modal-contents.module.css";
 import buttonStyle from "../button/button.module.css";
 import { ChangeEvent, useEffect, useId, useRef, useState } from "react";
 import { Point, Size } from "../color/geometry";
-import { SINGLE_TRANSPARENT_PIXEL } from "../document/canvas-controler";
+import { SINGLE_TRANSPARENT_PIXEL } from "../document/canvas-manager";
 
 export enum RESIZE_FROM {
   TOP_LEFT,
